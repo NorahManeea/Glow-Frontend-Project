@@ -1,12 +1,15 @@
 import axios from 'axios'
-import { getTokenFromStorage } from '../utils/token'
 
-const token = getTokenFromStorage()
-console.log('token:', token)
+const isDevelopment = import.meta.env.MODE === 'development'
+let baseURL = 'http://localhost:3000/'
+
+if (!isDevelopment) {
+  // Update this later when you have a working backend server
+  baseURL = 'http://localhost:3000/'
+}
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
-  headers: { Authorization: `Bearer ${token}` }
+  baseURL
 })
 
 export default api
