@@ -4,7 +4,7 @@
 
 ### Level 1: Basic Requirements
 
-Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS or MUI.
+Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS, TailWindCSS, or MUI.
 
 The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
 
