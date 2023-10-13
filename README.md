@@ -1,127 +1,140 @@
-# Frontend project
+# Project: Frontend for E-commerce Website or Library Management System
 
-## Expectation
+## Option 1: Library Management System
 
-### `Tech Stack:`
+### Level 1: Basic Requirements
 
-React, TypeScript and Redux. And for styling, choose whatever you like (ideally, something you already know.)
+Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS or MUI.
 
-### `Outcome:`
+The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
 
-Build a front end for an E-commerce or a Library System and deploy it.
+**Data Sources:**
 
-The Frontend should be talking to a mock data that stored locally in your project and later (in the fullstack project) you would plug it (to your backend.), refactor, and add more features(maybe).
+- Books: id, image, title, description,author, isAvailable, bookCopiesQty
+- Borrows: id, borrowerId, bookId, borrowDate, returnDate, dueDate
+- Category: id, name
+- Authors: id, name
+- Users (as visitor or admin): id, firstName, lastName, email, password, role (visitor or admin)
 
-## Assignment
+**Pages to Create:**
 
----
+1. Home page with a list of books
+2. Page to show detailed of book
+3. Admin Page
 
-### `Option 1`
+**Functionalities for a Visitor:**
 
-**A Library management system**
+- List of books
+- Filter books by status
+- Search by title or by author
+- Borrow a book
+- Return a borrowed book
 
-you have to have `at least` these data sources:
-(the properties that being mentioned below each data source are the minimum)
+**Functionalities for an Admin:**
 
-- Books
-  - ISBN
-  - title
-  - description
-  - publisher
-  - authors
-  - status: available or borrowed
-  - borrowerId
-  - publishedDate
-  - borrowDate
-  - returnDate
-- Authors
-  - name
-- Users (as visitor or admin)
-  - firstName (from google)
-  - lastName (from google)
-  - email (from google)
+- Add a new book, update info of a book, remove a book
 
-**Use cases:**
+**Deployment**
 
-Visitor can:
+- Deploy the application to Netlify and update the README file with the project information
 
-- login (using login via google)
-- explore list of books
-- filter and search
-- borrow a book
-- return a borrowed book
+### Level 2: Additional Requirements
 
-Admin can:
+**Authentication:**
 
-- add new book
-- update info of a book
-- remove a book
-- add a new author
-- update info of an author
-- remove an author
+- Implement register and login functionality via email and password
+- Protect the routes based on login and admin status
 
-PS. if you want to store some data, you could use LocalStorage for now.
+**Functionalities for an Admin:**
 
----
+- list all users, delete or block a user.
+- list all borrows
+- Add a new author, update info of an author, remove an author
 
-### `Option 2`
+**Form Validation:**
 
-**An E-commerce website**
+- Implement form validation.
 
-you have to have `at least` these data sources:
-(the properties that being mentioned are the minimum)
+### Level 3: Bonus Requirement (Optional)
 
-- Products
-  - id
-  - name
-  - description
-  - categories
-  - variants
-  - sizes
-- Orders
-  - productId
-  - userId
-  - purchasedAt
-- Users (as visitor or admin)
-  - firstName (from google)
-  - lastName (from google)
-  - email (from google)
+If you have a higher skill level and finish the previous requirements before the deadline, you can tackle the following bonus tasks:
 
-**Use cases:**
+- Messages, show loading, success, and error messages (e.g., when loading books list or adding new books)
+- Implement pagination feature
+- Create a Profile Page (only available if user logs in), implement editing user profile feature (user can change first name, last name)
 
-Visitor can:
+- Peer Review:
+- Review the code and implementation of 2 assignments from other participants.
+- Provide constructive feedback and suggestions for improvement.
 
-- login (using login via google)
-- explore list of products
-- filter and search
-- Add to a cart
-- checkout product/s
+`Please note that the bonus requirements and reviews are optional and can be completed if you have additional time and advanced skills.`
 
-Admin can:
-
-- add new product
-- update info of a product
-- remove a product
-- ban a user
-
-PS. if you want to store some data, you could use LocalStorage for now.
+Happy coding!
 
 ---
 
-## Way of working
+## Option 2: E-commerce Website
 
-Your task here is to prepare the UI part of it and its functionalities ie.
-you are working on the UI of adding new item
+### Level 1: Basic Requirements
 
-here's how to approach it:
+Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS or MUI.
 
-1. create the UI part (including form)
-2. handle the validation
-3. make sure the form is working and when you submit you get the new item
-4. send it to Redux and skip the part where you send a request (you will add it later) and return the new data to the state.
+The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
 
----
+**Data Sources:**
 
-## Lastly
+- Products: id, name, description, categories, variants, sizes
+- Categories: id, name
+- Orders: id, productId, userId, purchasedAt
+- Users: id, firstName, lastName, email, password, role (visitor or admin)
 
-Any additional features are welcome, like switching theme or other cool stuff. **but make sure you work on the required ones first.**
+**Pages to Create:**
+
+1. Home page (list all the products)
+2. Product page (contain the details of a product)
+3. Admin page
+
+**Functionalities for a Visitor:**
+
+- Get list of products
+- Filter products by categories or price
+- Search products by name
+- Add products to a cart
+- Remove products from a cart
+
+**Functionalities for an Admin:**
+
+- Add a new product, update info of a product, remove a product
+
+### Level 2: Additional Requirements
+
+**Authentication:**
+
+- Implement register and login functionality via email and password
+- Protect the routes based on login and admin status
+
+**Functionalities for an Admin:**
+
+- list all users, delete or block a user.
+- list all orders
+- Add a new category, update info of a category, remove a category
+
+**Form Validation:**
+
+- Implement form validation.
+
+### Level 3: Bonus Requirement (Optional)
+
+If you have a higher skill level and finish the previous requirements before the deadline, you can tackle the following bonus tasks:
+
+- Messages, show loading, success, and error messages (e.g., when loading products list or adding new product)
+- Implement pagination feature
+- Create a Profile Page (only available if user logs in), implement editing user profile feature (user can change first name, last name)
+
+- Peer Review:
+- Review the code and implementation of 2 assignments from other participants.
+- Provide constructive feedback and suggestions for improvement.
+
+`Please note that the bonus requirements and reviews are optional and can be completed if you have additional time and advanced skills.`
+
+Happy coding!
