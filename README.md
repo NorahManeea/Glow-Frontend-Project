@@ -12,7 +12,6 @@ The frontend interacts with mock data stored locally in the project. In the full
 
 - Books: id, image, title, description,author, isAvailable, bookCopiesQty
 - Borrows: id, borrowerId, bookId, borrowDate, returnDate, dueDate
-- Category: id, name
 - Authors: id, name
 - Users (as visitor or admin): id, firstName, lastName, email, password, role (visitor or admin)
 
