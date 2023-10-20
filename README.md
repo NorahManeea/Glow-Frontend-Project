@@ -1,17 +1,20 @@
 # Project: Frontend for E-commerce Website or Library Management System
 
+The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
+
+Please, do not spend time on creating your own server. use the files that are in the `./public/mock/*` We have the data ready for you. all you need is send an HTTP request to the resource. we also have an example on how to fetch all products and how to add one product. use them as a reference.
+
 ## Option 1: Library Management System
 
 ### Level 1: Basic Requirements
 
-Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS, TailwindCSS, or MUI.
-
-The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
+Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS or MUI.
 
 **Data Sources:**
 
 - Books: id, image, title, description,author, isAvailable, bookCopiesQty
 - Borrows: id, borrowerId, bookId, borrowDate, returnDate, dueDate
+- Category: id, name
 - Authors: id, name
 - Users (as visitor or admin): id, firstName, lastName, email, password, role (visitor or admin)
 
@@ -77,8 +80,6 @@ Happy coding!
 ### Level 1: Basic Requirements
 
 Tech Stack: React, TypeScript, and Redux/Redux Toolkit. Styling: CSS/SASS or MUI.
-
-The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
 
 **Data Sources:**
 
