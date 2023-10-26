@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function OrdersTable() {
+export default function ProfilePage() {
   return (
     <div>
       

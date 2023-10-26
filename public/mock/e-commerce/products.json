@@ -6,7 +6,8 @@
     "description": "High-performance laptop for all your needs.",
     "categories": [1, 2],
     "variants": ["8GB RAM", "16GB RAM"],
-    "sizes": ["13-inch", "15-inch"]
+    "sizes": ["13-inch", "15-inch"],
+    "price" : 196
   },
   {
     "id": 2,
@@ -15,7 +16,8 @@
     "description": "Latest smartphone with advanced features.",
     "categories": [1, 3],
     "variants": ["64GB", "128GB"],
-    "sizes": []
+    "sizes": [],
+    "price" : 390
   },
   {
     "id": 3,
@@ -24,7 +26,8 @@
     "description": "Compact and powerful tablet for work and entertainment.",
     "categories": [1, 2],
     "variants": ["32GB", "64GB"],
-    "sizes": ["10-inch", "12-inch"]
+    "sizes": ["10-inch", "12-inch"],
+    "price" : 221
   },
   {
     "id": 4,
@@ -33,7 +36,8 @@
     "description": "Next-gen gaming console for immersive gameplay.",
     "categories": [4],
     "variants": ["500GB", "1TB"],
-    "sizes": []
+    "sizes": [],
+    "price" : 390
   },
   {
     "id": 5,
@@ -42,7 +46,8 @@
     "description": "High-resolution camera for capturing memories.",
     "categories": [5],
     "variants": ["24MP", "36MP"],
-    "sizes": []
+    "sizes": [],
+    "price" : 198
   },
   {
     "id": 6,
@@ -51,7 +56,8 @@
     "description": "Track your health and fitness goals with this smart tracker.",
     "categories": [6],
     "variants": ["Small", "Large"],
-    "sizes": []
+    "sizes": [],
+    "price" : 198
   },
   {
     "id": 7,
@@ -60,7 +66,8 @@
     "description": "Create a cinematic experience at home with this system.",
     "categories": [7],
     "variants": ["5.1 Surround Sound", "7.1 Surround Sound"],
-    "sizes": []
+    "sizes": [],
+    "price" : 272
   },
   {
     "id": 8,
@@ -69,7 +76,8 @@
     "description": "Brew your favorite coffee at home with ease.",
     "categories": [8],
     "variants": ["Single Serve", "Drip Coffee Maker"],
-    "sizes": []
+    "sizes": [],
+    "price" : 293
   },
   {
     "id": 9,
@@ -78,7 +86,8 @@
     "description": "Portable speaker for music on the go.",
     "categories": [9],
     "variants": ["Black", "White"],
-    "sizes": []
+    "sizes": [],
+    "price" : 247
   },
   {
     "id": 10,
@@ -87,7 +96,8 @@
     "description": "Store and backup your data with high-capacity storage.",
     "categories": [10],
     "variants": ["1TB", "2TB"],
-    "sizes": []
+    "sizes": [],
+    "price" : 390
   },
   {
     "id": 11,
@@ -96,7 +106,8 @@
     "description": "Noise-cancelling headphones for immersive audio experience.",
     "categories": [9],
     "variants": ["Over-Ear", "In-Ear"],
-    "sizes": []
+    "sizes": [],
+    "price" : 486
   },
   {
     "id": 12,
@@ -105,6 +116,7 @@
     "description": "Stay connected and track your activities with this smartwatch.",
     "categories": [6],
     "variants": ["Titanium"],
-    "sizes": []
+    "sizes": [],
+    "price" : 390
   }
 ]

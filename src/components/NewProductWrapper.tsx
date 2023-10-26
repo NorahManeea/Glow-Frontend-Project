@@ -5,6 +5,7 @@ import { addProduct, Product } from '../redux/slices/products/productSlice'
 import { AppDispatch } from '../redux/store'
 
 import { ProductForm } from './ProductForm'
+import AdminSideBar from './admin/AdminSideBar'
 
 const initialProductState: Product = {
   id: 0,
@@ -13,7 +14,8 @@ const initialProductState: Product = {
   description: '',
   categories: [],
   variants: [],
-  sizes: []
+  sizes: [],
+  price: 0
 }
 
 export function NewProductWrapper() {
@@ -47,14 +49,30 @@ export function NewProductWrapper() {
     console.log('product:', product)
 
     dispatch(addProduct({ product }))
+
     // Reset the form
     setProduct(initialProductState)
   }
 
   return (
-    <div>
-      <h3 className="text-2xl font-bold">Add a new product</h3>
-      <ProductForm handleSubmit={handleSubmit} handleChange={handleChange} product={product} />
+    <div className="flex">
+      <AdminSideBar />
+      <div className="w-3/4 bg-white p-4">
+        <div className=" rounded-lg overflow-hidden mx-4 md:mx-10">
+          <div className="flex flex-1 items-center justify-center p-6">
+            <div className="w-full max-w-lg">
+              <div>
+                <h3 className="text-2xl font-bold">Add a new product</h3>
+                <ProductForm
+                  handleSubmit={handleSubmit}
+                  handleChange={handleChange}
+                  product={product}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

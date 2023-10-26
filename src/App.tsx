@@ -12,6 +12,15 @@ import ProductPage from './pages/products/ProductPage'
 import NotFound from './pages/notFound/NotFound'
 import ProductDetails from './components/products/ProductDetails'
 import HomePage from './pages/home/HomePage'
+import CartPage from './pages/cart/CartPage'
+import ProfilePage from './pages/profile/ProfilePage'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import OrdersTable from './components/admin/OrdersTable'
+import Category from './components/admin/CategoryTable'
+import UsersTable from './components/admin/UsersTable'
+import ProtectedRoutes from './routes/ProtectedRoutes'
+import ProductsTable from './components/admin/ProductsTable'
+import { NewProductWrapper } from './components/NewProductWrapper'
 
 function App() {
   return (
@@ -23,9 +32,23 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login pathName="/login" />} />
         <Route path="/register" element={<Register />} />
 
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/orders" element={<></>} />
+
+        {/* Admin Dashboard */}
+        <Route path="admin-dashboard">
+          <Route index element={<AdminDashboard />} />
+          <Route path="orders" element={<OrdersTable />} />
+          <Route path="users" element={<UsersTable />} />
+          <Route path="categories" element={<Category />} />
+          <Route path="products" element={<ProductsTable/>} />
+          <Route path="new-product" element={<NewProductWrapper/>} />
+
+        </Route>
         {/* Products Routes */}
         <Route path="products">
           <Route index element={<ProductPage />} />
