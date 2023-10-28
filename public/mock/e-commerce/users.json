@@ -5,7 +5,8 @@
     "lastName": "Doe",
     "email": "john.doe@example.com",
     "password": "hashed_password",
-    "role": "admin"
+    "role": "visitor",
+    "ban": false
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "lastName": "Smith",
     "email": "jane.smith@example.com",
     "password": "hashed_password",
-    "role": "visitor"
+    "role": "visitor",
+    "ban": false
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "lastName": "Johnson",
     "email": "david.johnson@example.com",
     "password": "hashed_password",
-    "role": "visitor"
+    "role": "visitor",
+    "ban": false
   },
   {
     "id": 4,
@@ -29,6 +32,7 @@
     "lastName": "Al",
     "email": "n@gmail.com",
     "password": "12345",
-    "role": "visitor"
+    "role": "admin",
+    "ban": false
   }
 ]

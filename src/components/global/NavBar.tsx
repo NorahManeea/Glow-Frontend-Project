@@ -5,22 +5,32 @@ import { userActions } from '../../redux/slices/users/userSlice'
 import { RootState } from '../../redux/store'
 import RightNavBar from './RightNavBar'
 import SecondNavBar from './SecondNavBar'
+import swal from 'sweetalert'
+import useUserState from '../../hooks/useUserState'
+import useProductState from '../../hooks/useProductState'
 
 export default function NavBar() {
-  const state = useSelector((state: RootState) => state)
-  const isLoggedIn = state.users.isLoggedIn
-  const userData = state.users.userData
+  const {isLoggedIn, userData} = useUserState()
+  const {cartLength} = useProductState()
 
-  const cartLength = state.products.cartLength
-
-  const navigate = useNavigate()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   // Logout
-  const handleLogout = () => {
-    dispatch(userActions.logout())
-    navigate('/login')
-  }
+  const logoutHandler = () => {
+    swal({
+      title: 'Logout',
+      text: 'Are you sure you want to logout?',
+      icon: 'warning',
+      dangerMode: true,
+      buttons: ['Cancel', 'Logout'],
+    }).then((isOk) => {
+      if (isOk) {
+        dispatch(userActions.logout());
+        navigate('/login')
+      }
+    });
+  };
   return (
     <header>
       <nav className="bg-black">
@@ -28,10 +38,8 @@ export default function NavBar() {
           <div className="relative flex h-16 items-center justify-between">
             <RightNavBar />
             <div className="absolute inset-y-0 right-0 gap-2 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              {isLoggedIn ? (
-                <>
-                  {/* Cart */}
-                  <Link to="/cart">
+                 {/* Cart */}
+                 <Link to="/cart">
                     <button
                       className="py-4 px-1 relative border-2 border-transparent  p-1 text-gray-400 hover:text-white rounded-full  focus:outline-none  transition duration-150 ease-in-out"
                       aria-label="Cart">
@@ -52,7 +60,8 @@ export default function NavBar() {
                       </span>
                     </button>
                   </Link>
-
+              {isLoggedIn ? (
+                <>
                   {/* Profile */}
                   <Link to="/profile">
                     <button
@@ -68,12 +77,11 @@ export default function NavBar() {
                   </Link>
 
                   {/* Logout */}
-                  <Link
-                    className="text-gray-700 hover:text-gray-700 text-sm font-medium"
-                    to="/login"
-                    onClick={handleLogout}>
+                  <button
+                    className="text-gray-400 hover:text-gray-300 text-sm font-medium"
+                    onClick={logoutHandler}>
                     Logout
-                  </Link>
+                  </button>
                 </>
               ) : (
                 // Login
@@ -84,11 +92,13 @@ export default function NavBar() {
                 </Link>
               )}
               {/* Dashbaord */}
-              <Link
-                className="text-gray-700 hover:text-gray-700 text-sm font-medium"
-                to="admin-dashboard">
-                Admin Dashbaord
-              </Link>
+              {userData?.role === 'admin' && (
+                <Link
+                  className="text-gray-700 hover:text-gray-700 text-sm font-medium"
+                  to="admin-dashboard">
+                  Admin Dashbaord
+                </Link>
+              )}
             </div>
           </div>
         </div>

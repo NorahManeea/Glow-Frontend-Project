@@ -4,13 +4,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { orderActions } from '../../redux/slices/orders/orderSlice'
 import api from '../../api'
 import AdminSideBar from './AdminSideBar'
+import useOrderState from '../../hooks/useOrderState'
 
 export default function OrdersTable() {
   const dispatch = useDispatch<AppDispatch>()
-  const state = useSelector((state: RootState) => state)
-  const orders = state.orders.orders
-  const isLoading = state.orders.isLoading
-  const error = state.orders.error
+  const {orders,isLoading, error} = useOrderState()
 
   useEffect(() => {
     handleGetProducts()

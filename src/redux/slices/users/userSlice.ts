@@ -1,21 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { json } from 'react-router-dom'
-
-export type User = {
-  id: number
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  role: string
-}
-export type UserState = {
-  users: User[]
-  error: null | string
-  isLoading: boolean
-  isLoggedIn: boolean
-  userData: User | null
-}
+import { User, UserState } from '../../../types/types'
 
 // Set data in localstorage
 const data = localStorage.getItem("userInfo") !== null ? JSON.parse(String(localStorage.getItem("userInfo"))) : []
@@ -56,13 +40,47 @@ export const userSlice = createSlice({
       state.isLoading = false
       state.users = action.payload
     },
-    addUser: (state, action: { payload: { user: User } }) => {
+    addUser: (state, action) => {
       state.users = [action.payload.user, ...state.users]
+      state.isLoggedIn = true
+      localStorage.setItem(
+        'userInfo',
+        JSON.stringify({
+          isLoggedIn: state.isLoggedIn,
+          userData: state.userData
+        })
+      )
     },
     removeUser: (state, action: { payload: { userId: number } }) => {
       const filteredUsers = state.users.filter((user) => user.id !== action.payload.userId)
       state.users = filteredUsers
+    },
+    editProfile: (state, action) => {
+      const {id, firstName, lastName} = action.payload;
+      const foundUser = state.users.find((user) => user.id === id);
+      if(foundUser){
+        foundUser.firstName = firstName;
+        foundUser.lastName = lastName;
+        state.userData = foundUser
+        localStorage.setItem(
+          'userInfo',
+          JSON.stringify({
+            isLoggedIn: state.isLoggedIn,
+            userData: state.userData
+          })
+        )
+      }
+   },
+   setProfile(state, action) {
+    state.userData = action.payload;
+  },
+  banUser:(state,action:  { payload: { userId: number } }) => {
+    const foundUser = state.users.find((user) => user.id === action.payload.userId);
+    if(foundUser){
+      foundUser.ban = !foundUser.ban
     }
+
+  }
   }
 })
 

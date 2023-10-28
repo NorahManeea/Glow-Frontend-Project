@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   addToCart,
@@ -12,18 +12,19 @@ import { AppDispatch, RootState } from '../../redux/store'
 import { Link } from 'react-router-dom'
 
 import SortProducts from './SortProducts'
+import FilterProducts from './FilterProducts'
+import useProductState from '../../hooks/useProductState'
 
 export default function ProductsList() {
   const dispatch = useDispatch<AppDispatch>()
 
-  const state = useSelector((state: RootState) => state)
-  const products = state.products
-  const searchText = state.products.searchText
-  const product = state.products.singleProduct
+  const {products, searchText, product} = useProductState()
+  
 
   useEffect(() => {
     handleGetProducts()
   }, [])
+  
   const handleAddToCart = () => {
     dispatch(addToCart(product))
   }
@@ -39,30 +40,30 @@ export default function ProductsList() {
     console.log(event.target.value)
   }
   const filterProducts = searchText
-    ? products.items.filter((product) =>
+    ? products.filter((product) =>
         product.name.toLowerCase().includes(searchText.toLowerCase())
       )
-    : products.items
+    : products
 
   return (
-    <div className=" w-full">
-      {products.isLoading && <h3> Loading products...</h3>}
-      <div className="card grid gap-4">
-        <ul>
-          <div className="mx-auto max-w-2xl lg:max-w-7xl">
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900">Products</h2>
+    <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto gap-2">
+      <div className="container px-5 py-24 mx-auto">
+        <div className="lg:w-4/5 mx-auto flex gap-4 ">
+          <div className="flex-grow">
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-4">Products</h2>
 
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-grow">
                 <input
                   type="text"
                   placeholder="Search for products"
-                  className="rounded-md p-3 w-full block text-sm text-gray-900 bg-gray-50  border border-gray-300 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-600"
+                  className="rounded-md p-3 w-full block text-sm text-gray-900 bg-gray-50 border border-gray-300 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-600"
                   value={searchText}
                   onChange={handleSearch}
                 />
               </div>
               <SortProducts />
+              <FilterProducts/> 
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
@@ -72,17 +73,15 @@ export default function ProductsList() {
                     <img
                       src={product.image}
                       alt=""
-                      className="h-full w-full object-cover object-center lg:h-full lg:w-full "
+                      className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                     />
                   </div>
                   <div className="mt-4 flex justify-between">
                     <div>
-                      <h3 className="text-sm text-gray-700">
-                        <Link to={`/products/${product.id}`}>
-                          <span aria-hidden="true" className="absolute inset-0" />
-                          {product?.name}
-                        </Link>
-                      </h3>
+                      <Link to={`/products/${product.id}`}>
+                        <span aria-hidden="true" className="absolute inset-0" />
+                        {product?.name}
+                      </Link>
                       <p className="mt-1 text-sm text-gray-500">{product.price}</p>
                     </div>
                     <button onClick={handleAddToCart}>Add To Cart</button>
@@ -91,8 +90,8 @@ export default function ProductsList() {
               ))}
             </div>
           </div>
-        </ul>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }

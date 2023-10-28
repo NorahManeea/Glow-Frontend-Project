@@ -1,4 +1,5 @@
 import './App.css'
+
 import { Route, Routes } from 'react-router-dom'
 
 // Components
@@ -21,12 +22,14 @@ import UsersTable from './components/admin/UsersTable'
 import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProductsTable from './components/admin/ProductsTable'
 import { NewProductWrapper } from './components/NewProductWrapper'
+import OrdersPage from './pages/profile/OrdersPage'
+import FilterProducts from './components/products/FilterProducts'
 
 function App() {
   return (
     <div className="App">
       <NavBar />
-
+      
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -37,7 +40,9 @@ function App() {
 
         <Route path="/cart" element={<CartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/orders" element={<></>} />
+        <Route path="/orders" element={<OrdersPage/>} />
+        <Route path="/filter" element={<FilterProducts/>} />
+
 
         {/* Admin Dashboard */}
         <Route path="admin-dashboard">
@@ -45,9 +50,10 @@ function App() {
           <Route path="orders" element={<OrdersTable />} />
           <Route path="users" element={<UsersTable />} />
           <Route path="categories" element={<Category />} />
-          <Route path="products" element={<ProductsTable/>} />
-          <Route path="new-product" element={<NewProductWrapper/>} />
 
+
+          <Route path="products" element={<ProductsTable />} />
+          <Route path="new-product" element={<NewProductWrapper />} />
         </Route>
         {/* Products Routes */}
         <Route path="products">

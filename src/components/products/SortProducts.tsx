@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { sortProducts } from '../../redux/slices/products/productSlice'
 
+
 export default function SortProducts() {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -20,9 +21,12 @@ export default function SortProducts() {
         <option value="All" defaultValue="All">
           All
         </option>
-        <option value="price">Price</option>
+        <option value="highestPrice">Highest Price</option>
+        <option value="lowestPrice">Lowest Price</option>
         <option value="name">Name</option>
       </select>
     </div>
+
+    
   )
 }

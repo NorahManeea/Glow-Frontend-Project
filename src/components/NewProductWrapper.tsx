@@ -1,11 +1,12 @@
 import { useState, ChangeEvent, FormEvent } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { addProduct, Product } from '../redux/slices/products/productSlice'
+import { addProduct } from '../redux/slices/products/productSlice'
 import { AppDispatch } from '../redux/store'
 
 import { ProductForm } from './ProductForm'
 import AdminSideBar from './admin/AdminSideBar'
+import { Product } from '../types/types'
 
 const initialProductState: Product = {
   id: 0,
@@ -56,7 +57,6 @@ export function NewProductWrapper() {
 
   return (
     <div className="flex">
-      <AdminSideBar />
       <div className="w-3/4 bg-white p-4">
         <div className=" rounded-lg overflow-hidden mx-4 md:mx-10">
           <div className="flex flex-1 items-center justify-center p-6">
