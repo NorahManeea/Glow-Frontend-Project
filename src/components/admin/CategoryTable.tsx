@@ -19,6 +19,14 @@ export default function CategoryTable() {
     handleGetCategories()
   }, [])
 
+  useEffect(() => {
+    if (selectedCategory) {
+      setCategory({ name: selectedCategory.name });
+    } else {
+      setCategory({ name: '' });
+    }
+  }, [selectedCategory]);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCategory((prevCategory) => ({

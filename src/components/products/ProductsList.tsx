@@ -69,6 +69,8 @@ export default function ProductsList() {
       .filter((category) => category.name === selectedCategory)
       .map((category) => category.id)
     dispatch(filterProducts({ filterCriteria: categoryIDs }))
+
+    
   }
 
   const filterProduct = searchText

@@ -20,7 +20,7 @@ export default function CartPage() {
       icon: 'success'
     }).then((isOk) => {
       if (isOk) {
-        navigate('/')
+        navigate('/products')
       }
     })
   }

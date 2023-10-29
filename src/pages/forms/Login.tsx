@@ -6,10 +6,36 @@ import { userActions } from '../../redux/slices/users/userSlice'
 import api from '../../api'
 import { toast } from 'react-toastify'
 import useUserState from '../../hooks/useUserState'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
-export default function Login({ pathName }: { pathName: string }) {
+interface IFormInput {
+  email: string
+  password: string
+}
+
+// yup schema
+const schema = yup.object().shape({
+  email: yup.string().email().required(),
+  password: yup.string().min(5).max(32).required()
+})
+
+export default function Login() {
   const dispatch = useDispatch<AppDispatch>()
-  const {users} = useUserState()
+  const { users } = useUserState()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<IFormInput>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  })
 
   useEffect(() => {
     handleGetUsers()
@@ -33,36 +59,31 @@ export default function Login({ pathName }: { pathName: string }) {
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (user.email.trim() === '') return toast.error('Email is required')
-    if (user.password.trim() === '') return toast.error('Password is required')
+  const onSubmitHandler = handleSubmit(async (data: IFormInput) => {
     try {
       // Match data with the existing data
-      const foundUser = users.find((userData) => userData.email === user.email)
+      const foundUser = users.find((userData) => userData.email === data.email)
       console.log(foundUser)
-      if(!foundUser){
-        console.log("not found")
+      if (!foundUser) {
+        console.log('not found')
       }
       if (foundUser?.ban) {
         // Loggedin
-        return toast.warn("Sorry, you are banned")
-      }   
-      if (foundUser && foundUser.password === user.password) {
+        return toast.warn('Sorry, you are banned')
+      }
+      if (foundUser && foundUser.password === data.password) {
         // Loggedin
         dispatch(userActions.login(foundUser))
         navigate('/')
-        return toast.success("You logged in successfuly")
-      } 
-      else {
+        return toast.success('You logged in successfully')
+      } else {
         console.log('something went wrong')
-        return toast.error("Something went wrong")
-
+        return toast.error('Something went wrong')
       }
     } catch (error) {
       console.log(error)
     }
-  }
+  })
   return (
     <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 ">
@@ -70,20 +91,19 @@ export default function Login({ pathName }: { pathName: string }) {
           <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
             Sign in
           </h1>
-          <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-4 md:space-y-6" onSubmit={onSubmitHandler}>
             <div>
               <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
                 Your email
               </label>
               <input
                 type="email"
-                name="email"
                 id="email"
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="name@gmail.com"
-                value={user.email}
-                onChange={handleInputChange}
+                {...register('email')}
               />
+              {errors.email && <p className="text-red-500">{errors.email.message}</p>}{' '}
             </div>
             <div>
               <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
@@ -91,13 +111,12 @@ export default function Login({ pathName }: { pathName: string }) {
               </label>
               <input
                 type="password"
-                name="password"
                 id="password"
                 placeholder="••••••••"
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                value={user.password}
-                onChange={handleInputChange}
+                {...register('password')}
               />
+              {errors.password && <p className="text-red-500">{errors.password.message}</p>}{' '}
             </div>
             <div className="flex items-center justify-between">
               <Link

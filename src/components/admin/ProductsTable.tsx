@@ -13,6 +13,32 @@ import AdminSideBar from './AdminSideBar'
 import { Product } from '../../types/types'
 import useProductState from '../../hooks/useProductState'
 
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+
+interface IFormInput {
+  name: string;
+  image: string;
+  description: string;
+  categories: string;
+  variants: string;
+  sizes: number;
+  price: number;
+}
+
+const schema = yup.object().shape({
+  name: yup.string().required(),
+  image: yup.string().required(),
+  description: yup.string().required(),
+  categories: yup.string().required(),
+  variants: yup.string().required(),
+  sizes: yup.number().required(),
+  price: yup.number().required(),
+});
+
+
 const initialProductState: Product = {
   id: 0,
   name: '',
@@ -30,6 +56,20 @@ export default function ProductsTable() {
 
   const [product, setProduct] = useState<Product>(initialProductState)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      image: "",
+      description: "",
+      categories: "",
+      variants: "",
+      sizes: 0,
+      price: 0,
+    },
+  });
+
 
   useEffect(() => {
     handleGetProducts()
@@ -60,7 +100,7 @@ export default function ProductsTable() {
     }
   };
   
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault();
   
     if (selectedProduct && selectedProduct.id) {
@@ -82,7 +122,7 @@ export default function ProductsTable() {
       <div className="w-3/4 bg-white p-4">
         <div className=" rounded-lg overflow-hidden mx-4 md:mx-10">
           <div className="flex flex-1 items-center justify-center p-6">
-            <form className="mt-5 sm:flex sm:items-center" onSubmit={handleSubmit}>
+            <form className="mt-5 sm:flex sm:items-center" onSubmit={onSubmitHandler}>
               <div className="flex">
                 <div className="mr-2">
                   <input
@@ -104,6 +144,7 @@ export default function ProductsTable() {
                     onChange={handleChange}
                     className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
                     placeholder="Image Url"
+                    
                   />
                 </div>
               </div>
