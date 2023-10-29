@@ -74,14 +74,7 @@ export const userSlice = createSlice({
     setPage: (state, action) => {
       state.currentPage = action.payload
     },
-    filterProducts: (state, action: PayloadAction<{ filterCriteria: number[] }>) => {
-      const { filterCriteria } = action.payload
-      const filteredProducts = state.items.filter((product) => {
-        return product.categories.some((categoryId) => filterCriteria.includes(categoryId))
-      })
-
-      state.items = filteredProducts
-    }
+   
   }
 })
 export const {
@@ -96,7 +89,6 @@ export const {
   addToCart,
   removeFromCart,
   setPage,
-  filterProducts
 } = userSlice.actions
 
 export default userSlice.reducer

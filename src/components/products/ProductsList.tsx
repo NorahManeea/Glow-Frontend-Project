@@ -2,7 +2,6 @@ import React, { ChangeEvent, useEffect, useState } from 'react'
 
 import {
   addToCart,
-  filterProducts,
   productsRequest,
   productsSuccess,
   searchProduct
@@ -13,7 +12,6 @@ import { AppDispatch, RootState } from '../../redux/store'
 import { Link } from 'react-router-dom'
 
 import SortProducts from './SortProducts'
-import FilterProducts from './FilterProducts'
 import useProductState from '../../hooks/useProductState'
 import Pagination from '../pagination/Pagination'
 import useCategoryState from '../../hooks/useCategoryState'
@@ -28,6 +26,8 @@ export default function ProductsList() {
 
   useEffect(() => {
     handleGetProducts()
+    handleGetCategories()
+
   }, [])
 
   const handleAddToCart = () => {
@@ -44,7 +44,6 @@ export default function ProductsList() {
     dispatch(searchProduct(event.target.value))
     console.log(event.target.value)
   }
-
   const handleGetCategories = async () => {
     dispatch(categoryActions.categoryRequest())
 
@@ -53,30 +52,22 @@ export default function ProductsList() {
     console.log(res.data)
   }
 
+  const handleOptionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = event.target.value;
+    setSelectedOptions(selectedCategory !== "0" ? [selectedCategory] : []);
+  };
+  
+
   //   Handle Options
 
-  useEffect(() => {
-    handleGetCategories()
-    console.log
-    window.scrollTo(0, 0)
-  }, [])
-
-  const handleOptionChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedCategory = event.target.value
-    setSelectedOptions([selectedCategory])
-
-    const categoryIDs = categories
-      .filter((category) => category.name === selectedCategory)
-      .map((category) => category.id)
-    dispatch(filterProducts({ filterCriteria: categoryIDs }))
-
-    
-  }
 
   const filterProduct = searchText
     ? products.filter((product) => product.name.toLowerCase().includes(searchText.toLowerCase()))
-    : products
+    : products;
 
+    const filteredProducts = selectedOptions.length > 0
+    ? filterProduct.filter((product) => product.categories.includes(parseInt(selectedOptions[0])))
+    : filterProduct;
   return (
     <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto gap-2">
       <div className="container px-5 py-24 mx-auto">
@@ -104,16 +95,16 @@ export default function ProductsList() {
                   style={{ marginLeft: '0.5rem' }}>
                   <option value={0}>All Categories</option>
                   {categories.map((option) => (
-                    <option key={option.id} value={option.name}>
-                      {option.name}
-                    </option>
+                <option key={option.id} value={option.id.toString()}>
+                {option.name}
+              </option>
                   ))}
                 </select>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-              {filterProduct.map((product) => (
+              {filteredProducts.map((product) => (
                 <div key={product.id} className="group relative bg-gray-100 rounded-xl p-3">
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                     <img
