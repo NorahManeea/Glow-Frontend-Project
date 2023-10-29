@@ -4,7 +4,7 @@ import { Category, CategoryState } from '../../../types/types'
 const initialState: CategoryState = {
   category: [],
   error: null,
-  isLoading: false
+  isLoading: false,
 }
 
 export const categorySlice = createSlice({

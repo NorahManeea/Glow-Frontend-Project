@@ -47,7 +47,7 @@ export type Category = {
 export type CategoryState = {
   category: Category[]
   error: null | string
-  isLoading: boolean
+  isLoading: boolean,
 }
 //   Orders
 export type Order = {

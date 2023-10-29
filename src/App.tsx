@@ -1,6 +1,6 @@
 import './App.css'
 
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 
 // Components
 import NavBar from './components/global/NavBar'
@@ -24,12 +24,15 @@ import ProductsTable from './components/admin/ProductsTable'
 import { NewProductWrapper } from './components/NewProductWrapper'
 import OrdersPage from './pages/profile/OrdersPage'
 import FilterProducts from './components/products/FilterProducts'
+import useUserState from './hooks/useUserState'
 
 function App() {
+  const { isLoggedIn, userData } = useUserState()
+
   return (
     <div className="App">
       <NavBar />
-      
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -40,17 +43,27 @@ function App() {
 
         <Route path="/cart" element={<CartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/orders" element={<OrdersPage/>} />
-        <Route path="/filter" element={<FilterProducts/>} />
-
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/filter" element={<FilterProducts />} />
 
         {/* Admin Dashboard */}
         <Route path="admin-dashboard">
-          <Route index element={<AdminDashboard />} />
-          <Route path="orders" element={<OrdersTable />} />
-          <Route path="users" element={<UsersTable />} />
-          <Route path="categories" element={<Category />} />
-
+          <Route
+            index
+            element={userData?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />}
+          />
+          <Route
+            path="orders"
+            element={userData?.role === 'admin' ? <OrdersTable /> : <Navigate to="/" />}
+          />
+          <Route
+            path="users"
+            element={userData?.role === 'admin' ? <UsersTable /> : <Navigate to="/" />}
+          />
+          <Route
+            path="categories"
+            element={userData?.role === 'admin' ? <Category /> : <Navigate to="/" />}
+          />
 
           <Route path="products" element={<ProductsTable />} />
           <Route path="new-product" element={<NewProductWrapper />} />

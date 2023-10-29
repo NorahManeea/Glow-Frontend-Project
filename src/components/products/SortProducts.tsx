@@ -26,7 +26,5 @@ export default function SortProducts() {
         <option value="name">Name</option>
       </select>
     </div>
-
-    
   )
 }

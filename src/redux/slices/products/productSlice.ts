@@ -6,10 +6,10 @@ const initialState: ProductState = {
   error: null,
   isLoading: false,
   searchText: '',
-  singleProduct: {} as Product ,
+  singleProduct: {} as Product,
   cartItems: [],
   cartLength: 0,
-  currentPage: 1,
+  currentPage: 1
 }
 
 export const userSlice = createSlice({
@@ -64,25 +64,25 @@ export const userSlice = createSlice({
       state.cartItems = filteredItems
       state.cartLength = state.cartItems.length
     },
- editProduct: (state, action: { payload: { editedProduct: Product } }) => {
-  const editedProduct = action.payload.editedProduct;
+    editProduct: (state, action: { payload: { editedProduct: Product } }) => {
+      const editedProduct = action.payload.editedProduct
 
-  state.items = state.items.map((product) =>
-    product.id === editedProduct.id ? editedProduct : product
-  );
-},
+      state.items = state.items.map((product) =>
+        product.id === editedProduct.id ? editedProduct : product
+      )
+    },
     setPage: (state, action) => {
-      state.currentPage = action.payload;
+      state.currentPage = action.payload
     },
     filterProducts: (state, action: PayloadAction<{ filterCriteria: number[] }>) => {
-      const { filterCriteria } = action.payload;
+      const { filterCriteria } = action.payload
       const filteredProducts = state.items.filter((product) => {
-        return product.categories.some((categoryId) => filterCriteria.includes(categoryId));
-      });
-    
-      state.items = filteredProducts;
-    },
-   }
+        return product.categories.some((categoryId) => filterCriteria.includes(categoryId))
+      })
+
+      state.items = filteredProducts
+    }
+  }
 })
 export const {
   removeProduct,

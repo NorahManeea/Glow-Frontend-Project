@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
+
 import {
   addToCart,
   findProductById,
@@ -67,7 +67,7 @@ export default function ProductDetails() {
             <p className="leading-relaxed">
               {product.categories &&
                 product.categories.map((categoryId) => getCategories(categoryId)).join(', ')}
-            </p>{' '}
+            </p>
             <div className="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
               <div className="flex items-center">
                 <span className="mr-3">Variants</span>
