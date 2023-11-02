@@ -15,7 +15,6 @@ import ProductDetails from './components/products/ProductDetails'
 import HomePage from './pages/home/HomePage'
 import CartPage from './pages/cart/CartPage'
 import ProfilePage from './pages/profile/ProfilePage'
-import AdminDashboard from './pages/admin/AdminDashboard'
 import OrdersTable from './components/admin/OrdersTable'
 import Category from './components/admin/CategoryTable'
 import UsersTable from './components/admin/UsersTable'
@@ -23,7 +22,6 @@ import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProductsTable from './components/admin/ProductsTable'
 import { NewProductWrapper } from './components/NewProductWrapper'
 import OrdersPage from './pages/profile/OrdersPage'
-import FilterProducts from './components/products/FilterProducts'
 import useUserState from './hooks/useUserState'
 
 function App() {
@@ -38,19 +36,18 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
 
-        <Route path="/login" element={<Login pathName="/login" />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         <Route path="/cart" element={<CartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/filter" element={<FilterProducts />} />
 
         {/* Admin Dashboard */}
         <Route path="admin-dashboard">
           <Route
             index
-            element={userData?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />}
+            element={userData?.role === 'admin' ? <ProductsTable /> : <Navigate to="/" />}
           />
           <Route
             path="orders"
@@ -73,7 +70,6 @@ function App() {
           <Route index element={<ProductPage />} />
           <Route path=":id" element={<ProductDetails />} />
         </Route>
-
         {/* Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>

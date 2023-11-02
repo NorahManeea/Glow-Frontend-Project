@@ -4,7 +4,7 @@
     "firstName": "John",
     "lastName": "Doe",
     "email": "john.doe@example.com",
-    "password": "hashed_password",
+    "password": "123456",
     "role": "visitor",
     "ban": false
   },
@@ -33,6 +33,33 @@
     "email": "n@gmail.com",
     "password": "12345",
     "role": "admin",
+    "ban": false
+  },
+  {
+    "id": 5,
+    "firstName": "David",
+    "lastName": "Johnson",
+    "email": "david.johnson@example.com",
+    "password": "hashed_password",
+    "role": "visitor",
+    "ban": false
+  },
+  {
+    "id": 6,
+    "firstName": "David",
+    "lastName": "Johnson",
+    "email": "david.johnson@example.com",
+    "password": "hashed_password",
+    "role": "visitor",
+    "ban": false
+  },
+  {
+    "id": 7,
+    "firstName": "David",
+    "lastName": "Johnson",
+    "email": "david.johnson@example.com",
+    "password": "hashed_password",
+    "role": "visitor",
     "ban": false
   }
 ]

@@ -61,3 +61,26 @@ export type OrderState = {
   error: null | string
   isLoading: boolean
 }
+
+// Forms Inputs
+export type ProductFormInput = {
+  name: string;
+  image: string;
+  description: string;
+  categories: string;
+  variants: string;
+  sizes: number;
+  price: number;
+}
+
+export type LoginFormInput = {
+  email: string
+  password: string
+}
+
+export type RegisterFormInput = {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}

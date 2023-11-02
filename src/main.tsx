@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <Provider store={store}>
-    <ToastContainer theme="colored" position="top-right" />
+    <ToastContainer position="top-right" />
     <BrowserRouter>
       <App />
     </BrowserRouter>

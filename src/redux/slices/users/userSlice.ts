@@ -56,21 +56,20 @@ export const userSlice = createSlice({
       state.users = filteredUsers
     },
     editProfile: (state, action) => {
-      const {id, firstName, lastName} = action.payload;
+      const { id, firstName, lastName } = action.payload;
       const foundUser = state.users.find((user) => user.id === id);
-      if(foundUser){
+      
+      if (foundUser) {
         foundUser.firstName = firstName;
         foundUser.lastName = lastName;
-        state.userData = foundUser
-        localStorage.setItem(
-          'userInfo',
-          JSON.stringify({
-            isLoggedIn: state.isLoggedIn,
-            userData: state.userData
-          })
-        )
+        state.userData = foundUser;
+    
+        localStorage.setItem('userInfo', JSON.stringify({
+          isLoggedIn: state.isLoggedIn,
+          userData: state.userData
+        }));
       }
-   },
+    },
    setProfile(state, action) {
     state.userData = action.payload;
   },

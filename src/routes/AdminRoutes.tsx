@@ -14,6 +14,6 @@ export default function AdminRoutes() {
     const userData = state.users.userData
 
   return (
-    isLoggedIn && userData?.role === 'admin' ? <Outlet/>: <Login pathName ={location.pathname}/>
+    isLoggedIn && userData?.role === 'admin' ? <Outlet/>: <Login/>
   )
 }

@@ -31,7 +31,6 @@ export const userSlice = createSlice({
       state.items = action.payload
     },
     addProduct: (state, action: { payload: { product: Product } }) => {
-      // let's append the new product to the beginning of the array
       state.items = [action.payload.product, ...state.items]
     },
     removeProduct: (state, action: { payload: { productId: number } }) => {
@@ -50,7 +49,6 @@ export const userSlice = createSlice({
       } else if (sortCriteria === 'lowestPrice') {
         state.items.sort((a, b) => a.price - b.price)
       }
-      console.log(sortCriteria)
     },
     addToCart: (state, action) => {
       const product = action.payload
@@ -71,9 +69,6 @@ export const userSlice = createSlice({
         product.id === editedProduct.id ? editedProduct : product
       )
     },
-    setPage: (state, action) => {
-      state.currentPage = action.payload
-    },
    
   }
 })
@@ -88,7 +83,6 @@ export const {
   sortProducts,
   addToCart,
   removeFromCart,
-  setPage,
 } = userSlice.actions
 
 export default userSlice.reducer

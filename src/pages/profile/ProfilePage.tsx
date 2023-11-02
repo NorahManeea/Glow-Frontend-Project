@@ -1,12 +1,13 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react'
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { AppDispatch } from '../../redux/store'
+import { useDispatch } from 'react-redux'
 import { userActions } from '../../redux/slices/users/userSlice'
 import { Link } from 'react-router-dom'
 import useUserState from '../../hooks/useUserState'
+import { toast } from 'react-toastify'
 
 export default function ProfilePage() {
-  const {userData} = useUserState();
+  const { userData } = useUserState()
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -20,23 +21,47 @@ export default function ProfilePage() {
     setUpdateProfile(true)
   }
 
+  useEffect(() => {
+    if (userData) {
+      setUser({
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || ''
+      })
+    }
+  }, [userData])
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setUser((prevUser) => {
-      return { ...prevUser, [e.target.name]: e.target.value }
-    })
+    const { name, value } = e.target
+    setUser((prevUser) => ({
+      ...prevUser,
+      [name]: value
+    }))
   }
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     const updateUserData = { id: userData?.id, ...user }
     dispatch(userActions.editProfile(updateUserData))
+    toast.success('Profile edited successfully')
     setUpdateProfile(false)
-    console.log(user)
   }
   return (
     <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-      <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 ">
+      <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-          <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+          <h1 className="text-xl font-bold leading-tight tracking-tight text-[#32334A] md:text-2xl">
+            <div className="rounded-t-lg h-32 overflow-hidden">
+              <img
+                className="object-cover object-top w-full"
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAElBMVEX39/fa183////y8e329vbp5+E5wcoJAAABFUlEQVR4nO3PgQ3CMBAAsZSQ/VemIGCHe9kbeF3Trevsyc493I/J9mf4nOs3XFMZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2GfYZ9hn2Gfb9h3N9h5O9h2dPdu7hdC/EhSJx45s0SgAAAABJRU5ErkJggg=="
+              />
+            </div>
+            <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
+              <img
+                className="object-cover object-center h-32"
+                src="https://i.pinimg.com/564x/69/6e/63/696e637f3e3f4ea7c73b260f6db58c26.jpg"
+              />
+            </div>
             Profile
           </h1>
           <div className="space-y-4 md:space-y-6">
@@ -46,11 +71,11 @@ export default function ProfilePage() {
             <div className="gap-3">
               <button
                 onClick={handleUpdateProfile}
-                className="w-full text-white bg-gray-600 hover:bg-gray-500 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2">
+                className="w-full text-white bg-[#32334A] hover:bg-[#3f415a] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2">
                 Edit Profile
               </button>
               <Link to="/orders">
-                <button className="w-full text-white bg-gray-600 hover:bg-gray-500 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                <button className="w-full text-[#956556] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                   My Orders
                 </button>
               </Link>
@@ -70,7 +95,7 @@ export default function ProfilePage() {
                     id="firstName"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder="First Name"
-                    value={userData?.firstName}
+                    value={user.firstName}
                     onChange={handleChange}
                   />
                 </div>
@@ -86,12 +111,12 @@ export default function ProfilePage() {
                     id="lastName"
                     placeholder="Last Name"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    value={userData?.lastName}
+                    value={user.lastName}
                     onChange={handleChange}
                   />
                 </div>
 
-                <button className="w-full text-white bg-gray-600 hover:bg-gray-500 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                <button className="w-full text-white bg-[#32334A] hover:bg-[#3f415a] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                   Save
                 </button>
               </form>

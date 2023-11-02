@@ -4,7 +4,7 @@ export default function ContactPage() {
   return (
     <section className="bg-white">
     <div className="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
-      <h2 className="mb-4 text-4xl tracking-tight font-bold text-center text-gray-900">
+      <h2 className="mb-4 text-4xl tracking-tight font-bold text-center text-[#32334A]">
         Contact Us
       </h2>
       <p className="mb-5 lg:mb-8 font-light text-center text-gray-500 dark:text-gray-400 sm:text-xl">
@@ -56,7 +56,7 @@ export default function ContactPage() {
         </div>
         <button
           type="submit"
-          className="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-[#518581]"
+          className="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-[#32334A] hover:bg-[#3f415a]"
         >
           Send message
         </button>

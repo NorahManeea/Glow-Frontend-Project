@@ -6,7 +6,7 @@ export default function RightNavBar() {
     <div className="flex ">
     <div className="flex flex-shrink-0 items-center">
       <Link to="/">
-      <p className='text-white'></p>
+      <p className='text-[#956556] font-medium'>GLOW</p>
       </Link>
     </div>
   </div>

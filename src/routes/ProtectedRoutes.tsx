@@ -11,6 +11,6 @@ export default function ProtectedRoutes() {
     const state = useSelector((state: RootState) => state)
     const isLoggedIn = state.users.isLoggedIn
   return (
-    isLoggedIn ? <Outlet/>: <Login pathName ={location.pathname}/>
+    isLoggedIn ? <Outlet/>: <Login/>
   )
 }

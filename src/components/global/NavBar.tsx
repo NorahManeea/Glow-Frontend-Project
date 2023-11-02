@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { userActions } from '../../redux/slices/users/userSlice'
@@ -10,12 +10,20 @@ import useUserState from '../../hooks/useUserState'
 import useProductState from '../../hooks/useProductState'
 
 export default function NavBar() {
-  const {isLoggedIn, userData} = useUserState()
-  const {cartLength} = useProductState()
+  const { isLoggedIn, userData } = useUserState()
+  const { cartLength } = useProductState()
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(false)
 
+  const handleMenuItemClick = () => {
+    setIsOpen(false)
+  }
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen)
+  }
   // Logout
   const logoutHandler = () => {
     swal({
@@ -23,50 +31,55 @@ export default function NavBar() {
       text: 'Are you sure you want to logout?',
       icon: 'warning',
       dangerMode: true,
-      buttons: ['Cancel', 'Logout'],
+      buttons: ['Cancel', 'Logout']
     }).then((isOk) => {
       if (isOk) {
-        dispatch(userActions.logout());
+        setIsOpen(false)
+        dispatch(userActions.logout())
         navigate('/login')
       }
-    });
-  };
+    })
+  }
+ 
   return (
     <header>
-      <nav className="bg-black">
+      <nav className="bg-[#F7F7F7]">
         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
             <RightNavBar />
             <div className="absolute inset-y-0 right-0 gap-2 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                 {/* Cart */}
-                 <Link to="/cart">
-                    <button
-                      className="py-4 px-1 relative border-2 border-transparent  p-1 text-gray-400 hover:text-white rounded-full  focus:outline-none  transition duration-150 ease-in-out"
-                      aria-label="Cart">
-                      <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                      </svg>
-                      <span className="absolute inset-0 object-right-top -mr-6">
-                        <div className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold leading-4 bg-red-600 text-white">
-                          {cartLength}
-                        </div>
-                      </span>
-                    </button>
-                  </Link>
+              {/* Cart */}
+              <Link to="/cart">
+                <button
+                  className="py-4 px-1 relative border-2 border-transparent p-1 text-gray-400 hover:text-gray-600 rounded-full focus:outline-none transition duration-150 ease-in-out"
+                  aria-label="Cart">
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  {cartLength > 0 && (
+                    <span className="absolute inset-0 object-right-top -mr-6">
+                      <div className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold leading-4 bg-red-600 text-white">
+                        {cartLength}
+                      </div>
+                    </span>
+                  )}
+                </button>
+              </Link>
               {isLoggedIn ? (
                 <>
                   {/* Profile */}
-                  <Link to="/profile">
+                  <div className="relative">
                     <button
                       type="button"
-                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none">
+                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none"
+                      onClick={toggleDropdown}>
                       <span className="absolute -inset-1.5" />
                       <img
                         className="h-8 w-8 rounded-full"
@@ -74,29 +87,42 @@ export default function NavBar() {
                         alt=""
                       />
                     </button>
-                  </Link>
 
-                  {/* Logout */}
-                  <button
-                    className="text-gray-400 hover:text-gray-300 text-sm font-medium"
-                    onClick={logoutHandler}>
-                    Logout
-                  </button>
+                    {isOpen && (
+                      <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg">
+                        <Link to="/profile" onClick={handleMenuItemClick}>
+                          <button
+                            type="button"
+                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left">
+                            Profile
+                          </button>
+                        </Link>
+
+                        {userData?.role === 'admin' && (
+                          <Link
+                            onClick={handleMenuItemClick}
+                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left"
+                            to="admin-dashboard">
+                            Admin Dashbaord
+                          </Link>
+                        )}
+
+                        <button
+                          type="button"
+                          className="block px-4 py-2 text-red-600 hover:bg-gray-200 w-full text-left"
+                          onClick={logoutHandler}>
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 // Login
                 <Link
-                  className="text-gray-800 bg-gray-100 hover:bg-indigo-200 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm "
+                  className="text-gray-800 bg-gray-100 hover:bg-[#3f415a] hover:text-white inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm "
                   to="/login">
                   Log in
-                </Link>
-              )}
-              {/* Dashbaord */}
-              {userData?.role === 'admin' && (
-                <Link
-                  className="text-gray-700 hover:text-gray-700 text-sm font-medium"
-                  to="admin-dashboard">
-                  Admin Dashbaord
                 </Link>
               )}
             </div>
