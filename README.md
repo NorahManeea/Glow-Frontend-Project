@@ -75,7 +75,7 @@ Happy coding!
 
 ---
 
-## Option 2: E-commerce Website
+## Option 2: E-commerce Website : Glow :- https://glow-e-commerce.netlify.app/
 
 ### Level 1: Basic Requirements
 
