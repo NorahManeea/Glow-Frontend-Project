@@ -44,19 +44,19 @@
   {
     "id": 8,
     "productId": 11,
-    "userId": 8,
+    "userId": 4,
     "purchasedAt": "2023-09-25T10:05:00"
   },
   {
     "id": 9,
     "productId": 10,
-    "userId": 9,
+    "userId": 5,
     "purchasedAt": "2023-09-26T12:40:00"
   },
   {
     "id": 10,
     "productId": 6,
-    "userId": 10,
+    "userId": 6,
     "purchasedAt": "2023-09-27T15:55:00"
   }
 ]

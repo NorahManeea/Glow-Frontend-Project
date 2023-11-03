@@ -19,8 +19,6 @@ export default function CategoryTable() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [category, setCategory] = useState({ name: '' })
 
-
-
   useEffect(() => {
     if (selectedCategory) {
       setCategory({ name: selectedCategory.name })

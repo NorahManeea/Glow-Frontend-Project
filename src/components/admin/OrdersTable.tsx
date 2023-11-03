@@ -9,13 +9,20 @@ import useOrderState from '../../hooks/useOrderState'
 import swal from 'sweetalert'
 import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 import { toast } from 'react-toastify'
-import { useFetchOrders } from '../../hooks/useDataFetching'
+import { useFetchOrders, useFetchProducts, useFetchUsers } from '../../hooks/useDataFetching'
+import useUserState from '../../hooks/useUserState'
+import useProductState from '../../hooks/useProductState'
 
 
 export default function OrdersTable() {
   useFetchOrders()
+  useFetchUsers()
+  useFetchProducts()
   const dispatch = useDispatch<AppDispatch>()
   const {orders,isLoading, error} = useOrderState()
+  const {users} = useUserState()
+  const {products} = useProductState()
+
 
   const handleDeleteBtnClick = (id: number) => {
     swal({
@@ -32,6 +39,16 @@ export default function OrdersTable() {
       }
     });
   }
+  const getUser = (userId: number) => {
+    const user = users.find((user) => user.id === userId)
+    return user ? user.firstName : 'User Not Found'
+  }
+
+  const getProduct = (productId: number) => {
+    const product = products.find((product) => product.id === productId)
+    return product ? product.name : 'Product Not Found'
+  }
+
 
   return (
     <div className="flex">
@@ -56,8 +73,8 @@ export default function OrdersTable() {
               {orders.map((item, index) => (
                 <tr key={item.id}>
                   <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
-                  <td className="py-4 px-6 border-b border-gray-200">{item.productId}</td>
-                  <td className="py-4 px-6 border-b border-gray-200">{item.userId}</td>
+                  <td className="py-4 px-6 border-b border-gray-200">{getProduct(item.productId)}</td>
+                  <td className="py-4 px-6 border-b border-gray-200">{getUser(item.userId)}</td>
                   <td className="py-4 px-6 border-b border-gray-200">
                   {new Date(item.purchasedAt).toLocaleDateString()}
                   </td>
