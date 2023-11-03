@@ -1,42 +1,26 @@
 [
   {
     "id": 1,
-    "name": "Electronics"
+    "name": "GEL"
   },
   {
     "id": 2,
-    "name": "Computers"
+    "name": "Serum"
   },
   {
     "id": 3,
-    "name": "Mobile Phones"
+    "name": "Toner"
   },
   {
     "id": 4,
-    "name": "Gaming"
+    "name": "Face Oil"
   },
   {
     "id": 5,
-    "name": "Photography"
+    "name": "Moisturizer"
   },
   {
     "id": 6,
-    "name": "Health & Fitness"
-  },
-  {
-    "id": 7,
-    "name": "Home Entertainment"
-  },
-  {
-    "id": 8,
-    "name": "Home Appliances"
-  },
-  {
-    "id": 9,
-    "name": "Audio"
-  },
-  {
-    "id": 10,
-    "name": "Storage"
+    "name": "Mask"
   }
 ]

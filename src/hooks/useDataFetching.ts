@@ -22,6 +22,7 @@ const useFetchProducts = () => {
         const res = await api.get('/mock/e-commerce/products.json');
         dispatch(productsSuccess(res.data));
       } catch (error) {
+        console.log(error)
       }
     };
 
@@ -40,6 +41,7 @@ const useFetchCategories = () => {
         const res = await api.get('/mock/e-commerce/categories.json');
         dispatch(categoryActions.categorySuccess(res.data));
       } catch (error) {
+        console.log(error)
       }
     };
 
@@ -58,6 +60,7 @@ const useFetchUsers = () => {
         const res = await api.get('/mock/e-commerce/users.json');
         dispatch(userActions.userSuccess(res.data));
       } catch (error) {
+        console.log(error)
       }
     };
 
@@ -76,6 +79,7 @@ const useFetchOrders = () => {
         const res = await api.get('/mock/e-commerce/orders.json');
         dispatch(orderActions.orderSuccess(res.data));
       } catch (error) {
+        console.log(error)
       }
     };
 
