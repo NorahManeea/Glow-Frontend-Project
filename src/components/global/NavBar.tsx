@@ -5,7 +5,6 @@ import { userActions } from '../../redux/slices/userSlice'
 import RightNavBar from './RightNavBar'
 import SecondNavBar from './SecondNavBar'
 import swal from 'sweetalert'
-import useUserState from '../../hooks/useUserState'
 import useProductState from '../../hooks/useProductState'
 import { RootState } from '../../redux/store'
 
