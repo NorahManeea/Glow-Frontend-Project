@@ -1,15 +1,33 @@
 // Users
 export type User = {
-  id: number
+  _id: string
   firstName: string
   lastName: string
   email: string
   password: string
   role: string
-  ban: boolean
+  activationToken: string
+  isAccountVerified: boolean
+  isBlocked: boolean
+  avatar: string
+  resetPasswordToken?: string
 }
 export type UserState = {
   users: User[]
+  error: null | string
+  isLoading: boolean
+  isLoggedIn: boolean
+  user: User | null
+}
+
+const ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+}as const
+export type Role = keyof typeof ROLES
+
+export type AuthState = {
+  users: []
   error: null | string
   isLoading: boolean
   isLoggedIn: boolean
@@ -17,14 +35,20 @@ export type UserState = {
 }
 //   Products
 export type Product = {
-  id: number
+  _id: string
   name: string
   image: string
   description: string
   categories: number[]
-  variants: string[]
-  sizes: string[]
-  price: number
+  price: number,
+  quantityInStock: number,
+  discount: number,
+  itemsSold: number,
+  reviews: Review[]
+}
+
+export type Review = {
+  
 }
 
 export type ProductState = {
@@ -35,13 +59,13 @@ export type ProductState = {
   singleProduct: Product
   cartItems: Product[]
   cartLength: number,
-  currentPage: number,
+  productCount: number
 
 }
 
 //   Category
 export type Category = {
-  id: number
+  _id: string
   name: string
 }
 export type CategoryState = {
@@ -51,11 +75,21 @@ export type CategoryState = {
 }
 //   Orders
 export type Order = {
-  id: number
-  productId: number
-  userId: number
-  purchasedAt: Date
-}
+  _id: string
+  user: string;
+  orderDate: Date;
+  products: {
+    product: string; 
+    quantity: number;
+  }[];
+  shippingInfo: {
+    country: string;
+    city: string;
+    address: string;
+  };
+  orderStatus: string;
+};
+
 export type OrderState = {
   orders: Order[]
   error: null | string
@@ -83,4 +117,12 @@ export type RegisterFormInput = {
   lastName: string
   email: string
   password: string
+}
+
+
+//** Modal Props */
+export type CategoryModalProps = {
+  selectedCategory: Category | null;
+  openModal: () => void;
+  onSubmit: (category: Category) => void;
 }

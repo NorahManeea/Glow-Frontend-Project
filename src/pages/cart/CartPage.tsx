@@ -1,18 +1,39 @@
-import React from 'react'
+import { useState } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { removeFromCart } from '../../redux/slices/products/productSlice'
+import { removeFromCart } from '../../redux/slices/productSlice'
 
 import swal from 'sweetalert'
 import useProductState from '../../hooks/useProductState'
 
 export default function CartPage() {
-  const { isLoading, cartItems, total } = useProductState()
+  const { isLoading, cartItems, product } = useProductState()
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const [displayedQuantity, setDisplayedQuantity] = useState(1) // Initialize displayedQuantity to 1
+
+  // useEffect(() => {
+  //   const existingProduct = cartItems.find((item) => item.id === product.id)
+  //   if (existingProduct) {
+  //     setDisplayedQuantity(existingProduct.quantity)
+  //   } else {
+  //     setDisplayedQuantity(1) // Set the default displayed quantity if the product is not in the cart
+  //   }
+  // }, [cartItems, product])
+
+  //** Quantity Handlers */
+  const handleIncreaseQuantity = () => {
+    setDisplayedQuantity((prevQuantity) => prevQuantity + 1)
+  }
+
+  const handleDecreaseQuantity = () => {
+    setDisplayedQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : prevQuantity))
+  }
+
+  //** Checkout Handler */
   const checkoutHandler = () => {
     swal({
       title: 'Checkout',
@@ -61,16 +82,34 @@ export default function CartPage() {
                     <span className="text-gray-500 text-xs">{product.categories}</span>
                     <button
                       className="font-semibold text-red-500 hover:text-red-700 text-xs text-left"
-                      onClick={() => dispatch(removeFromCart({ productId: product.id }))}>
+                      onClick={() => dispatch(removeFromCart({ productId: product._id }))}>
                       Remove
                     </button>
                   </div>
                 </div>
                 <div className="flex justify-center w-1/5">
-                  <input className="mx-2 border text-center w-8" type="text" defaultValue={1} />
+                  <svg
+                    className="fill-current text-gray-600 w-3 cursor-pointer"
+                    viewBox="0 0 448 512"
+                    onClick={handleDecreaseQuantity}>
+                    <path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
+                  </svg>
+                  <input
+                    className="mx-2 border text-center w-8"
+                    type="text"
+                    value={displayedQuantity}
+                    readOnly
+                  />
+
+                  <svg
+                    className="fill-current text-gray-600 w-3 cursor-pointer"
+                    viewBox="0 0 448 512"
+                    onClick={handleIncreaseQuantity}>
+                    <path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
+                  </svg>
                 </div>
                 <span className="text-center w-1/5 font-semibold text-sm">{product.price}$</span>
-                <span className="text-center w-1/5 font-semibold text-sm">{total}$</span>
+                <span className="text-center w-1/5 font-semibold text-sm">{}$</span>
               </div>
             ))}
           </div>
@@ -79,12 +118,12 @@ export default function CartPage() {
             <h1 className="font-semibold text-2xl border-b pb-8">Order Details</h1>
             <div className="flex justify-between mt-10 mb-5">
               <span className="font-semibold text-sm">{cartItems.length + ' items'}</span>
-              <span className="font-semibold text-sm">{total}$</span>
+              <span className="font-semibold text-sm">{}$</span>
             </div>
             <div className="border-t mt-8">
               <div className="flex font-semibold justify-between py-6 text-sm">
                 <span>Total price</span>
-                <span>{total}$</span>
+                <span>{}$</span>
               </div>
               <button
                 onClick={checkoutHandler}

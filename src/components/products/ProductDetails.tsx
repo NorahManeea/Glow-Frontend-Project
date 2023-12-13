@@ -1,54 +1,59 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 import { useDispatch } from 'react-redux'
-
 import {
   addToCart,
+  fetchSingleProductThunk,
   findProductById,
   productsRequest,
   productsSuccess
-} from '../../redux/slices/products/productSlice'
+} from '../../redux/slices/productSlice'
 
-import 'react-toastify/dist/ReactToastify.css'
-import { toast } from 'react-toastify'
 import api from '../../api'
-import { categoryActions } from '../../redux/slices/categories/categorySlice'
+import { categoryActions } from '../../redux/slices/categorySlice'
 import useProductState from '../../hooks/useProductState'
 import useCategoryState from '../../hooks/useCategoryState'
+import { AppDispatch } from '../../redux/store'
 
 export default function ProductDetails() {
-  const { id } = useParams()
-  const dispatch = useDispatch()
+  const { id } = useParams();
+  
+  const dispatch = useDispatch<AppDispatch>();
 
+  //** States */
   const { product, isLoading } = useProductState()
   const { categories } = useCategoryState()
+
+  //** Handle add to cart buton */
   const handleAddToCart = () => {
     dispatch(addToCart(product))
     return toast.success('Item added to cart')
   }
-  const handleGetProducts = async () => {
-    dispatch(productsRequest())
-    const res = await api.get('/mock/e-commerce/products.json')
-    dispatch(productsSuccess(res.data))
-  }
+  //** Handle get products */
   useEffect(() => {
-    handleGetProducts().then(() => dispatch(findProductById(Number(id))))
-    handleGetCategories()
-    console.log
-    window.scrollTo(0, 0)
-  }, [id])
+    console.log(id)
+
+    if (id) {
+      dispatch(fetchSingleProductThunk(id));
+      window.scrollTo(0, 0);
+    }
+  }, [dispatch, id]);
+
+  //** Get Categories */
   const handleGetCategories = async () => {
     dispatch(categoryActions.categoryRequest())
-
-    const res = await api.get('/mock/e-commerce/categories.json')
+    const res = await api.get('/api/categories')
     dispatch(categoryActions.categorySuccess(res.data))
   }
+
+  //** Get Category Name */
   const getCategories = (categoryId: number) => {
-    const category = categories.find((category) => category.id === categoryId)
+    const category = categories.find((category) => Number(category._id) === categoryId)
     return category ? category.name : 'Category Not Found'
   }
-  if (!product || (product && product.id !== Number(id))) {
+  if (!product || (product && product._id !== id)) {
     return (
       <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div className="text-center">
@@ -80,7 +85,7 @@ export default function ProductDetails() {
           <img
             alt={product.name}
             className="lg:w-1/2 w-full object-cover object-center rounded border border-gray-200"
-            src={product?.image}
+            src={`/images/products/${product?.image}`}
           />
           <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
             <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{product?.name}</h1>
@@ -89,33 +94,10 @@ export default function ProductDetails() {
               {product.categories &&
                 product.categories.map((categoryId) => getCategories(categoryId)).join(', ')}
             </p>
-            <div className="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
-              <div className="flex items-center">
-                <span className="mr-3">Variants</span>
-                <div className="relative">
-                  <select className="rounded border appearance-none border-gray-400 py-2 focus:outline-none focus:border-gray-500 text-base pl-3 pr-10">
-                    <option disabled value="Select">
-                      Select A variants
-                    </option>
-                  </select>
-                  <span className="absolute right-0 top-0 h-full w-10 text-center text-gray-600 pointer-events-none flex items-center justify-center">
-                    <svg
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-            </div>
+
             <div className="flex">
               <span className="title-font font-medium text-2xl text-gray-900">
-                {product.price}$
+                {product.price} SAR
               </span>
               <button
                 className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded"

@@ -1,60 +1,53 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { loginThunk } from '../../redux/slices/userSlice'
-import { toast } from 'react-toastify'
-
 import { ChangeEvent, FormEvent, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { AxiosError } from 'axios'
+import { resetPasswordThunk } from '../../redux/slices/passwordSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../redux/store'
 import { ThreeDots } from 'react-loader-spinner'
 
-export default function Login() {
-  const navigate = useNavigate()
+export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading } = useSelector((state: RootState) => state.users)
+  const { isLoading } = useSelector((state: RootState) => state.passwordReset)
 
   //** States */
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: ''
-  })
+  const [email, setEmail] = useState('')
 
   //** Input Change Handler */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setCredentials({
-      ...credentials,
-      [name]: value
-    })
+    const { value } = e.target
+    setEmail(value)
   }
 
   //** Submit Handler */
   const onSubmitHandler = async (e: FormEvent) => {
     e.preventDefault()
     try {
-      dispatch(loginThunk(credentials)).then((res) => {
+      dispatch(resetPasswordThunk(email)).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           localStorage.setItem('token', res.payload.token)
           const message = res.payload.message
           toast.success(message)
-          navigate('/')
-        }
-        if (res.meta.requestStatus === 'rejected') {
-          const message = res.payload.message
-          toast.error(message)
         }
       })
     } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorMessage = error.response?.data.msg
+        toast.error(errorMessage)
+      }
       toast.error('Something went wrong')
     }
   }
-
   return (
     <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 ">
         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
           <h1 className="text-xl font-bold leading-tight tracking-tight text-[#32334A] md:text-2xl">
-            Sign in
+            Forgot Password
           </h1>
+          <p>Enter your email we'll send you a link to reset your password</p>
+
           <form className="space-y-4 md:space-y-6" onSubmit={onSubmitHandler}>
             <div>
               <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
@@ -63,32 +56,13 @@ export default function Login() {
               <input
                 type="email"
                 id="email"
-                name="email"
+                value={email}
+                onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="name@gmail.com"
-                onChange={handleChange}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="••••••••"
-                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Link
-                to="/reset-password"
-                className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
-                Forgot password?
-              </Link>
-            </div>
+
             <button
               type="submit"
               className="w-full text-white bg-[#32334A] hover:bg-[#3f415a] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center"
@@ -104,15 +78,13 @@ export default function Login() {
                   />
                 </div>
               ) : (
-                'Sign In'
+                'Send'
               )}
             </button>
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-              Don’t have an account?
-              <Link to="/register" className="font-medium text-gray-600 ml-2 hover:underline">
-                Register
-              </Link>
-            </p>
+
+            <Link to="/login" className="font-medium text-gray-600 ml-2 hover:underline">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">Back to login</p>
+            </Link>
           </form>
         </div>
       </div>

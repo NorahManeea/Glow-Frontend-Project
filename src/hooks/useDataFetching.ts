@@ -1,90 +1,87 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import api from '../api/index';
-import {
-  productsRequest,
-  productsSuccess,
-} from '../redux/slices/products/productSlice';
-import {categoryActions} from '../redux/slices/categories/categorySlice'
-import {orderActions} from '../redux/slices/orders/orderSlice'
-import {userActions} from '../redux/slices/users/userSlice'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import api from '../api/index'
+import { productsRequest, productsSuccess } from '../redux/slices/productSlice'
+import { categoryActions } from '../redux/slices/categorySlice'
+import { orderActions } from '../redux/slices/orderSlice'
+import { userActions } from '../redux/slices/userSlice'
 
 
-
+//! NEED FIX
 const useFetchProducts = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(productsRequest());
+      dispatch(productsRequest())
 
       try {
-        const res = await api.get('/mock/e-commerce/products.json');
-        dispatch(productsSuccess(res.data));
+        const res = await api.get('/api/products')
+        dispatch(productsSuccess(res.data))
       } catch (error) {
         console.log(error)
       }
-    };
+    }
 
-    fetchData();
-  }, [dispatch]);
-};
+    fetchData()
+  }, [dispatch])
+}
 
 const useFetchCategories = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(categoryActions.categoryRequest());
+      dispatch(categoryActions.categoryRequest())
 
       try {
-        const res = await api.get('/mock/e-commerce/categories.json');
-        dispatch(categoryActions.categorySuccess(res.data));
+        const res = await api.get('/api/categories')
+        dispatch(categoryActions.categorySuccess(res.data))
       } catch (error) {
         console.log(error)
       }
-    };
+    }
 
-    fetchData();
-  }, [dispatch]);
-};
+    fetchData()
+  }, [dispatch])
+}
 
-const useFetchUsers = () => {
-  const dispatch = useDispatch();
+// const useFetchUsers = () => {
+//   const dispatch = useDispatch()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      dispatch(userActions.userRequest());
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       dispatch(userActions.userRequest())
 
-      try {
-        const res = await api.get('/mock/e-commerce/users.json');
-        dispatch(userActions.userSuccess(res.data));
-      } catch (error) {
-        console.log(error)
-      }
-    };
+//       try {
+//         const res = await api.get('/api/users')
+//         dispatch(userActions.userSuccess(res.data))
+//       } catch (error) {
+//         console.log(error)
+//       }
+//     }
 
-    fetchData();
-  }, [dispatch]);
-};
+//     fetchData()
+//   }, [dispatch])
+// }
 
 const useFetchOrders = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(orderActions.orderRequest());
+      dispatch(orderActions.orderRequest())
 
       try {
-        const res = await api.get('/mock/e-commerce/orders.json');
-        dispatch(orderActions.orderSuccess(res.data));
+        const res = await api.get('/api/orders')
+        dispatch(orderActions.orderSuccess(res.data))
       } catch (error) {
         console.log(error)
       }
-    };
+    }
 
-    fetchData();
-  }, [dispatch]);
-};
+    fetchData()
+  }, [dispatch])
+}
 
-export { useFetchProducts, useFetchCategories, useFetchUsers, useFetchOrders };
+export { useFetchProducts, useFetchCategories, useFetchOrders }

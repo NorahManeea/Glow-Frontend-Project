@@ -1,64 +1,45 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-
-import {
-  addToCart,
-  productsRequest,
-  productsSuccess,
-  searchProduct
-} from '../../redux/slices/products/productSlice'
-import api from '../../api'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../redux/store'
 import { Link } from 'react-router-dom'
-
-import SortProducts from './SortProducts'
-import useProductState from '../../hooks/useProductState'
-import useCategoryState from '../../hooks/useCategoryState'
-import { categoryActions } from '../../redux/slices/categories/categorySlice'
-import { useFetchCategories, useFetchProducts } from '../../hooks/useDataFetching'
-
-// Pagination 11-totalPages 2-IndexOfFirstItems 3-
+import { useFetchCategories } from '../../hooks/useDataFetching'
+import { fetchProductsCountThunk, fetchProductsThunk } from '../../redux/slices/productSlice'
 
 export default function ProductsList() {
   const dispatch = useDispatch<AppDispatch>()
 
-  const { products, searchText, product } = useProductState()
-  const { categories, isLoading, error } = useCategoryState()
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
-  const [productsPerPage] = useState(8)
+  const categories = useSelector((state: RootState) => state.category.category)
+  const { items, productCount } = useSelector((state: RootState) => state.products)
+
+  //** States */
+  const [searchText, setSearchText] = useState('')
+  const [sortBy, setSortBy] = useState('')
+  const [category, setCategory] = useState('')
+
   useFetchCategories()
-  useFetchProducts()
 
-  const handleAddToCart = () => {
-    dispatch(addToCart(product))
-  }
-
+  //** Handle Search Text */
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(searchProduct(event.target.value))
+    setSearchText(event.target.value)
   }
 
-  const handleOptionChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedCategory = event.target.value
-    setSelectedOptions(selectedCategory !== '0' ? [selectedCategory] : [])
+  //** Handle Sort */
+  const handleSortChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(event.target.value)
+  }
+  //** Handle Filter By Category */
+  const handleFilterChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setCategory(event.target.value)
   }
 
-  const filterProduct = searchText
-    ? products.filter((product) => product.name.toLowerCase().includes(searchText.toLowerCase()))
-    : products
-
-  const filteredProducts =
-    selectedOptions.length > 0
-      ? filterProduct.filter((product) => product.categories.includes(parseInt(selectedOptions[0])))
-      : filterProduct
-
+  //** Handle Pagination */
   const itemsPerPage = 8
-  const totalItems = filteredProducts.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const totalPages = Math.ceil(productCount / itemsPerPage)
 
   const [currentPage, setCurrentPage] = useState(1)
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem)
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem)
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber)
@@ -70,13 +51,17 @@ export default function ProductsList() {
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1)
   }
+
+  useEffect(() => {
+    dispatch(fetchProductsThunk({ category, sortBy, currentPage, searchText }))
+    dispatch(fetchProductsCountThunk())
+  }, [currentPage, category, sortBy,searchText])
   return (
     <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto gap-2">
       <div className="container px-5 py-24 mx-auto">
         <div className="lg:w-4/5 mx-auto flex gap-4">
           <div className="flex-grow">
             <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-4">Products</h2>
-
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-grow">
                 <input
@@ -87,43 +72,61 @@ export default function ProductsList() {
                   onChange={handleSearch}
                 />
               </div>
-              <SortProducts />
+              {/* SORT */}
               <div className="flex">
                 <select
                   id="sort"
                   name="sort"
-                  onChange={handleOptionChange}
+                  onChange={handleSortChange}
                   className="w-full border-2 border-gray-300 focus:outline-none focus:border-primary-500 text-gray-900 rounded-md px-2 md:px-3 py-0 md:py-1 tracking-wider"
                   style={{ marginLeft: '0.5rem' }}>
-                  <option value={0}>All Categories</option>
+                  <option value="All" defaultValue="All">
+                    All
+                  </option>
+                  <option value="newest">Newet</option>
+                  <option value="highestPrice">Highest Price</option>
+                  <option value="lowestPrice">Lowest Price</option>
+                </select>
+              </div>
+
+              {/* FILTER BY CATEGORY */}
+              <div className="flex">
+                <select
+                  id="sort"
+                  name="sort"
+                  onChange={handleFilterChange}
+                  className="w-full border-2 border-gray-300 focus:outline-none focus:border-primary-500 text-gray-900 rounded-md px-2 md:px-3 py-0 md:py-1 tracking-wider"
+                  style={{ marginLeft: '0.5rem' }}>
+                  <option value="All">All Categories</option>
                   {categories.map((option) => (
-                    <option key={option.id} value={option.id.toString()}>
+                    <option key={option._id} value={option.name}>
                       {option.name}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
-
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
               {currentItems.map((product) => (
-                <div key={product.id} className="group relative bg-gray-100 rounded-xl p-3">
+                <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                    />
+                    {product.image && (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                      />
+                    )}
                   </div>
                   <div className="mt-4 flex justify-between">
                     <div>
-                      <Link to={`/products/${product.id}`}>
+                      <Link to={`/products/${product._id}`}>
                         <span aria-hidden="true" className="absolute inset-0" />
-                        {product?.name}
+                        {product.name}
                       </Link>
                       <p className="mt-1 text-sm text-gray-500">{product.price}</p>
                     </div>
-                    <button onClick={handleAddToCart}>Add To Cart</button>
+                    <button>Add To Cart</button>
                   </div>
                 </div>
               ))}

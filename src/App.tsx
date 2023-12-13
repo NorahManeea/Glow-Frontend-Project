@@ -16,16 +16,17 @@ import HomePage from './pages/home/HomePage'
 import CartPage from './pages/cart/CartPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import OrdersTable from './components/admin/OrdersTable'
-import Category from './components/admin/CategoryTable'
 import UsersTable from './components/admin/UsersTable'
-import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProductsTable from './components/admin/ProductsTable'
-import { NewProductWrapper } from './components/NewProductWrapper'
 import OrdersPage from './pages/profile/OrdersPage'
 import useUserState from './hooks/useUserState'
+import ForgotPassword from './pages/forms/ForgotPassword'
+import Wishlist from './pages/wishlist/Wishlist'
+import CategoryTable from './components/admin/CategoryTable'
+import ResetPassword from './pages/forms/ResetPassword'
 
 function App() {
-  const { isLoggedIn, userData } = useUserState()
+  const { isAdmin } = useUserState()
 
   return (
     <div className="App">
@@ -37,35 +38,25 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:userId/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
 
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/orders" element={<OrdersPage />} />
 
         {/* Admin Dashboard */}
         <Route path="admin-dashboard">
-          <Route
-            index
-            element={userData?.role === 'admin' ? <ProductsTable /> : <Navigate to="/" />}
-          />
-          <Route
-            path="orders"
-            element={userData?.role === 'admin' ? <OrdersTable /> : <Navigate to="/" />}
-          />
-          <Route
-            path="users"
-            element={userData?.role === 'admin' ? <UsersTable /> : <Navigate to="/" />}
-          />
-          <Route
-            path="categories"
-            element={userData?.role === 'admin' ? <Category /> : <Navigate to="/" />}
-          />
+          <Route index element={isAdmin() ? <ProductsTable /> : <Navigate to="/" />} />
+          <Route path="orders" element={isAdmin() ? <OrdersTable /> : <Navigate to="/" />} />
+          <Route path="users" element={isAdmin() ? <UsersTable /> : <Navigate to="/" />} />
+          <Route path="categories" element={isAdmin() ? <CategoryTable /> : <Navigate to="/" />} />
 
           <Route path="products" element={<ProductsTable />} />
-          <Route path="new-product" element={<NewProductWrapper />} />
         </Route>
-        {/* Products Routes */}
         <Route path="products">
           <Route index element={<ProductPage />} />
           <Route path=":id" element={<ProductDetails />} />

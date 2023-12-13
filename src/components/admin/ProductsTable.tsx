@@ -1,23 +1,11 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import {
-  addProduct,
-  editProduct,
-  productsRequest,
-  productsSuccess,
-  removeProduct
-} from '../../redux/slices/products/productSlice'
-import api from '../../api'
+import { ChangeEvent, FormEvent, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { addProduct, editProduct, removeProduct } from '../../redux/slices/productSlice'
 import AdminSideBar from './AdminSideBar'
-import { Product, ProductFormInput } from '../../types/types'
+import { Product } from '../../types/types'
 import useProductState from '../../hooks/useProductState'
 
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
 import swal from 'sweetalert'
-import { productSchema } from '../../schema/yupScheme'
 import Widget from '../widget/Widget'
 
 import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
@@ -26,54 +14,57 @@ import { toast } from 'react-toastify'
 import { useFetchProducts } from '../../hooks/useDataFetching'
 
 const initialProductState: Product = {
-  id: 0,
+  _id: '',
   name: '',
   image: '',
   description: '',
   categories: [],
-  variants: [],
-  sizes: [],
-  price: 0
+  price: 0,
+  quantityInStock: 0,
+  discount: 0,
+  itemsSold: 0,
+  reviews: []
 }
 
 export default function ProductsTable() {
   const dispatch = useDispatch()
   const { products } = useProductState()
-   useFetchProducts()
+  useFetchProducts()
 
+
+  //** States */
   const [product, setProduct] = useState<Product>(initialProductState)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(productSchema),
-  });
-
+  //** Changes Handler */
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    const isList = name === 'categories' || name === 'variants' || name === 'sizes'
-
+    const { name, value } = e.target;
+    const isList = name === 'categories' || name === 'variants' || name === 'sizes';
+  
     if (selectedProduct) {
       setSelectedProduct((prevProduct) => ({
         ...prevProduct!,
-        [name]: isList ? value.split(',') : value
-      }))
+        [name]: isList ? value.split(',') : value,
+      }));
     } else {
       setProduct((prevProduct) => ({
         ...prevProduct,
-        [name]: isList ? value.split(',') : value
-      }))
+        [name]: isList ? value.split(',') : value,
+      }));
     }
-  }
+  };
+  
 
+  //** Submit Handler */
   const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault()
 
-    if (selectedProduct && selectedProduct.id) {
+    if (selectedProduct && selectedProduct._id) {
       const updatedProduct = { ...selectedProduct }
       dispatch(editProduct({ editedProduct: updatedProduct }))
       toast.success('Item edited successfully')
     } else {
-      const newProduct = { ...product, id: new Date().getTime() }
+      const newProduct = { ...product, id: '' }
       dispatch(addProduct({ product: newProduct }))
       toast.success('Item added successfully')
     }
@@ -81,7 +72,8 @@ export default function ProductsTable() {
     setSelectedProduct(null)
   }
 
-  const handleDeleteBtnClick = (id: number) => {
+  //** Delete Handler */
+  const handleDeleteBtnClick = (id: string) => {
     swal({
       title: 'Delete',
       text: 'Are you sure you want to delete?',
@@ -159,37 +151,6 @@ export default function ProductsTable() {
               </div>
             </div>
 
-            <div className="flex mt-2">
-              <div className="mr-2">
-                <input
-                  type="text"
-                  name="variants"
-                  id="variants"
-                  value={
-                    selectedProduct
-                      ? selectedProduct.variants.join(',')
-                      : product.variants.join(',')
-                  }
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Variants"
-                />
-              </div>
-              <div className="mr-2">
-                <input
-                  type="text"
-                  name="sizes"
-                  id="sizes"
-                  value={
-                    selectedProduct ? selectedProduct.sizes.join(',') : product.sizes.join(',')
-                  }
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Sizes"
-                />
-              </div>
-            </div>
-
             <button
               className={`mt-2 inline-flex items-center justify-center rounded-md border border-transparent ${
                 selectedProduct ? 'bg-blue-600' : 'bg-[#32334A] hover:bg-[#3f415a]'
@@ -212,7 +173,7 @@ export default function ProductsTable() {
           </thead>
           <tbody className="bg-white">
             {products.map((item, index) => (
-              <tr key={item.id}>
+              <tr key={item._id}>
                 <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
                 <td className="py-4 px-6 border-b border-gray-200">
                   <img src={item.image} width={100} />
@@ -226,7 +187,7 @@ export default function ProductsTable() {
                     <Edit2LineIcon />
                   </button>
                   <button
-                    onClick={() => handleDeleteBtnClick(item.id)}
+                    onClick={() => handleDeleteBtnClick(item._id)}
                     className="text-red-600 bg-red-500/10 p-3 rounded-full">
                     <DeleteBinLineIcon />
                   </button>

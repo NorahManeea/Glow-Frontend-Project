@@ -1,16 +1,12 @@
-import React from 'react'
-
-// Components
-import ProductsList from '../../components/products/ProductsList'
 import { Link } from 'react-router-dom'
-
 import './home.css'
+//** Components */
+import ProductsList from '../../components/products/ProductsList'
+//** Icons */
 import CheckboxCircleLineIcon from 'remixicon-react/CheckboxCircleLineIcon'
 import HandHeartLineIcon from 'remixicon-react/HandHeartLineIcon'
 import VipDiamondLineIcon from 'remixicon-react/CopperDiamondLineIcon'
-
-import image from '../../assets/bg.svg'
-import image1 from '../../assets/hero1.svg'
+import image from '../../assets/hero1.svg'
 
 export default function HomePage() {
   return (
@@ -45,7 +41,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-            <img src={image1} alt="mockup" />
+            <img src={image} alt="home" />
           </div>
         </div>
       </section>

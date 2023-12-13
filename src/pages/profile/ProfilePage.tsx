@@ -1,46 +1,49 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { AppDispatch } from '../../redux/store'
 import { useDispatch } from 'react-redux'
-import { userActions } from '../../redux/slices/users/userSlice'
+import { userActions } from '../../redux/slices/userSlice'
 import { Link } from 'react-router-dom'
 import useUserState from '../../hooks/useUserState'
 import { toast } from 'react-toastify'
 
 export default function ProfilePage() {
-  const { userData } = useUserState()
+  const { user } = useUserState()
 
   const dispatch = useDispatch<AppDispatch>()
 
   const [updateProfile, setUpdateProfile] = useState(false)
-  const [user, setUser] = useState({
+  const [profile, setProfile] = useState({
     firstName: '',
     lastName: ''
   })
 
+  //** Update Profile Handler */
   const handleUpdateProfile = () => {
     setUpdateProfile(true)
   }
 
   useEffect(() => {
-    if (userData) {
-      setUser({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || ''
+    if (user) {
+      setProfile({
+        firstName: user.firstName || '',
+        lastName: user.lastName || ''
       })
     }
-  }, [userData])
+  }, [user])
 
+  //** Inputs Change Handler */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setUser((prevUser) => ({
+    setProfile((prevUser) => ({
       ...prevUser,
       [name]: value
     }))
   }
 
+  //** Sumbit Handler */
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const updateUserData = { id: userData?.id, ...user }
+    const updateUserData = { id: user?._id, ...user }
     dispatch(userActions.editProfile(updateUserData))
     toast.success('Profile edited successfully')
     setUpdateProfile(false)
@@ -65,8 +68,8 @@ export default function ProfilePage() {
             Profile
           </h1>
           <div className="space-y-4 md:space-y-6">
-            <p>First Name: {userData?.firstName}</p>
-            <p>Last Name: {userData?.lastName}</p>
+            <p>First Name: {user?.firstName}</p>
+            <p>Last Name: {user?.lastName}</p>
 
             <div className="gap-3">
               <button
@@ -79,6 +82,9 @@ export default function ProfilePage() {
                   My Orders
                 </button>
               </Link>
+              <button className="w-full text-red-600 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                Delete my account
+              </button>
             </div>
 
             {updateProfile && (
@@ -95,7 +101,7 @@ export default function ProfilePage() {
                     id="firstName"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder="First Name"
-                    value={user.firstName}
+                    value={profile.firstName}
                     onChange={handleChange}
                   />
                 </div>
@@ -111,7 +117,7 @@ export default function ProfilePage() {
                     id="lastName"
                     placeholder="Last Name"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    value={user.lastName}
+                    value={profile.lastName}
                     onChange={handleChange}
                   />
                 </div>

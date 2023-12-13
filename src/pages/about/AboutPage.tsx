@@ -1,5 +1,4 @@
-import React from 'react'
-
+//** Icons */
 import CheckboxLineIcon from 'remixicon-react/CheckboxLineIcon'
 import CheckDoubleLineIcon from 'remixicon-react/CheckDoubleLineIcon'
 import UserSettingsLineIcon from 'remixicon-react/UserSettingsLineIcon'

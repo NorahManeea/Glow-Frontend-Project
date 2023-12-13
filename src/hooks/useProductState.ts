@@ -10,9 +10,10 @@ export default function useProductState() {
   const cartLength = state.products.cartLength
   const cartItems = state.products.cartItems
 
-  const total = state.products.cartItems.reduce((i, product) => {
-    return i + product.price
-  }, 0)
+
+  // const total = state.products.cartItems.reduce((i, product) => {
+  //   return i + product.price * product.quantity
+  // }, 0)
 
   return {
     products,
@@ -21,6 +22,6 @@ export default function useProductState() {
     isLoading,
     cartLength,
     cartItems,
-    total,
+
   }
 }

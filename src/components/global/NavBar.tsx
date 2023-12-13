@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { userActions } from '../../redux/slices/users/userSlice'
-import { RootState } from '../../redux/store'
+import { userActions } from '../../redux/slices/userSlice'
 import RightNavBar from './RightNavBar'
 import SecondNavBar from './SecondNavBar'
 import swal from 'sweetalert'
 import useUserState from '../../hooks/useUserState'
 import useProductState from '../../hooks/useProductState'
+import { RootState } from '../../redux/store'
 
 export default function NavBar() {
-  const { isLoggedIn, userData } = useUserState()
+  const {user, isLoggedIn} = useSelector((state: RootState)=> state.users)
   const { cartLength } = useProductState()
 
   const dispatch = useDispatch()
@@ -24,7 +24,7 @@ export default function NavBar() {
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
   }
-  // Logout
+  //** Logout Handler */
   const logoutHandler = () => {
     swal({
       title: 'Logout',
@@ -35,12 +35,12 @@ export default function NavBar() {
     }).then((isOk) => {
       if (isOk) {
         setIsOpen(false)
-        dispatch(userActions.logout())
+        dispatch(userActions.logoutSuccess())
         navigate('/login')
       }
     })
   }
- 
+
   return (
     <header>
       <nav className="bg-[#F7F7F7]">
@@ -72,6 +72,26 @@ export default function NavBar() {
                   )}
                 </button>
               </Link>
+              <Link to="/wishlist">
+                <button
+                  className="py-4 px-1 relative border-2 border-transparent p-1 text-gray-400 hover:text-gray-600 rounded-full focus:outline-none transition duration-150 ease-in-out"
+                  aria-label="Wishlist">
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                  </svg>
+                </button>
+              </Link>
               {isLoggedIn ? (
                 <>
                   {/* Profile */}
@@ -98,7 +118,7 @@ export default function NavBar() {
                           </button>
                         </Link>
 
-                        {userData?.role === 'admin' && (
+                        {user?.role === 'ADMIN' && (
                           <Link
                             onClick={handleMenuItemClick}
                             className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left"
