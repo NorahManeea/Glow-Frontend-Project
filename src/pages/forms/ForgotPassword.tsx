@@ -9,7 +9,7 @@ import { ThreeDots } from 'react-loader-spinner'
 
 export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading } = useSelector((state: RootState) => state.passwordReset)
+  const { error, isLoading } = useSelector((state: RootState) => state.passwordReset)
 
   //** States */
   const [email, setEmail] = useState('')
@@ -30,12 +30,11 @@ export default function ForgotPassword() {
           const message = res.payload.message
           toast.success(message)
         }
+        if (res.meta.requestStatus === 'rejected') {
+          toast.error(error)
+        }
       })
     } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data.msg
-        toast.error(errorMessage)
-      }
       toast.error('Something went wrong')
     }
   }

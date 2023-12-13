@@ -24,7 +24,7 @@ export default function Register() {
   })
 
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading } = useSelector((state: RootState) => state.users)
+  const { error, isLoading } = useSelector((state: RootState) => state.users)
   const navigate = useNavigate()
 
   //** States */
@@ -44,20 +44,19 @@ export default function Register() {
   //** Submit Handler  */
   const onSubmitHandler = async (data: RegisterFormInput) => {
     try {
-      const res = await dispatch(registerThunk(data)).unwrap()
-      if (res.meta.requestStatus === 'fulfilled') {
-        localStorage.setItem('token', res.payload.toke)
-        toast.success(res.payload.message)
-        navigate('/')
-      }
+      dispatch(registerThunk(data)).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          localStorage.setItem('token', res.payload.token)
+          const message = res.payload.message
+          toast.success(message)
+          navigate('/login')
+        }
+        if (res.meta.requestStatus === 'rejected') {
+          toast.error(error)
+        }
+      })
     } catch (error) {
-      let errorMessage
-
-      if (error instanceof AxiosError) {
-        errorMessage = error.response?.data.msg
-      }
-
-      toast.error(errorMessage)
+      toast.error('Something went wrong')
     }
   }
 

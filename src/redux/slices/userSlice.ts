@@ -20,6 +20,8 @@ export const loginThunk = createAsyncThunk(
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
+        console.log('🚀 ~ file: userSlice.ts:23 ~ error:', error.response?.data.msg)
+
         return rejectWithValue(error.response?.data.msg)
       }
     }

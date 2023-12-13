@@ -10,7 +10,7 @@ import { ThreeDots } from 'react-loader-spinner'
 export default function Login() {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading } = useSelector((state: RootState) => state.users)
+  const { error, isLoading } = useSelector((state: RootState) => state.users)
 
   //** States */
   const [credentials, setCredentials] = useState({
@@ -39,8 +39,7 @@ export default function Login() {
           navigate('/')
         }
         if (res.meta.requestStatus === 'rejected') {
-          const message = res.payload.message
-          toast.error(message)
+          toast.error(error)
         }
       })
     } catch (error) {

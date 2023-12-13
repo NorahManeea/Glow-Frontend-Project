@@ -9,7 +9,7 @@ import { AxiosError } from 'axios'
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading } = useSelector((state: RootState) => state.passwordReset)
+  const { error, isLoading } = useSelector((state: RootState) => state.passwordReset)
   const navigate = useNavigate()
 
   const { userId = '', token = '' } = useParams<{ userId: string; token: string }>()
@@ -33,14 +33,12 @@ export default function ResetPassword() {
           toast.success(message)
           navigate('/login')
         }
+        if (res.meta.requestStatus === 'rejected') {
+          toast.error(error)
+        }
       })
     } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data.msg
-        toast.error(errorMessage)
-      } else {
-        toast.error('Something went wrong')
-      }
+      toast.error('Something went wrong')
     }
   }
 
