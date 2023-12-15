@@ -5,7 +5,6 @@ import { ChangeEvent, FormEvent, useState } from 'react'
 import { resetPasswordUrlThunk } from '../../redux/slices/passwordSlice'
 import { ThreeDots } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
-import { AxiosError } from 'axios'
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>()
@@ -33,7 +32,7 @@ export default function ResetPassword() {
           toast.success(message)
           navigate('/login')
         }
-        if (res.meta.requestStatus === 'rejected') {
+        else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })

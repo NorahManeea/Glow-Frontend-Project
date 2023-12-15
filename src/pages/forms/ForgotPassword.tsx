@@ -1,7 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { AxiosError } from 'axios'
 import { resetPasswordThunk } from '../../redux/slices/passwordSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../redux/store'
@@ -30,7 +29,7 @@ export default function ForgotPassword() {
           const message = res.payload.message
           toast.success(message)
         }
-        if (res.meta.requestStatus === 'rejected') {
+        else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })

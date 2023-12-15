@@ -1,75 +1,99 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
+import { toast } from 'react-toastify'
+import swal from 'sweetalert'
+//** Redux */
 import { useDispatch } from 'react-redux'
-import { addProduct, editProduct, removeProduct } from '../../redux/slices/productSlice'
+import { createProductThunk, updateProductThunk } from '../../redux/slices/productSlice'
+import { AppDispatch } from '../../redux/store'
 import AdminSideBar from './AdminSideBar'
 import { Product } from '../../types/types'
 import useProductState from '../../hooks/useProductState'
-
-import swal from 'sweetalert'
+//** Compoents */
 import Widget from '../widget/Widget'
-
+//** Icons */
 import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
 import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
-import { toast } from 'react-toastify'
-import { useFetchProducts } from '../../hooks/useDataFetching'
 
 const initialProductState: Product = {
   _id: '',
   name: '',
   image: '',
   description: '',
-  categories: [],
+  categories: '',
   price: 0,
   quantityInStock: 0,
-  discount: 0,
-  itemsSold: 0,
-  reviews: []
+  discount: 0
 }
 
 export default function ProductsTable() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { products } = useProductState()
-  useFetchProducts()
-
 
   //** States */
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [product, setProduct] = useState<Product>(initialProductState)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isEdit, setIsEdit] = useState(false)
+  const [image, setImage] = useState<File | undefined>(undefined)
 
-  //** Changes Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    const isList = name === 'categories' || name === 'variants' || name === 'sizes';
-  
-    if (selectedProduct) {
-      setSelectedProduct((prevProduct) => ({
-        ...prevProduct!,
-        [name]: isList ? value.split(',') : value,
-      }));
-    } else {
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        [name]: isList ? value.split(',') : value,
-      }));
+  //** Inputs Change Handler */
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    const isList = name === 'categories' || name === 'variants' || name === 'sizes'
+    if (isList) {
+      setProduct({
+        ...product,
+        [name]: value.split(',')
+      })
+      return
     }
-  };
-  
+    setProduct({
+      ...product,
+      [name]: value
+    })
+  }
 
+  //** Handle Image File Change */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      setImage(files[0])
+    } else {
+    }
+  }
+  //** Edit Product Handler */
+  const openEditProductModal = (item: Product) => {
+    setProduct(item)
+    setSelectedProduct({ ...item })
+    setIsEdit(true)
+    setIsModalOpen(true)
+  }
   //** Submit Handler */
-  const onSubmitHandler = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
 
+    const formData = new FormData()
+    formData.append('name', product.name)
+    formData.append('description', product.description)
+    formData.append('price', String(product.price))
+    formData.append('quantityInStock', String(product.quantityInStock))
+    formData.append('categories', product.categories)
+    formData.append('discount', String(product.discount))
+
+    if (image) {
+      formData.append('image', image)
+    }
+
     if (selectedProduct && selectedProduct._id) {
-      const updatedProduct = { ...selectedProduct }
-      dispatch(editProduct({ editedProduct: updatedProduct }))
+      formData.append('_id', selectedProduct._id)
+      dispatch(updateProductThunk({ productId: selectedProduct._id, updatedProduct: formData }))
       toast.success('Item edited successfully')
     } else {
-      const newProduct = { ...product, id: '' }
-      dispatch(addProduct({ product: newProduct }))
+      dispatch(createProductThunk(formData))
       toast.success('Item added successfully')
     }
+
     setProduct(initialProductState)
-    setSelectedProduct(null)
   }
 
   //** Delete Handler */
@@ -82,10 +106,11 @@ export default function ProductsTable() {
       buttons: ['Cancel', 'Delete']
     }).then((isOk) => {
       if (isOk) {
-        dispatch(removeProduct({ productId: id }))
+        // dispatch(del({ productId: id }))
       }
     })
   }
+
   return (
     <div className="flex">
       <AdminSideBar />
@@ -93,73 +118,121 @@ export default function ProductsTable() {
         <Widget />
         <div className="flex items-center">
           <h2 className="text-2xl font-bold text-[#32334A] lg:text-3xl mt-4">Products Table</h2>
-        </div>
-
-        <div className="flex flex-1 items-center justify-center pb-4">
-          <form className="mt-5 sm:flex sm:items-center" onSubmit={onSubmitHandler}>
-            <div className="flex mt-2">
-              <div className="mr-2">
+          <form className="p-6 " onSubmit={handleSubmit}>
+            <div className="mt-4 flex text-sm leading-6 text-gray-600">
+              <label
+                htmlFor="file-upload"
+                className="relative cursor-pointer rounded-md bg-white font-semibold text-[#F2ACAA] focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                <span>Upload a Image</span>
                 <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  value={selectedProduct ? selectedProduct.name : product.name}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Product Name"
+                  type="file"
+                  onChange={(e) => {
+                    handleFileChange(e)
+                  }}
                 />
-              </div>
-              <div className="mr-2">
-                <input
-                  type="text"
-                  name="image"
-                  id="image"
-                  value={selectedProduct ? selectedProduct.image : product.image}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Image Url"
-                />
-              </div>
+              </label>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={product.name}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
             </div>
 
-            <div className="flex mt-2">
-              <div className="mr-2">
-                <input
-                  name="description"
-                  id="description"
-                  value={selectedProduct ? selectedProduct.description : product.description}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Description"
-                  type="text"
-                />
-              </div>
-              <div className="mr-2">
-                <input
-                  type="text"
-                  name="categories"
-                  id="categories"
-                  value={
-                    selectedProduct
-                      ? selectedProduct.categories.join(',')
-                      : product.categories.join(',')
-                  }
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
-                  placeholder="Categories"
-                />
-              </div>
+            <div className="mb-4">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium leading-6 text-gray-900">
+                Description
+              </label>
+              <input
+                type="text"
+                id="description"
+                name="description"
+                value={product.description}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
             </div>
 
-            <button
-              className={`mt-2 inline-flex items-center justify-center rounded-md border border-transparent ${
-                selectedProduct ? 'bg-blue-600' : 'bg-[#32334A] hover:bg-[#3f415a]'
-              } px-5 py-2 font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm`}
-              style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {selectedProduct ? 'Edit Product' : 'Add Product'}
-            </button>
+            <div className="mb-4">
+              <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
+                Price
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                value={product.price}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="discount"
+                className="block text-sm font-medium leading-6 text-gray-900">
+                Discount
+              </label>
+              <input
+                type="number"
+                id="discount"
+                name="discount"
+                value={product.discount}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="quantityInStock"
+                className="block text-sm font-medium leading-6 text-gray-900">
+                Quantity In Stock
+              </label>
+              <input
+                type="number"
+                id="quantityInStock"
+                name="quantityInStock"
+                value={product.quantityInStock}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="categories"
+                className="block text-sm font-medium leading-6 text-gray-900">
+                Categories
+              </label>
+              <input
+                type="text"
+                id="categories"
+                name="categories"
+                value={product.categories}
+                onChange={handleInputChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-x-6">
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center w-full rounded-md border border-transparent bg-[#32334A] hover:bg-[#3f415a] px-4 py-2 font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:w-auto sm:text-sm">
+                Save
+              </button>
+            </div>
           </form>
         </div>
+
+        <div className="flex flex-1 items-center justify-center pb-4"></div>
 
         <table className="w-full table-fixed border">
           <thead>
@@ -182,7 +255,7 @@ export default function ProductsTable() {
                 <td className="py-4 px-6 border-b border-gray-200 truncate">{item.description}</td>
                 <td className="py-4 px-6 border-b border-gray-200 whitespace">
                   <button
-                    onClick={() => setSelectedProduct(item)}
+                    onClick={() => openEditProductModal(item)}
                     className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full">
                     <Edit2LineIcon />
                   </button>

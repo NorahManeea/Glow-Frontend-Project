@@ -10,7 +10,6 @@ import { RegisterFormInput } from '../../types/types'
 import { registerSchema } from '../../schema/yupScheme'
 import { ThreeDots } from 'react-loader-spinner'
 
-import { AxiosError } from 'axios'
 import { registerThunk } from '../../redux/slices/userSlice'
 
 export default function Register() {
@@ -51,7 +50,7 @@ export default function Register() {
           toast.success(message)
           navigate('/login')
         }
-        if (res.meta.requestStatus === 'rejected') {
+        else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })

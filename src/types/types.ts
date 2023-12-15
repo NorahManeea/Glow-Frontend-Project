@@ -1,4 +1,4 @@
-// Users
+//** Users */
 export type User = {
   _id: string
   firstName: string
@@ -18,12 +18,13 @@ export type UserState = {
   isLoading: boolean
   isLoggedIn: boolean
   user: User | null
+  usersCount: number
 }
 
-const ROLES = {
+export const ROLES = {
   USER: 'USER',
   ADMIN: 'ADMIN'
-}as const
+} as const
 export type Role = keyof typeof ROLES
 
 export type AuthState = {
@@ -33,23 +34,26 @@ export type AuthState = {
   isLoggedIn: boolean
   userData: User | null
 }
-//   Products
+//** Products */
 export type Product = {
   _id: string
   name: string
   image: string
   description: string
-  categories: number[]
-  price: number,
-  quantityInStock: number,
-  discount: number,
-  itemsSold: number,
-  reviews: Review[]
+  categories: string
+  price: number
+  quantityInStock: number
+  discount: number
 }
 
-export type Review = {
-  
+export type DiscountCode = {
+  _id: string
+  code: string
+  discountPercentage: number
+  expirationDate: Date
 }
+
+export type Review = {}
 
 export type ProductState = {
   items: Product[]
@@ -58,12 +62,11 @@ export type ProductState = {
   searchText: string
   singleProduct: Product
   cartItems: Product[]
-  cartLength: number,
+  cartLength: number
   productCount: number
-
 }
 
-//   Category
+//** Category */
 export type Category = {
   _id: string
   name: string
@@ -71,40 +74,42 @@ export type Category = {
 export type CategoryState = {
   category: Category[]
   error: null | string
-  isLoading: boolean,
+  isLoading: boolean
 }
-//   Orders
+//** Orders */
 export type Order = {
   _id: string
-  user: string;
-  orderDate: Date;
+  uniqueId: string,
+  user: string
+  orderDate: Date
   products: {
-    product: string; 
-    quantity: number;
-  }[];
+    product: string
+    quantity: number
+  }[]
   shippingInfo: {
-    country: string;
-    city: string;
-    address: string;
-  };
-  orderStatus: string;
-};
+    country: string
+    city: string
+    address: string
+  }
+  orderStatus: string
+}
 
 export type OrderState = {
   orders: Order[]
   error: null | string
   isLoading: boolean
+  orderCount: number
 }
 
-// Forms Inputs
+//**  Forms Inputs */
 export type ProductFormInput = {
-  name: string;
-  image: string;
-  description: string;
-  categories: string;
-  variants: string;
-  sizes: number;
-  price: number;
+  name: string
+  image: string
+  description: string
+  categories: string
+  variants: string
+  sizes: number
+  price: number
 }
 
 export type LoginFormInput = {
@@ -119,10 +124,21 @@ export type RegisterFormInput = {
   password: string
 }
 
+export type DiscountState = {
+  discountCodes: DiscountCode[]
+  error: null | string
+  isLoading: boolean
+}
 
 //** Modal Props */
 export type CategoryModalProps = {
-  selectedCategory: Category | null;
-  openModal: () => void;
-  onSubmit: (category: Category) => void;
+  selectedCategory: Category | null
+  openModal: () => void
+  onSubmit: (category: Category) => void
+}
+
+export type DiscountCodeModalProps = {
+  selectedCode: DiscountCode | null
+  openModal: () => void
+  onSubmit: (discountCode: DiscountCode) => void
 }

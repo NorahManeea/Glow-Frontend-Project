@@ -1,15 +1,18 @@
-import { AppDispatch } from '../../redux/store'
-import { useDispatch } from 'react-redux'
-import { userActions } from '../../redux/slices/userSlice'
-import AdminSideBar from './AdminSideBar'
-import useUserState from '../../hooks/useUserState'
+import { useEffect } from 'react'
 import swal from 'sweetalert'
-import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 import { toast } from 'react-toastify'
+//** Redux */
+import { AppDispatch, RootState } from '../../redux/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { blockUserThunk, deleteUserThunk, fetchUsersThunk, grantUserRoleThunk } from '../../redux/slices/userSlice'
+//** Components */
+import AdminSideBar from './AdminSideBar'
+//** Icons */
+import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 
 export default function UsersTable() {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoading, users } = useUserState()
+  const { users, isLoading } = useSelector((state: RootState) => state.users)
 
   //** Delete Handler */
   const handleDeleteBtnClick = (id: string) => {
@@ -21,13 +24,46 @@ export default function UsersTable() {
       buttons: ['Cancel', 'Delete']
     }).then((isOk) => {
       if (isOk) {
-        dispatch(userActions.removeUser({ userId: id }))
-        toast.success('User deleted successfully')
+        dispatch(deleteUserThunk(id))
+        toast.success('User has been deleted successfully')
       }
     })
   }
 
-  const filteredUsers = users.filter((item) => item.role !== 'admin')
+  //** Block Handler */
+  const handleBlockBtnClick = (id: string) => {
+    swal({
+      title: 'Block',
+      text: 'Are you sure you want to block user?',
+      icon: 'warning',
+      dangerMode: true,
+      buttons: ['Cancel', 'Block']
+    }).then((isOk) => {
+      if (isOk) {
+        dispatch(blockUserThunk(id))
+        toast.success('User has been deleted successfully')
+      }
+    })
+  }
+    //** Grant Role Handler */
+    const handleGrantRoleBtnClick = (id: string) => {
+      swal({
+        title: 'Grant Role',
+        text: 'Are you sure you want to change role?',
+        icon: 'warning',
+        dangerMode: true,
+        buttons: ['Cancel', 'Change Role']
+      }).then((isOk) => {
+        if (isOk) {
+          dispatch(grantUserRoleThunk(id))
+          toast.success('User role has been change successfully')
+        }
+      })
+    }
+  
+  useEffect(() => {
+    dispatch(fetchUsersThunk())
+  }, [])
 
   return (
     <div className="flex">
@@ -49,17 +85,24 @@ export default function UsersTable() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {filteredUsers.map((item, index) => (
+            {users.map((item, index) => (
               <tr key={item._id}>
                 <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
                 <td className="py-4 px-6 border-b border-gray-200">{item.firstName}</td>
-                <td className="py-4 px-6 border-b border-gray-200">{item.role}</td>
+                <td className="py-4 px-6 border-b border-gray-200">
+
+                <button
+                    className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full"
+                    onClick={() => handleGrantRoleBtnClick(item._id)}>
+                    {item.role }
+                  </button>
+                </td>
                 <td className="py-4 px-6 border-b border-gray-200">{item.email}</td>
 
                 <td className="py-4 px-6 border-b border-gray-200 whitespace">
                   <button
                     className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full"
-                    onClick={() => dispatch(userActions.blockUser({ userId: item._id }))}>
+                    onClick={() => handleBlockBtnClick(item._id)}>
                     {item.isBlocked ? 'Un-block' : 'Block'}
                   </button>
                   <button

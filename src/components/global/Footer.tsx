@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
-    
     <footer className="bg-[#F7F7F7] mx-auto w-full max-w-container px-4 sm:px-6 lg:px-8">
       <div className="border-t border-slate-900/5 py-10">
         <h4 className="text-gray-400 text-center">GLOW</h4>

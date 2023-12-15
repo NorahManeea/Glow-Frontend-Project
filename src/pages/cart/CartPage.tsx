@@ -47,7 +47,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container bg-gray-100">
+    <div className="container bg-gray-100 text-center">
       {isLoading && <h3> Loading products...</h3>}
       {cartItems.length > 0 ? (
         <div className="flex mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 ">
@@ -114,22 +114,55 @@ export default function CartPage() {
             ))}
           </div>
           {/* second part */}
-          <div id="summary" className="w-1/4 px-8 py-10">
-            <h1 className="font-semibold text-2xl border-b pb-8">Order Details</h1>
+          <div
+            id="summary"
+            className="w-1/4 px-8 py-10 bg-white ml-3 max-h-[600px] overflow-y-auto">
+            <h1 className="font-semibold text-2xl">Order Details</h1>
             <div className="flex justify-between mt-10 mb-5">
               <span className="font-semibold text-sm">{cartItems.length + ' items'}</span>
               <span className="font-semibold text-sm">{}$</span>
             </div>
-            <div className="border-t mt-8">
-              <div className="flex font-semibold justify-between py-6 text-sm">
-                <span>Total price</span>
+            <div className="border-t mt-4">
+              <div className="flex justify-between py-3 text-sm">
+                <span>Subtotal</span>
                 <span>{}$</span>
               </div>
-              <button
-                onClick={checkoutHandler}
-                className="rounded-md bg-[#32334A] hover:bg-[#3f415a] py-3 text-sm text-white w-full">
-                Checkout
-              </button>
+              <div className="flex justify-between py-3 text-sm">
+                <span>Discout</span>
+                <span>{}$</span>
+              </div>
+              <div className="flex justify-between py-3 text-sm border-b pb-5">
+                <span>Shipping</span>
+                <span>14$</span>
+              </div>
+
+              <div className="py-10">
+                <label className="font-semibold inline-block mb-3 text-sm uppercase">
+                  Promo Code
+                </label>
+
+                <div className="flex">
+                  <input
+                    type="text"
+                    id="promo"
+                    placeholder="Enter your code"
+                    className="p-2 text-sm flex-grow"
+                  />
+                  <button className="bg-[#32334A] hover:bg-[#3f415a] px-5 py-2 text-sm text-white rounded-md ">
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex font-semibold justify-between py-3 text-sm ">
+                <span>Total price</span>
+                <span>$</span>
+              </div>
+              <Link to="/payment">
+                <button className="rounded-md bg-[#32334A] hover:bg-[#3f415a] py-3 text-sm text-white w-full mt-2">
+                  Checkout
+                </button>
+              </Link>
             </div>
           </div>
         </div>

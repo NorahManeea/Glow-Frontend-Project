@@ -1,16 +1,18 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { AppDispatch } from '../../redux/store'
-import { useDispatch } from 'react-redux'
-import { userActions } from '../../redux/slices/userSlice'
-import { Link } from 'react-router-dom'
-import useUserState from '../../hooks/useUserState'
+import { Link, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
+//** Redux */
+import { AppDispatch, RootState } from '../../redux/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { setProfileThunk, updateProfileThunk } from '../../redux/slices/userSlice'
+import useUserState from '../../hooks/useUserState'
 
 export default function ProfilePage() {
-  const { user } = useUserState()
-
   const dispatch = useDispatch<AppDispatch>()
+  const { id } = useParams()
 
+  //** States */
+  const { user } = useUserState()
   const [updateProfile, setUpdateProfile] = useState(false)
   const [profile, setProfile] = useState({
     firstName: '',
@@ -22,15 +24,6 @@ export default function ProfilePage() {
     setUpdateProfile(true)
   }
 
-  useEffect(() => {
-    if (user) {
-      setProfile({
-        firstName: user.firstName || '',
-        lastName: user.lastName || ''
-      })
-    }
-  }, [user])
-
   //** Inputs Change Handler */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -41,13 +34,26 @@ export default function ProfilePage() {
   }
 
   //** Sumbit Handler */
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const updateUserData = { id: user?._id, ...user }
-    dispatch(userActions.editProfile(updateUserData))
-    toast.success('Profile edited successfully')
-    setUpdateProfile(false)
+
+    try {
+      if (user) {
+        await dispatch(updateProfileThunk({ userId: user._id, ...profile }))
+        toast.success('Profile edited successfully')
+        setUpdateProfile(false)
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    }
   }
+  useEffect(() => {
+    if (id) {
+      dispatch(setProfileThunk(id))
+      window.scrollTo(0, 0)
+    }
+  }, [id])
+
   return (
     <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
@@ -86,47 +92,6 @@ export default function ProfilePage() {
                 Delete my account
               </button>
             </div>
-
-            {updateProfile && (
-              <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label
-                    htmlFor="firstName"
-                    className="block mb-2 text-sm font-medium text-gray-900">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    id="firstName"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    placeholder="First Name"
-                    value={profile.firstName}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="lastName"
-                    className="block mb-2 text-sm font-medium text-gray-900">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    id="lastName"
-                    placeholder="Last Name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    value={profile.lastName}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <button className="w-full text-white bg-[#32334A] hover:bg-[#3f415a] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                  Save
-                </button>
-              </form>
-            )}
           </div>
         </div>
       </div>

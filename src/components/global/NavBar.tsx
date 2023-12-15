@@ -1,28 +1,29 @@
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import swal from 'sweetalert'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../redux/store'
 import { userActions } from '../../redux/slices/userSlice'
 import RightNavBar from './RightNavBar'
 import SecondNavBar from './SecondNavBar'
-import swal from 'sweetalert'
-import useProductState from '../../hooks/useProductState'
-import { RootState } from '../../redux/store'
+import useUserState from '../../hooks/useUserState'
 
 export default function NavBar() {
-  const {user, isLoggedIn} = useSelector((state: RootState)=> state.users)
-  const { cartLength } = useProductState()
+  const { user, isLoggedIn, isAdmin } = useUserState()
+  const { totalItems } = useSelector((state: RootState) => state.cart)
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
 
+  //** Handle Menu */
   const handleMenuItemClick = () => {
     setIsOpen(false)
   }
-
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
   }
+
   //** Logout Handler */
   const logoutHandler = () => {
     swal({
@@ -62,10 +63,10 @@ export default function NavBar() {
                     stroke="currentColor">
                     <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                   </svg>
-                  {cartLength > 0 && (
+                  {totalItems > 0 && (
                     <span className="absolute inset-0 object-right-top -mr-6">
                       <div className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold leading-4 bg-red-600 text-white">
-                        {cartLength}
+                        {totalItems}
                       </div>
                     </span>
                   )}
@@ -109,7 +110,7 @@ export default function NavBar() {
 
                     {isOpen && (
                       <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg">
-                        <Link to="/profile" onClick={handleMenuItemClick}>
+                        <Link to={`/profile/${user?._id}`} onClick={handleMenuItemClick}>
                           <button
                             type="button"
                             className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left">
@@ -117,7 +118,7 @@ export default function NavBar() {
                           </button>
                         </Link>
 
-                        {user?.role === 'ADMIN' && (
+                        {isAdmin() && (
                           <Link
                             onClick={handleMenuItemClick}
                             className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left"
@@ -137,7 +138,7 @@ export default function NavBar() {
                   </div>
                 </>
               ) : (
-                // Login
+                //** Login */
                 <Link
                   className="text-gray-800 bg-gray-100 hover:bg-[#3f415a] hover:text-white inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm "
                   to="/login">

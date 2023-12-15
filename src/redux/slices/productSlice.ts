@@ -44,20 +44,20 @@ export const fetchProductsThunk = createAsyncThunk(
     }
   }
 )
+//** Fetch Sign Product Thunk */
 export const fetchSingleProductThunk = createAsyncThunk(
   'products/fetchSingleProduct',
-  async (productId: string | undefined, { rejectWithValue }) => {
+  async (productId: string, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/products/${productId}`);
-      console.log("🚀 ~ file: productSlice.ts:54 ~ res:", res);
-      return res.data.payload;
+      const res = await api.get(`/api/products/${productId}`)
+      return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data);
+        return rejectWithValue(error.response?.data)
       }
     }
   }
-);
+)
 //** Products Count Thunk */
 export const fetchProductsCountThunk = createAsyncThunk(
   'products/fetchProductsCount',
@@ -72,73 +72,77 @@ export const fetchProductsCountThunk = createAsyncThunk(
     }
   }
 )
+//** Fetch Best Seller Products */
+export const fetchHighestSoldProductsThunk = createAsyncThunk(
+  'products/fetchHighestSoldProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/api/products/highest-sold')
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Create New Product Thunk */
+export const createProductThunk = createAsyncThunk(
+  'products/createProduct',
+  async (productData: FormData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/api/products', productData)
+      return response.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Update Product Thunk */
+export const updateProductThunk = createAsyncThunk(
+  'products/updateProduct',
+  async (
+    { productId, updatedProduct }: { productId: string; updatedProduct: FormData },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.put(`/api/products/${productId}`, updatedProduct)
+      return response.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
 
 export const productSlice = createSlice({
   name: 'product',
   initialState,
-  //! @TODO:- Reducers Need fix after completing extra reducers
+  //! @TODO:- I'll fix redcers after completing extra reducers
   reducers: {
-    findProductById: (state, action) => {
-      const id = action.payload
-      const foundProduct = state.items.find((item) => item._id === id)
-      if (foundProduct) {
-        state.singleProduct = foundProduct
-      }
-    },
-    productsRequest: (state) => {
-      state.isLoading = true
-    },
-    productsSuccess: (state, action) => {
-      state.isLoading = false
-      state.items = action.payload.payload
-    },
-    addProduct: (state, action: { payload: { product: Product } }) => {
-      state.items = [action.payload.product, ...state.items]
-    },
-    removeProduct: (state, action: { payload: { productId: string } }) => {
-      const filteredItems = state.items.filter(
-        (product) => product._id !== action.payload.productId
-      )
-      state.items = filteredItems
-    },
-    searchProduct: (state, action: PayloadAction<string>) => {
-      state.searchText = action.payload
-    },
-    sortProducts: (state, action: PayloadAction<string>) => {
-      const sortCriteria = action.payload
-      if (sortCriteria === 'name') {
-        state.items.sort((a, b) => a.name.localeCompare(b.name))
-      } else if (sortCriteria === 'highestPrice') {
-        state.items.sort((a, b) => b.price - a.price)
-      } else if (sortCriteria === 'lowestPrice') {
-        state.items.sort((a, b) => a.price - b.price)
-      }
-    },
-    addToCart: (state, action) => {
-      // const product = action.payload;
-      // const existingProductIndex = state.cartItems.findIndex(item => item.id === product.id);
-      // if (existingProductIndex !== -1) {
-      //   const updatedCartItems = [...state.cartItems];
-      //   updatedCartItems[existingProductIndex].quantity++;
-      //   state.cartItems = updatedCartItems;
-      // } else {
-      //   state.cartItems.push({ ...product, quantity: 1 });
-      // }
-      // state.cartLength = state.cartItems.reduce((total, item) => total + item.quantity, 0);
-    },
+    // addToCart: (state, action) => {
+    //   // const product = action.payload;
+    //   // const existingProductIndex = state.cartItems.findIndex(item => item.id === product.id);
+    //   // if (existingProductIndex !== -1) {
+    //   //   const updatedCartItems = [...state.cartItems];
+    //   //   updatedCartItems[existingProductIndex].quantity++;
+    //   //   state.cartItems = updatedCartItems;
+    //   // } else {
+    //   //   state.cartItems.push({ ...product, quantity: 1 });
+    //   // }
+    //   // state.cartLength = state.cartItems.reduce((total, item) => total + item.quantity, 0);
+    // },
     removeFromCart: (state, action: { payload: { productId: string } }) => {
       const filteredItems = state.cartItems.filter(
         (product) => product._id !== action.payload.productId
       )
       state.cartItems = filteredItems
       state.cartLength = state.cartItems.length
-    },
-    editProduct: (state, action: { payload: { editedProduct: Product } }) => {
-      const editedProduct = action.payload.editedProduct
-
-      state.items = state.items.map((product) =>
-        product._id === editedProduct._id ? editedProduct : product
-      )
     }
   },
   extraReducers: (builder) => {
@@ -160,13 +164,12 @@ export const productSlice = createSlice({
         return state
       })
 
-    //** Fetch Single Product Reducers */
-    builder
+      //** Fetch Single Product Reducers */
       .addCase(fetchSingleProductThunk.pending, (state) => {
         state.isLoading = true
       })
       .addCase(fetchSingleProductThunk.fulfilled, (state, action) => {
-        state.singleProduct = action.payload.payload
+        state.singleProduct = action.payload
         state.isLoading = false
       })
       .addCase(fetchSingleProductThunk.rejected, (state, action) => {
@@ -193,19 +196,61 @@ export const productSlice = createSlice({
         }
         state.isLoading = false
       })
+
+      //** Fetch Highest Sold Products Reducers */
+      .addCase(fetchHighestSoldProductsThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchHighestSoldProductsThunk.fulfilled, (state, action) => {
+        state.items = action.payload.highestSoldProducts
+        state.isLoading = false
+      })
+      .addCase(fetchHighestSoldProductsThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Create Product Reducers */
+      .addCase(createProductThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(createProductThunk.fulfilled, (state, action) => {
+        state.items = [...state.items, action.payload]
+        state.isLoading = false
+      })
+      .addCase(createProductThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Update Product Reducers */
+      .addCase(updateProductThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateProductThunk.fulfilled, (state, action) => {
+        const updatedProduct = action.payload
+        state.items = state.items.map((product) =>
+          product._id === updatedProduct._id ? updatedProduct : product
+        )
+        state.isLoading = false
+      })
+      .addCase(updateProductThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+      })
   }
 })
-export const {
-  removeProduct,
-  addProduct,
-  editProduct,
-  productsRequest,
-  productsSuccess,
-  searchProduct,
-  findProductById,
-  sortProducts,
-  addToCart,
-  removeFromCart
-} = productSlice.actions
+export const { removeFromCart } = productSlice.actions
 
 export default productSlice.reducer

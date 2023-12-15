@@ -24,6 +24,7 @@ import ForgotPassword from './pages/forms/ForgotPassword'
 import Wishlist from './pages/wishlist/Wishlist'
 import CategoryTable from './components/admin/CategoryTable'
 import ResetPassword from './pages/forms/ResetPassword'
+import DiscountCodeTable from './components/admin/DiscounCodeTable'
 
 function App() {
   const { isAdmin } = useUserState()
@@ -45,7 +46,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/wishlist" element={<Wishlist />} />
 
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/:id" element={<ProfilePage />} />
         <Route path="/orders" element={<OrdersPage />} />
 
         {/* Admin Dashboard */}
@@ -54,6 +55,8 @@ function App() {
           <Route path="orders" element={isAdmin() ? <OrdersTable /> : <Navigate to="/" />} />
           <Route path="users" element={isAdmin() ? <UsersTable /> : <Navigate to="/" />} />
           <Route path="categories" element={isAdmin() ? <CategoryTable /> : <Navigate to="/" />} />
+          <Route path="discount-code" element={isAdmin() ? <DiscountCodeTable /> : <Navigate to="/" />} />
+
 
           <Route path="products" element={<ProductsTable />} />
         </Route>

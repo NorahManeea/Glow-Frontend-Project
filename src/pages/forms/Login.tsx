@@ -38,7 +38,7 @@ export default function Login() {
           toast.success(message)
           navigate('/')
         }
-        if (res.meta.requestStatus === 'rejected') {
+        else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })

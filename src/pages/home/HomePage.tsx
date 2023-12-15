@@ -7,6 +7,7 @@ import CheckboxCircleLineIcon from 'remixicon-react/CheckboxCircleLineIcon'
 import HandHeartLineIcon from 'remixicon-react/HandHeartLineIcon'
 import VipDiamondLineIcon from 'remixicon-react/CopperDiamondLineIcon'
 import image from '../../assets/hero1.svg'
+import HighestSoldProducts from '../../components/products/HighestSoldProducts'
 
 export default function HomePage() {
   return (
@@ -87,8 +88,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <ProductsList />
+      {/* Best Seller */}
+      <HighestSoldProducts/>
 
+      
       <section className="bg-white">
         <div className="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
           <div className="font-light text-gray-500 sm:text-lg dark:text-gray-400">

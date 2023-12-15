@@ -8,7 +8,8 @@ const initialState: UserState = {
   error: null,
   isLoading: false,
   isLoggedIn: false,
-  user: null
+  user: null,
+  usersCount: 0
 }
 
 //** Login Async Thunk */
@@ -45,89 +46,287 @@ export const registerThunk = createAsyncThunk(
   }
 )
 
+//** Fetch All Users */
+export const fetchUsersThunk = createAsyncThunk(
+  'users/fetchUsers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/api/users')
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Delete User */
+export const deleteUserThunk = createAsyncThunk(
+  'users/deleteUser',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/users/${userId}`)
+      return userId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Block User */
+export const blockUserThunk = createAsyncThunk(
+  'users/blockUser',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      await api.put(`/api/users/block/${userId}`)
+      return userId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Set Profile */
+export const setProfileThunk = createAsyncThunk(
+  'users/setProfile',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/users/profile/${userId}`)
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Update Profile */
+export const updateProfileThunk = createAsyncThunk(
+  'users/updateProfile',
+  async (
+    { userId, firstName, lastName }: { userId: string; firstName: string; lastName: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.put(`/api/users/profile/${userId}`, { firstName, lastName })
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Users Count Thunk */
+export const fetchUsersCountThunk = createAsyncThunk(
+  'users/fetchUsersCount',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/api/users/count')
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Change User Role */
+export const grantUserRoleThunk = createAsyncThunk(
+  'users/grantRole',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      await api.put(`/api/users/grant-role/${userId}`)
+      return userId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
 export const userSlice = createSlice({
   name: 'user',
   initialState,
-  //! TODO: NEED FIX after completeing extra reducers
   reducers: {
-    loginSuccess: (state, action) => {
-      state.user = action.payload
-      state.isLoggedIn = true
-    },
     logoutSuccess: (state) => {
       state.isLoggedIn = false
       state.user = null
-    },
-    userRequest: (state) => {
-      state.isLoading = true
-    },
-
-    addUser: (state, action) => {
-      state.users = [action.payload.user, ...state.users]
-      state.isLoggedIn = true
-    },
-    removeUser: (state, action: { payload: { userId: string } }) => {
-      const filteredUsers = state.users.filter((user) => user._id !== action.payload.userId)
-      state.users = filteredUsers
-    },
-    editProfile: (state, action) => {
-      const { id, firstName, lastName } = action.payload
-      const foundUser = state.users.find((user) => user._id === id)
-
-      if (foundUser) {
-        foundUser.firstName = firstName
-        foundUser.lastName = lastName
-        state.user = foundUser
-      }
-    },
-    setProfile(state, action) {
-      state.user = action.payload
-    },
-    blockUser: (state, action: { payload: { userId: string } }) => {
-      const foundUser = state.users.find((user) => user._id === action.payload.userId)
-      if (foundUser) {
-        foundUser.isBlocked = !foundUser.isBlocked
-      }
     }
   },
   extraReducers: (builder) => {
     //** Login */
-    builder.addCase(loginThunk.pending, (state) => {
-      state.isLoading = true
-    })
-    builder.addCase(loginThunk.rejected, (state, action) => {
-      const errorMsg = action.payload
+    builder
+      .addCase(loginThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(loginThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
 
-      if (typeof errorMsg === 'string') {
-        state.error = errorMsg
-      }
-      state.isLoading = false
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      .addCase(loginThunk.fulfilled, (state, action) => {
+        state.user = action.payload.user
+        state.isLoading = false
+        state.isLoggedIn = true
+        return state
+      })
+      //** Register */
+      .addCase(registerThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(registerThunk.fulfilled, (state, action) => {
+        state.user = action.payload.user
+        state.isLoading = false
+      })
+      .addCase(registerThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Fetch All Users Reducers */
+      .addCase(fetchUsersThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchUsersThunk.fulfilled, (state, action) => {
+        state.users = action.payload
+        state.isLoading = false
+      })
+      .addCase(fetchUsersThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Delete User Reducers */
+      .addCase(deleteUserThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(deleteUserThunk.fulfilled, (state, action) => {
+        const userId = action.payload
+        const updateCategory = state.users.filter((user) => user._id !== userId)
+        state.users = updateCategory
+        state.isLoading = false
+      })
+      .addCase(deleteUserThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Block User Reducers */
+      .addCase(blockUserThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(blockUserThunk.fulfilled, (state, action) => {
+        const foundUser = state.users.find((user) => user._id === action.payload)
+        if (foundUser) {
+          foundUser.isBlocked = !foundUser.isBlocked
+        }
+      })
+      .addCase(blockUserThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Set Profile Reducer */
+      .addCase(setProfileThunk.pending, (state) => {
+        state.isLoading = true
+      })
 
-      return state
-    })
-    builder.addCase(loginThunk.fulfilled, (state, action) => {
-      state.user = action.payload.user
-      state.isLoading = true
-      return state
-    })
+      .addCase(setProfileThunk.fulfilled, (state, action) => {
+        state.user = action.payload
+        state.isLoading = false
+      })
 
-    //** Register */
-    builder.addCase(registerThunk.pending, (state) => {
-      state.isLoading = true
-    })
-    builder.addCase(registerThunk.fulfilled, (state, action) => {
-      state.user = action.payload.user
-      state.isLoading = false
-      return state
-    })
-    builder.addCase(registerThunk.rejected, (state, action) => {
-      const errorMsg = action.payload
-      if (typeof errorMsg === 'string') {
-        state.error = errorMsg
-      }
-      state.isLoading = false
-      return state
-    })
+      .addCase(setProfileThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Update Profile Reducers */
+      .addCase(updateProfileThunk.pending, (state) => {
+        state.isLoading = true
+      })
+
+      .addCase(updateProfileThunk.fulfilled, (state, action) => {
+        state.user = action.payload.payload
+        state.isLoading = false
+      })
+
+      .addCase(updateProfileThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** User Count Reducers */
+      .addCase(fetchUsersCountThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchUsersCountThunk.fulfilled, (state, action) => {
+        state.usersCount = action.payload
+        state.isLoading = false
+      })
+      .addCase(fetchUsersCountThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+      })
+      //** Change User Role Reducers */
+      .addCase(grantUserRoleThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(grantUserRoleThunk.fulfilled, (state, action) => {
+        const userId = action.payload
+        state.users = state.users.map((user) => {
+          if (user._id === userId) {
+            return {
+              ...user,
+              role: user.role === 'ADMIN' ? 'USER' : 'ADMIN'
+            }
+          }
+          return user
+        })
+
+        state.isLoading = false
+      })
+      .addCase(grantUserRoleThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
   }
 })
 

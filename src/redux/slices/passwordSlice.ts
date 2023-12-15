@@ -27,10 +27,7 @@ export const resetPasswordUrlThunk = createAsyncThunk(
   ) => {
     try {
       const res = await api.post(`/api/reset-password/${userId}/${token}`, { password })
-      
-      console.log("🚀 ~ file: passwordSlice.ts:31 ~ res:", res)
       return res.data
-
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data)
@@ -63,8 +60,7 @@ const passwordResetSlice = createSlice({
         state.isLoading = false
       })
 
-    //** Reset Password Link */
-    builder
+      //** Reset Password Link */
       .addCase(resetPasswordUrlThunk.pending, (state) => {
         state.isLoading = true
       })

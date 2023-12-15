@@ -1,5 +1,7 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Category, CategoryState } from '../../types/types'
+import api from '../../api'
+import { AxiosError } from 'axios'
 
 const initialState: CategoryState = {
   category: [],
@@ -7,37 +9,139 @@ const initialState: CategoryState = {
   isLoading: false
 }
 
+//** Fetch All Categories */
+export const fetchCategoriesThunk = createAsyncThunk(
+  'categories/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/api/categories')
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Create Category */
+export const createCategoryThunk = createAsyncThunk(
+  'categories/createCategory',
+  async (category: { name: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/api/categories/`, category)
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Update Category */
+export const updateCategoryThunk = createAsyncThunk(
+  'categories/updateCategory',
+  async (updatedCategory: Category, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/api/categories/${updatedCategory._id}`, updatedCategory)
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Delete Category */
+export const deleteCategoryThunk = createAsyncThunk(
+  'categories/deleteCategory',
+  async (categoryId: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/categories/${categoryId}`)
+      return categoryId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
 export const categorySlice = createSlice({
   name: 'category',
   initialState,
-  reducers: {
-    categoryRequest: (state) => {
-      state.isLoading = true
-    },
-    getError: (state, action: PayloadAction<string>) => {
-      state.error = action.payload
-    },
-    categorySuccess: (state, action) => {
-      state.isLoading = false
-      state.category = action.payload.payload
-      console.log(action.payload.payload)
-    },
-    addCategory: (state, action) => {
-      state.category.push(action.payload)
-    },
-    removeCategory: (state, action: { payload: { categoryId: string } }) => {
-      const filteredItems = state.category.filter(
-        (category) => category._id !== action.payload.categoryId
-      )
-      state.category = filteredItems
-    },
-    editCategory: (state, action: { payload: { editCategory: Category } }) => {
-      const filteredItems = state.category.filter(
-        (product) => product._id !== action.payload.editCategory._id
-      )
-      state.category = filteredItems
-      state.category = [action.payload.editCategory, ...state.category]
-    }
+  reducers: {},
+  extraReducers(builder) {
+    //** Fetch All Categories Reducers */
+    builder
+      .addCase(fetchCategoriesThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchCategoriesThunk.fulfilled, (state, action) => {
+        state.category = action.payload
+        state.isLoading = false
+      })
+      .addCase(fetchCategoriesThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Create Category Reducers */
+      .addCase(createCategoryThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(createCategoryThunk.fulfilled, (state, action) => {
+        state.category.push(action.payload)
+        state.isLoading = false
+      })
+      .addCase(createCategoryThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Delete Category Reducers */
+      .addCase(deleteCategoryThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(deleteCategoryThunk.fulfilled, (state, action) => {
+        const categoryId = action.payload
+        const updateCategory = state.category.filter((category) => category._id !== categoryId)
+        state.category = updateCategory
+        state.isLoading = false
+      })
+      .addCase(deleteCategoryThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Update Category Reducers */
+      .addCase(updateCategoryThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateCategoryThunk.fulfilled, (state, action) => {
+        state.category = state.category.filter((catecory) => catecory._id !== action.payload._id)
+        state.category = [action.payload, ...state.category]
+        state.isLoading = false
+      })
+      .addCase(updateCategoryThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
   }
 })
 export const categoryActions = categorySlice.actions

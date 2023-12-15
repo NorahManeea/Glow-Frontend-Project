@@ -1,9 +1,10 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+//** Redux */
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../redux/store'
-import { Link } from 'react-router-dom'
-import { useFetchCategories } from '../../hooks/useDataFetching'
 import { fetchProductsCountThunk, fetchProductsThunk } from '../../redux/slices/productSlice'
+import { fetchCategoriesThunk } from '../../redux/slices/categorySlice'
 
 export default function ProductsList() {
   const dispatch = useDispatch<AppDispatch>()
@@ -15,8 +16,6 @@ export default function ProductsList() {
   const [searchText, setSearchText] = useState('')
   const [sortBy, setSortBy] = useState('')
   const [category, setCategory] = useState('')
-
-  useFetchCategories()
 
   //** Handle Search Text */
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,8 +53,11 @@ export default function ProductsList() {
 
   useEffect(() => {
     dispatch(fetchProductsThunk({ category, sortBy, currentPage, searchText }))
+    dispatch(fetchCategoriesThunk())
     dispatch(fetchProductsCountThunk())
-  }, [currentPage, category, sortBy,searchText])
+    window.scrollTo(0, 0)
+  }, [currentPage, category, sortBy, searchText])
+
   return (
     <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto gap-2">
       <div className="container px-5 py-24 mx-auto">
@@ -106,27 +108,42 @@ export default function ProductsList() {
                 </select>
               </div>
             </div>
+            {/*  PRODUCTS LIST */}
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
               {currentItems.map((product) => (
                 <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                    {product.image && (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                      />
-                    )}
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                    />
                   </div>
                   <div className="mt-4 flex justify-between">
                     <div>
                       <Link to={`/products/${product._id}`}>
                         <span aria-hidden="true" className="absolute inset-0" />
-                        {product.name}
+                        {product?.name}
                       </Link>
                       <p className="mt-1 text-sm text-gray-500">{product.price}</p>
                     </div>
-                    <button>Add To Cart</button>
+                    <div className="mt-4 flex justify-between">
+                      <div className="flex items-center gap-1">
+                        <div
+                          className={`relative border-2 border-transparent p-1 rounded-full bg-white`}>
+                          <svg
+                            className="h-6 w-6"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            stroke={'currentColor'}>
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

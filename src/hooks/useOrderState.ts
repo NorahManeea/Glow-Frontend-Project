@@ -6,11 +6,13 @@ function useOrderState() {
     const orders = state.orders.orders
     const isLoading = state.orders.isLoading
     const error = state.orders.error
+    const orderCount = state.orders.orderCount
     
   return {
     orders,
     isLoading,
-    error
+    error,
+    orderCount
   }
 }
 

@@ -4,6 +4,8 @@ import categoryReducer from './slices/categorySlice'
 import userReducer from './slices/userSlice'
 import orderReducer from './slices/orderSlice'
 import passwordReducer from './slices/passwordSlice'
+import cartReducer from './slices/cartSlice'
+import discountCodeReducer from './slices/discountCode'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +13,10 @@ export const store = configureStore({
     category: categoryReducer,
     users: userReducer,
     orders: orderReducer,
-    passwordReset: passwordReducer
+    passwordReset: passwordReducer,
+    cart: cartReducer,
+    discountCode: discountCodeReducer
+
   }
 })
 
