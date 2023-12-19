@@ -1,10 +1,10 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
 //** Redux */
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { setProfileThunk, updateProfileThunk } from '../../redux/slices/userSlice'
+import { AppDispatch } from '../../redux/store'
+import { useDispatch } from 'react-redux'
+import { setProfileThunk } from '../../redux/slices/userSlice'
+//** Custom Hooks */
 import useUserState from '../../hooks/useUserState'
 
 export default function ProfilePage() {
@@ -14,45 +14,17 @@ export default function ProfilePage() {
   //** States */
   const { user } = useUserState()
   const [updateProfile, setUpdateProfile] = useState(false)
-  const [profile, setProfile] = useState({
-    firstName: '',
-    lastName: ''
-  })
 
   //** Update Profile Handler */
   const handleUpdateProfile = () => {
     setUpdateProfile(true)
-  }
-
-  //** Inputs Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setProfile((prevUser) => ({
-      ...prevUser,
-      [name]: value
-    }))
-  }
-
-  //** Sumbit Handler */
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    try {
-      if (user) {
-        await dispatch(updateProfileThunk({ userId: user._id, ...profile }))
-        toast.success('Profile edited successfully')
-        setUpdateProfile(false)
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error)
-    }
   }
   useEffect(() => {
     if (id) {
       dispatch(setProfileThunk(id))
       window.scrollTo(0, 0)
     }
-  }, [id])
+  }, [])
 
   return (
     <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
@@ -68,7 +40,7 @@ export default function ProfilePage() {
             <div className="mx-auto w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
               <img
                 className="object-cover object-center h-32"
-                src="https://i.pinimg.com/564x/69/6e/63/696e637f3e3f4ea7c73b260f6db58c26.jpg"
+                src={`http://localhost:5050/${user?.avatar}`}
               />
             </div>
             Profile

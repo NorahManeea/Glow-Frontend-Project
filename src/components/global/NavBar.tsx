@@ -1,29 +1,33 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import swal from 'sweetalert'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../redux/store'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
 import { userActions } from '../../redux/slices/userSlice'
+import useUserState from '../../hooks/useUserState'
+import useCartState from '../../hooks/useCartState'
+//** Components */
 import RightNavBar from './RightNavBar'
 import SecondNavBar from './SecondNavBar'
-import useUserState from '../../hooks/useUserState'
 
 export default function NavBar() {
-  const { user, isLoggedIn, isAdmin } = useUserState()
-  const { totalItems } = useSelector((state: RootState) => state.cart)
-
-  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>()
+
+  const { totalItems } = useCartState()
+  const { isAdmin, decodedUser, user } = useUserState()
+
+  //** State */
   const [isOpen, setIsOpen] = useState(false)
 
-  //** Handle Menu */
+  //** Menu Handler */
   const handleMenuItemClick = () => {
     setIsOpen(false)
   }
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
   }
-
   //** Logout Handler */
   const logoutHandler = () => {
     swal({
@@ -92,7 +96,7 @@ export default function NavBar() {
                   </svg>
                 </button>
               </Link>
-              {isLoggedIn ? (
+              {decodedUser ? (
                 <>
                   {/* Profile */}
                   <div className="relative">
@@ -101,16 +105,12 @@ export default function NavBar() {
                       className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none"
                       onClick={toggleDropdown}>
                       <span className="absolute -inset-1.5" />
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1632324343640-86af9827dbeb?auto=format&fit=crop&q=80&w=3087&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt=""
-                      />
+                      <img className="h-8 w-8 rounded-full" src={user?.avatar} alt="" />
                     </button>
 
                     {isOpen && (
                       <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg">
-                        <Link to={`/profile/${user?._id}`} onClick={handleMenuItemClick}>
+                        <Link to={`/profile/${decodedUser?.userId}`} onClick={handleMenuItemClick}>
                           <button
                             type="button"
                             className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left">

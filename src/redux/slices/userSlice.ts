@@ -1,7 +1,10 @@
+import api from '../../api'
+import { AxiosError } from 'axios'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { UserState } from '../../types/types'
-import { AxiosError } from 'axios'
-import api from '../../api'
+import { getDecodedTokenFromStorage } from '../../utils/token'
+
+const decodedUser = getDecodedTokenFromStorage()
 
 const initialState: UserState = {
   users: [],
@@ -9,9 +12,9 @@ const initialState: UserState = {
   isLoading: false,
   isLoggedIn: false,
   user: null,
-  usersCount: 0
+  usersCount: 0,
+  decodedUser
 }
-
 //** Login Async Thunk */
 export const loginThunk = createAsyncThunk(
   'auth/login',
@@ -38,7 +41,6 @@ export const registerThunk = createAsyncThunk(
       const res = await api.post('/api/auth/register', credentials)
       return res.data
     } catch (error) {
-      console.log(error)
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data.msg)
       }
@@ -121,7 +123,6 @@ export const updateProfileThunk = createAsyncThunk(
     }
   }
 )
-
 //** Users Count Thunk */
 export const fetchUsersCountThunk = createAsyncThunk(
   'users/fetchUsersCount',
@@ -136,7 +137,6 @@ export const fetchUsersCountThunk = createAsyncThunk(
     }
   }
 )
-
 //** Change User Role */
 export const grantUserRoleThunk = createAsyncThunk(
   'users/grantRole',
@@ -159,10 +159,12 @@ export const userSlice = createSlice({
     logoutSuccess: (state) => {
       state.isLoggedIn = false
       state.user = null
+      localStorage.removeItem('token')
+
     }
   },
   extraReducers: (builder) => {
-    //** Login */
+    //** Login Reducer */
     builder
       .addCase(loginThunk.pending, (state) => {
         state.isLoading = true
@@ -182,7 +184,7 @@ export const userSlice = createSlice({
         state.isLoggedIn = true
         return state
       })
-      //** Register */
+      //** Register Reducer */
       .addCase(registerThunk.pending, (state) => {
         state.isLoading = true
       })
@@ -254,12 +256,10 @@ export const userSlice = createSlice({
       .addCase(setProfileThunk.pending, (state) => {
         state.isLoading = true
       })
-
       .addCase(setProfileThunk.fulfilled, (state, action) => {
         state.user = action.payload
         state.isLoading = false
       })
-
       .addCase(setProfileThunk.rejected, (state, action) => {
         const errorMsg = action.payload
         if (typeof errorMsg === 'string') {
@@ -272,12 +272,10 @@ export const userSlice = createSlice({
       .addCase(updateProfileThunk.pending, (state) => {
         state.isLoading = true
       })
-
       .addCase(updateProfileThunk.fulfilled, (state, action) => {
-        state.user = action.payload.payload
+        state.user = action.payload
         state.isLoading = false
       })
-
       .addCase(updateProfileThunk.rejected, (state, action) => {
         const errorMsg = action.payload
         if (typeof errorMsg === 'string') {
@@ -325,7 +323,6 @@ export const userSlice = createSlice({
           state.error = errorMsg
         }
         state.isLoading = false
-        return state
       })
   }
 })

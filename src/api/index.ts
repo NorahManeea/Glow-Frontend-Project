@@ -7,9 +7,8 @@ const api = axios.create({
   baseURL
 })
 
-
 const token = getTokenFromStorage()
-if(token){
+if (token) {
   api.defaults.headers['Authorization'] = `Bearer ${token}`
 }
 

@@ -1,14 +1,17 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import { AppDispatch, RootState } from '../../redux/store'
 import { ChangeEvent, FormEvent, useState } from 'react'
-import { resetPasswordUrlThunk } from '../../redux/slices/passwordSlice'
-import { ThreeDots } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ThreeDots } from 'react-loader-spinner'
+//** Redux */
+import { AppDispatch } from '../../redux/store'
+import { resetPasswordUrlThunk } from '../../redux/slices/passwordSlice'
+import { useDispatch } from 'react-redux'
+//** Custom Hooks */
+import usePasswordResetState from '../../hooks/usePasswordState'
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>()
-  const { error, isLoading } = useSelector((state: RootState) => state.passwordReset)
+  const { error, isLoading } = usePasswordResetState()
   const navigate = useNavigate()
 
   const { userId = '', token = '' } = useParams<{ userId: string; token: string }>()
@@ -17,7 +20,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('')
 
   //** Input Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
     setPassword(value)
   }
@@ -31,8 +34,7 @@ export default function ResetPassword() {
           const message = res.payload.message
           toast.success(message)
           navigate('/login')
-        }
-        else if (res.meta.requestStatus === 'rejected') {
+        } else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })
@@ -59,7 +61,7 @@ export default function ResetPassword() {
                 type="password"
                 id="password"
                 name="password"
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="••••••••"
               />

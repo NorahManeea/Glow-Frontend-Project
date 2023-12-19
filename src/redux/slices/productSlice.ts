@@ -2,6 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Product, ProductState } from '../../types/types'
 import api from '../../api'
 import { AxiosError } from 'axios'
+import ProductService from '../../services/products'
 
 const initialState: ProductState = {
   items: [],
@@ -10,8 +11,8 @@ const initialState: ProductState = {
   searchText: '',
   singleProduct: {} as Product,
   cartItems: [],
-  cartLength: 0,
-  productCount: 0
+  productCount: 0,
+  totalPages : 0
 }
 
 //** Fetch All Products Thunk */
@@ -33,9 +34,24 @@ export const fetchProductsThunk = createAsyncThunk(
       category && params.append('category', category)
       sortBy && params.append('sortBy', sortBy)
       currentPage && params.append('pageNumber', currentPage.toString())
-      searchText && params.append('searchText', searchText.toString())
+      searchText && params.append('searchText', searchText)
 
-      const res = await api.get(`/api/products?${params.toString()}`)
+      const res = await ProductService.fetchProductsApi(params.toString())
+            return res.data
+
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Fetch All Products Without Pagination Thunk */
+export const fetchAllProductsThunk = createAsyncThunk(
+  'products/fetchAllProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/products`)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -86,7 +102,6 @@ export const fetchHighestSoldProductsThunk = createAsyncThunk(
     }
   }
 )
-
 //** Create New Product Thunk */
 export const createProductThunk = createAsyncThunk(
   'products/createProduct',
@@ -101,7 +116,6 @@ export const createProductThunk = createAsyncThunk(
     }
   }
 )
-
 //** Update Product Thunk */
 export const updateProductThunk = createAsyncThunk(
   'products/updateProduct',
@@ -119,32 +133,25 @@ export const updateProductThunk = createAsyncThunk(
     }
   }
 )
+//** Delete Category */
+export const deleteProductThunk = createAsyncThunk(
+  'products/deleteProduct',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/products/${productId}`)
+      return productId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
 
 export const productSlice = createSlice({
   name: 'product',
   initialState,
-  //! @TODO:- I'll fix redcers after completing extra reducers
-  reducers: {
-    // addToCart: (state, action) => {
-    //   // const product = action.payload;
-    //   // const existingProductIndex = state.cartItems.findIndex(item => item.id === product.id);
-    //   // if (existingProductIndex !== -1) {
-    //   //   const updatedCartItems = [...state.cartItems];
-    //   //   updatedCartItems[existingProductIndex].quantity++;
-    //   //   state.cartItems = updatedCartItems;
-    //   // } else {
-    //   //   state.cartItems.push({ ...product, quantity: 1 });
-    //   // }
-    //   // state.cartLength = state.cartItems.reduce((total, item) => total + item.quantity, 0);
-    // },
-    removeFromCart: (state, action: { payload: { productId: string } }) => {
-      const filteredItems = state.cartItems.filter(
-        (product) => product._id !== action.payload.productId
-      )
-      state.cartItems = filteredItems
-      state.cartLength = state.cartItems.length
-    }
-  },
+  reducers: {},
   extraReducers: (builder) => {
     //** Fetch All Products Reducers */
     builder
@@ -153,6 +160,7 @@ export const productSlice = createSlice({
       })
       .addCase(fetchProductsThunk.fulfilled, (state, action) => {
         state.items = action.payload.payload
+        state.totalPages = action.payload.totalPages
         state.isLoading = false
       })
       .addCase(fetchProductsThunk.rejected, (state, action) => {
@@ -163,7 +171,22 @@ export const productSlice = createSlice({
         state.isLoading = false
         return state
       })
-
+      //** Fetch All Products without Pagination */
+      .addCase(fetchAllProductsThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchAllProductsThunk.fulfilled, (state, action) => {
+        state.items = action.payload.payload
+        state.isLoading = false
+      })
+      .addCase(fetchAllProductsThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
       //** Fetch Single Product Reducers */
       .addCase(fetchSingleProductThunk.pending, (state) => {
         state.isLoading = true
@@ -249,8 +272,25 @@ export const productSlice = createSlice({
         }
         state.isLoading = false
       })
+
+      //** Delete Product Reducers */
+      .addCase(deleteProductThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(deleteProductThunk.fulfilled, (state, action) => {
+        const productId = action.payload
+        const updateProduct = state.items.filter((product) => product._id !== productId)
+        state.items = updateProduct
+        state.isLoading = false
+      })
+      .addCase(deleteProductThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
   }
 })
-export const { removeFromCart } = productSlice.actions
-
 export default productSlice.reducer

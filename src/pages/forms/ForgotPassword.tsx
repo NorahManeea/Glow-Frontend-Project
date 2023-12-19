@@ -1,20 +1,23 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { resetPasswordThunk } from '../../redux/slices/passwordSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../redux/store'
 import { ThreeDots } from 'react-loader-spinner'
+//** Redux */
+import { resetPasswordThunk } from '../../redux/slices/passwordSlice'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
+//** Custom Hook */
+import usePasswordResetState from '../../hooks/usePasswordState'
 
 export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>()
-  const { error, isLoading } = useSelector((state: RootState) => state.passwordReset)
+  const { error, isLoading } = usePasswordResetState()
 
   //** States */
   const [email, setEmail] = useState('')
 
   //** Input Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
     setEmail(value)
   }
@@ -28,8 +31,7 @@ export default function ForgotPassword() {
           localStorage.setItem('token', res.payload.token)
           const message = res.payload.message
           toast.success(message)
-        }
-        else if (res.meta.requestStatus === 'rejected') {
+        } else if (res.meta.requestStatus === 'rejected') {
           toast.error(error)
         }
       })
@@ -55,7 +57,7 @@ export default function ForgotPassword() {
                 type="email"
                 id="email"
                 value={email}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="name@gmail.com"
               />

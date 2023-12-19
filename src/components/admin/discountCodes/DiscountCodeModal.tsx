@@ -1,35 +1,51 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { DiscountCode, DiscountCodeModalProps } from '../../types/types'
+import { DiscountCode, DiscountCodeModalProps } from '../../../types/types'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../../redux/store'
+import {
+  createDiscountCodeThunk,
+  updateDiscountCodeThunk
+} from '../../../redux/slices/discountCode'
 
-export default function DiscountCodeModal({
-  selectedCode,
-  openModal,
-  onSubmit
-}: DiscountCodeModalProps) {
+const initialDiscountCodeState: DiscountCode = {
+  _id: '',
+  code: '',
+  discountPercentage: 0,
+  expirationDate: new Date()
+}
+
+export default function DiscountCodeModal(prop: DiscountCodeModalProps) {
+  const dispatch = useDispatch<AppDispatch>()
+
   //** States */
-  const [code, setCode] = useState<DiscountCode>(selectedCode ?? { _id: '', code: '', discountPercentage: 0, expirationDate: new Date() })
+  const [code, setCode] = useState<DiscountCode>(initialDiscountCodeState)
 
   useEffect(() => {
-    if (selectedCode) {
-      setCode(selectedCode)
+    if (prop.selectedCode) {
+      setCode(prop.selectedCode)
     } else {
-      setCode({_id: '', code: '', discountPercentage: 0, expirationDate: new Date() })
+      setCode(initialDiscountCodeState)
     }
-  }, [selectedCode])
+  }, [])
 
   //**Input Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    const updatedValue = name === 'expirationDate' ? new Date(value).toISOString() : value;
-    setCode((prevCode) => ({ ...prevCode, [name]: updatedValue }))
+    setCode((prevCode) => ({ ...prevCode, [name]: value }))
   }
 
-  //** Submit */
+  //** Submit Handler */
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(code);
-  };
-  
+    e.preventDefault()
+    if (prop.selectedCode && prop.selectedCode._id) {
+      dispatch(updateDiscountCodeThunk(code))
+    } else {
+      dispatch(createDiscountCodeThunk(code))
+    }
+    setCode(initialDiscountCodeState)
+    prop.setIsModalOpen(false)
+  }
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
@@ -42,7 +58,7 @@ export default function DiscountCodeModal({
           <form onSubmit={handleSubmit}>
             <div>
               <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {selectedCode ? 'Edit Discount Code' : 'Add Discount Code'}
+                {prop.selectedCode ? 'Edit Discount Code' : 'Add Discount Code'}
               </h3>
               <div className="mt-2">
                 <input
@@ -52,7 +68,7 @@ export default function DiscountCodeModal({
                   placeholder="Enter the discount code"
                   type="text"
                   value={code.code}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="mt-2">
@@ -62,8 +78,12 @@ export default function DiscountCodeModal({
                   className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 sm:text-sm"
                   placeholder="Enter the category name"
                   type="date"
-                  value={code.expirationDate ? new Date(code.expirationDate).toISOString().split('T')[0] : ''}
-                  onChange={handleChange}
+                  value={
+                    code.expirationDate
+                      ? new Date(code.expirationDate).toISOString()
+                      : ''
+                  }
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="mt-2">
@@ -74,7 +94,7 @@ export default function DiscountCodeModal({
                   placeholder="Enter the category name"
                   type="number"
                   value={code.discountPercentage}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -82,7 +102,7 @@ export default function DiscountCodeModal({
               <button
                 type="submit"
                 className="inline-flex items-center justify-center w-full rounded-md border border-transparent bg-[#32334A] hover:bg-[#3f415a] px-4 py-2 font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:w-auto sm:text-sm">
-                {selectedCode ? 'Edit Discount Code' : 'Add Discount Code'}
+                {prop.selectedCode ? 'Edit Discount Code' : 'Add Discount Code'}
               </button>
             </div>
           </form>

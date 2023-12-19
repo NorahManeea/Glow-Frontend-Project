@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom'
 import './home.css'
 //** Components */
-import ProductsList from '../../components/products/ProductsList'
+import HighestSoldProducts from '../../components/products/HighestSoldProducts'
 //** Icons */
 import CheckboxCircleLineIcon from 'remixicon-react/CheckboxCircleLineIcon'
 import HandHeartLineIcon from 'remixicon-react/HandHeartLineIcon'
 import VipDiamondLineIcon from 'remixicon-react/CopperDiamondLineIcon'
 import image from '../../assets/hero1.svg'
-import HighestSoldProducts from '../../components/products/HighestSoldProducts'
+//** Localization */
+import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* Hero Section */}

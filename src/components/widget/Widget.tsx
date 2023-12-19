@@ -21,7 +21,7 @@ export default function Widget() {
   const { productCount } = useProductState()
 
   const dispatch = useDispatch<AppDispatch>()
-  
+
   useEffect(() => {
     dispatch(fetchProductsCountThunk())
     dispatch(fetchUsersCountThunk())

@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/store'
-import { ROLES } from '../types/types'
+import { ROLES } from '../constant/constants'
 
 function useUserState() {
   const state = useSelector((state: RootState) => state)
@@ -9,10 +9,11 @@ function useUserState() {
   const isLoading = state.users.isLoading
   const user = state.users.user
   const isLoggedIn = state.users.isLoggedIn
+  const decodedUser = state.users.decodedUser
   const usersCount = state.users.usersCount
 
   const isAdmin = () => {
-return user && user.role === ROLES.ADMIN
+return decodedUser && decodedUser.role === ROLES.ADMIN
   };
   
   return {
@@ -22,6 +23,7 @@ return user && user.role === ROLES.ADMIN
     error,
     user,
     usersCount,
+    decodedUser,
     isAdmin
   }
 }

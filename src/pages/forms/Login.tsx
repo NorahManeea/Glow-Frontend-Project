@@ -1,16 +1,20 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { loginThunk } from '../../redux/slices/userSlice'
-import { toast } from 'react-toastify'
-
 import { ChangeEvent, FormEvent, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { ROLES } from '../../constant/constants'
 import { ThreeDots } from 'react-loader-spinner'
+//** Redux */
+import { AppDispatch } from '../../redux/store'
+import { useDispatch } from 'react-redux'
+import { loginThunk } from '../../redux/slices/userSlice'
+//** Custom Hooks */
+import useUserState from '../../hooks/useUserState'
 
 export default function Login() {
   const navigate = useNavigate()
+
   const dispatch = useDispatch<AppDispatch>()
-  const { error, isLoading } = useSelector((state: RootState) => state.users)
+  const { isLoading } = useUserState()
 
   //** States */
   const [credentials, setCredentials] = useState({
@@ -19,7 +23,7 @@ export default function Login() {
   })
 
   //** Input Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setCredentials({
       ...credentials,
@@ -31,17 +35,21 @@ export default function Login() {
   const onSubmitHandler = async (e: FormEvent) => {
     e.preventDefault()
     try {
-      dispatch(loginThunk(credentials)).then((res) => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          localStorage.setItem('token', res.payload.token)
-          const message = res.payload.message
-          toast.success(message)
+      const res = await dispatch(loginThunk(credentials))
+
+      if (res.meta.requestStatus === 'fulfilled') {
+        const token = res.payload.token
+        const user = res.payload.user
+        localStorage.setItem('token', token)
+        if (user.role === ROLES.ADMIN) {
+          navigate('/dashboard/products')
+        }
+        if (user.role === ROLES.USER) {
           navigate('/')
         }
-        else if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
-        }
-      })
+      } else if (res.meta.requestStatus === 'rejected') {
+        toast.error(res.payload)
+      }
     } catch (error) {
       toast.error('Something went wrong')
     }
@@ -65,7 +73,7 @@ export default function Login() {
                 name="email"
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="name@gmail.com"
-                onChange={handleChange}
+                onChange={handleInputChange}
               />
             </div>
             <div>
@@ -78,7 +86,7 @@ export default function Login() {
                 name="password"
                 placeholder="••••••••"
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                onChange={handleChange}
+                onChange={handleInputChange}
               />
             </div>
             <div className="flex items-center justify-between">

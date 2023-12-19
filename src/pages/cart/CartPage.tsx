@@ -1,28 +1,22 @@
-import { useState } from 'react'
-
-import { useDispatch, useSelector } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
-import { removeFromCart } from '../../redux/slices/productSlice'
-
-import swal from 'sweetalert'
-import useProductState from '../../hooks/useProductState'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { getCartItemsThunk } from '../../redux/slices/cartSlice'
+import { AppDispatch } from '../../redux/store'
+//** Custom Hooks */
+import useCartState from '../../hooks/useCartState'
 
 export default function CartPage() {
-  const { isLoading, cartItems, product } = useProductState()
+  const dispatch = useDispatch<AppDispatch>()
+  const { cartItems, totalPrice, isLoading } = useCartState()
 
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  //** State */
+  const [displayedQuantity, setDisplayedQuantity] = useState(1)
 
-  const [displayedQuantity, setDisplayedQuantity] = useState(1) // Initialize displayedQuantity to 1
-
-  // useEffect(() => {
-  //   const existingProduct = cartItems.find((item) => item.id === product.id)
-  //   if (existingProduct) {
-  //     setDisplayedQuantity(existingProduct.quantity)
-  //   } else {
-  //     setDisplayedQuantity(1) // Set the default displayed quantity if the product is not in the cart
-  //   }
-  // }, [cartItems, product])
+  useEffect(() => {
+    dispatch(getCartItemsThunk())
+  }, [dispatch])
 
   //** Quantity Handlers */
   const handleIncreaseQuantity = () => {
@@ -32,22 +26,8 @@ export default function CartPage() {
   const handleDecreaseQuantity = () => {
     setDisplayedQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : prevQuantity))
   }
-
-  //** Checkout Handler */
-  const checkoutHandler = () => {
-    swal({
-      title: 'Checkout',
-      text: 'Your order has been recived successfuly',
-      icon: 'success'
-    }).then((isOk) => {
-      if (isOk) {
-        navigate('/products')
-      }
-    })
-  }
-
   return (
-    <div className="container bg-gray-100 text-center">
+    <div className=" mx-auto bg-gray-100 text-center w-full">
       {isLoading && <h3> Loading products...</h3>}
       {cartItems.length > 0 ? (
         <div className="flex mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 ">
@@ -75,14 +55,12 @@ export default function CartPage() {
                 <div className="flex w-2/5">
                   {/* products */}
                   <div className="w-20">
-                    <img className="h-24" src={product.image} alt="" />
+                    <img className="h-24" src={product.product.image} alt="" />
                   </div>
                   <div className="flex flex-col justify-between ml-4 flex-grow">
-                    <span className="font-bold text-sm">{product.name}</span>
-                    <span className="text-gray-500 text-xs">{product.categories}</span>
-                    <button
-                      className="font-semibold text-red-500 hover:text-red-700 text-xs text-left"
-                      onClick={() => dispatch(removeFromCart({ productId: product._id }))}>
+                    <span className="font-bold text-sm">{product.product.name}</span>
+                    <span className="text-gray-500 text-xs">{product.product.categories}</span>
+                    <button className="font-semibold text-red-500 hover:text-red-700 text-xs text-left">
                       Remove
                     </button>
                   </div>
@@ -108,8 +86,10 @@ export default function CartPage() {
                     <path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
                   </svg>
                 </div>
-                <span className="text-center w-1/5 font-semibold text-sm">{product.price}$</span>
-                <span className="text-center w-1/5 font-semibold text-sm">{}$</span>
+                <span className="text-center w-1/5 font-semibold text-sm">
+                  {product.product.price}$
+                </span>
+                <span className="text-center w-1/5 font-semibold text-sm">{totalPrice}$</span>
               </div>
             ))}
           </div>
@@ -125,11 +105,11 @@ export default function CartPage() {
             <div className="border-t mt-4">
               <div className="flex justify-between py-3 text-sm">
                 <span>Subtotal</span>
-                <span>{}$</span>
+                <span>{totalPrice}$</span>
               </div>
               <div className="flex justify-between py-3 text-sm">
                 <span>Discout</span>
-                <span>{}$</span>
+                <span>{totalPrice}$</span>
               </div>
               <div className="flex justify-between py-3 text-sm border-b pb-5">
                 <span>Shipping</span>
@@ -156,9 +136,9 @@ export default function CartPage() {
 
               <div className="flex font-semibold justify-between py-3 text-sm ">
                 <span>Total price</span>
-                <span>$</span>
+                <span>{totalPrice}$</span>
               </div>
-              <Link to="/payment">
+              <Link to="/checkout">
                 <button className="rounded-md bg-[#32334A] hover:bg-[#3f415a] py-3 text-sm text-white w-full mt-2">
                   Checkout
                 </button>
@@ -167,7 +147,7 @@ export default function CartPage() {
           </div>
         </div>
       ) : (
-        <div className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+        <div className="bg-white px-6 py-24 sm:py-32 lg:px-8">
           <div className="text-center">
             <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#32334A] sm:text-5xl">
               Your cart is empty

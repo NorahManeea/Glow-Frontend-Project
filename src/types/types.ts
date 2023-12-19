@@ -1,3 +1,5 @@
+import { ROLES } from "../constant/constants"
+
 //** Users */
 export type User = {
   _id: string
@@ -12,28 +14,6 @@ export type User = {
   avatar: string
   resetPasswordToken?: string
 }
-export type UserState = {
-  users: User[]
-  error: null | string
-  isLoading: boolean
-  isLoggedIn: boolean
-  user: User | null
-  usersCount: number
-}
-
-export const ROLES = {
-  USER: 'USER',
-  ADMIN: 'ADMIN'
-} as const
-export type Role = keyof typeof ROLES
-
-export type AuthState = {
-  users: []
-  error: null | string
-  isLoading: boolean
-  isLoggedIn: boolean
-  userData: User | null
-}
 //** Products */
 export type Product = {
   _id: string
@@ -45,36 +25,10 @@ export type Product = {
   quantityInStock: number
   discount: number
 }
-
-export type DiscountCode = {
-  _id: string
-  code: string
-  discountPercentage: number
-  expirationDate: Date
-}
-
-export type Review = {}
-
-export type ProductState = {
-  items: Product[]
-  error: null | string
-  isLoading: boolean
-  searchText: string
-  singleProduct: Product
-  cartItems: Product[]
-  cartLength: number
-  productCount: number
-}
-
-//** Category */
+//** Categories */
 export type Category = {
   _id: string
   name: string
-}
-export type CategoryState = {
-  category: Category[]
-  error: null | string
-  isLoading: boolean
 }
 //** Orders */
 export type Order = {
@@ -93,15 +47,93 @@ export type Order = {
   }
   orderStatus: string
 }
+//** Reviews */
+export type Review = {
+  id: number
+  reviewText: string
+  user: string
+  date: string
+}
+//** Discount Code */
+export type DiscountCode = {
+  _id: string
+  code: string
+  discountPercentage: number
+  expirationDate: Date
+}
+//** Cart */
+export type Cart = {
+  product: Product;
+  quantity: number;
+  _id: string;
+}
+//** Decoded User */
+export type DecodedUser = {
+  email: string
+  exp: number
+  iat: number
+  role: Role
+  userId: string
+  firstName: string
+  lastName: string
+  isBlocked: boolean
+}
+//** Role */
+export type Role = keyof typeof ROLES
 
+//---------STATES----------//
+//** User State */
+export type UserState = {
+  users: User[]
+  error: null | string
+  isLoading: boolean
+  isLoggedIn: boolean
+  user: User | null
+  usersCount: number
+  decodedUser: DecodedUser | null
+}
+//** Product State */
+export type ProductState = {
+  items: Product[]
+  error: null | string
+  isLoading: boolean
+  searchText: string
+  singleProduct: Product
+  cartItems: Product[]
+  productCount: number
+  totalPages: number
+}
+//** Category States */
+export type CategoryState = {
+  category: Category[]
+  error: null | string
+  isLoading: boolean
+}
+//** Orders State */
 export type OrderState = {
   orders: Order[]
   error: null | string
   isLoading: boolean
   orderCount: number
 }
+//** Discount State */
+export type DiscountState = {
+  discountCodes: DiscountCode[]
+  error: null | string
+  isLoading: boolean
+}
+//** Cart State */
+export type  CartState = {
+  cartItems: Cart[]
+  error: null | string
+  isLoading: boolean
+  cartLength: number
+  totalItems: number,
+  totalPrice: number,
+}
 
-//**  Forms Inputs */
+//--------Forms Inputs----------//
+
 export type ProductFormInput = {
   name: string
   image: string
@@ -111,12 +143,10 @@ export type ProductFormInput = {
   sizes: number
   price: number
 }
-
 export type LoginFormInput = {
   email: string
   password: string
 }
-
 export type RegisterFormInput = {
   firstName: string
   lastName: string
@@ -124,21 +154,31 @@ export type RegisterFormInput = {
   password: string
 }
 
-export type DiscountState = {
-  discountCodes: DiscountCode[]
-  error: null | string
-  isLoading: boolean
-}
+//--------Modal Props----------//
 
-//** Modal Props */
+export type ProductModalProps = {
+  selectedProduct: Product | null
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  isModalOpen: boolean
+}
 export type CategoryModalProps = {
   selectedCategory: Category | null
-  openModal: () => void
-  onSubmit: (category: Category) => void
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  isModalOpen: boolean
 }
-
 export type DiscountCodeModalProps = {
   selectedCode: DiscountCode | null
-  openModal: () => void
-  onSubmit: (discountCode: DiscountCode) => void
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  isModalOpen: boolean
 }
+export type ProfileModalProps = {
+  user: User 
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  isModalOpen: boolean
+}
+export type ReviewListProps = {
+  reviews: Review[]
+}
+
+
+

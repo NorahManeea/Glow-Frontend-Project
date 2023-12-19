@@ -1,0 +1,29 @@
+{
+  "hero": {
+    "title": "Unlock Your Skin's Potential with",
+    "subtitle": "GLOW",
+    "description": "Discover the secret to radiant and youthful skin with GLOW. Experience the power of nature's ingredients combined with cutting-edge science.",
+    "exploreProducts": "Explore Products"
+  },
+  "features": [
+    {
+      "title": "Glowing Skin",
+      "description": "Achieve radiant and glowing skin with our GLOW skincare product. Our formula is designed to give you a healthy, luminous complexion."
+    },
+    {
+      "title": "Nourishing and Effective",
+      "description": "Our GLOW skincare product is highly nourishing and effective. It's packed with skin-loving ingredients."
+    },
+    {
+      "title": "Simple and Natural",
+      "description": "Our GLOW skincare product is made with simple and natural ingredients. We believe in providing you with a clean and gentle skincare solution."
+    }
+  ],
+  "bestSeller": {
+    "title": "Best Seller"
+  },
+  "pureElegance": {
+    "title": "Unleash Your Radiant Glow with Pure Elegance",
+    "content": "Step into a world of pure elegance and unlock the radiance within you. Our meticulously crafted skincare collection is designed to bring out your natural glow like never before. With a fusion of expertise and premium ingredients, experience the transformative power of our luxurious formulations. Discover the true essence of beauty and let your radiant glow captivate the world."
+  }
+}

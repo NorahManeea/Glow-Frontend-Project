@@ -73,5 +73,4 @@ const passwordResetSlice = createSlice({
       })
   }
 })
-export const passwordResetActions = passwordResetSlice.actions
 export default passwordResetSlice.reducer

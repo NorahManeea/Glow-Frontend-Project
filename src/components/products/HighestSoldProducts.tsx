@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../redux/store'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
 import { fetchHighestSoldProductsThunk } from '../../redux/slices/productSlice'
 import useProductState from '../../hooks/useProductState'
 
 export default function HighestSoldProducts() {
-
   const dispatch = useDispatch<AppDispatch>()
   const { products } = useProductState()
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import useCategoryState from '../../hooks/useCategoryState'
 //** Redux */
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import useProductState from '../../hooks/useProductState'
-import { AppDispatch, RootState } from '../../redux/store'
+import { AppDispatch } from '../../redux/store'
+import { addToCartThunk } from '../../redux/slices/cartSlice'
 import { fetchSingleProductThunk } from '../../redux/slices/productSlice'
 //** Icons */
 import CheckboxLineIcon from 'remixicon-react/CheckboxLineIcon'
@@ -12,61 +14,74 @@ import CheckDoubleLineIcon from 'remixicon-react/CheckDoubleLineIcon'
 import Forbid2LineIcon from 'remixicon-react/Forbid2LineIcon'
 //** Components */
 import ReviewList from '../reviews/ReviewList'
-import useCategoryState from '../../hooks/useCategoryState'
+
 
 export default function ProductDetails() {
-  //!! Just for testing then i will fetch review from server
+  const { id } = useParams()
+  const dispatch = useDispatch<AppDispatch>()
+
   const reviewList = [
     {
       id: 1,
-      text: 'Good',
-      author: 'Norah',
+      reviewText: 'Good',
+      user: 'Norah',
       date: '12/2/2023'
     },
     {
-      id: 2,
-      text: 'Good',
-      author: 'Norah',
+      id: 1,
+      reviewText: 'Good',
+      user: 'Norah',
       date: '12/2/2023'
     },
     {
-      id: 3,
-      text: 'Good',
-      author: 'Norah',
+      id: 1,
+      reviewText: 'Good',
+      user: 'Norah',
       date: '12/2/2023'
     }
   ]
-  const { id } = useParams()
-
-  const dispatch = useDispatch<AppDispatch>()
-
-  //** Handle Side Bar */
-  const handleOpenSidebar = () => {
-    setIsSidebarOpen(true)
-  }
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false)
-  }
 
   //** States */
   const { product, isLoading } = useProductState()
   const { categories } = useCategoryState()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
+  //** Handle Open Review Side Bar */
+  const handleOpenSidebar = () => {
+    setIsSidebarOpen(true)
+  }
+  //** Handle Close Review Side Bar */
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false)
+  }
   //** Handle get products */
   useEffect(() => {
-    console.log(id)
     if (id) {
       dispatch(fetchSingleProductThunk(id))
       window.scrollTo(0, 0)
     }
-  }, [dispatch, id])
+  }, [])
 
   //** Get Category Name */
   const getCategories = (categoryId: string) => {
     const category = categories.find((category) => category._id === categoryId)
     return category ? category.name : 'Category Not Found'
+  }
+
+  //** Add to Cart */
+  const addToCart = () => {
+    const { _id: productId } = product
+    const quantity = 1
+    try {
+      dispatch(addToCartThunk({ productId, quantity })).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          const message = res.payload.message
+          toast.success(message)
+        }
+      })
+    } catch (error) {
+      toast.error('Something went wrong')
+    }
   }
 
   if (!product || (product && product._id !== id)) {
@@ -115,7 +130,9 @@ export default function ProductDetails() {
               <span className="title-font font-medium text-2xl text-gray-900">
                 {product.price} SAR
               </span>
-              <button className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded">
+              <button
+                className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded"
+                onClick={addToCart}>
                 Add To Cart
               </button>
             </div>

@@ -1,17 +1,21 @@
-import { AppDispatch, RootState } from '../../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { deleteOrderThunk, fetchOrdersThunk } from '../../redux/slices/orderSlice'
-import AdminSideBar from './AdminSideBar'
-import swal from 'sweetalert'
-import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
-import { toast } from 'react-toastify'
-
 import { useEffect } from 'react'
+import swal from 'sweetalert'
+import { toast } from 'react-toastify'
+//** Redux */
+import { AppDispatch } from '../../../redux/store'
+import { useDispatch } from 'react-redux'
+import { deleteOrderThunk, fetchOrdersThunk } from '../../../redux/slices/orderSlice'
+import AdminSideBar from '../AdminSideBar'
+import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
+import useOrderState from '../../../hooks/useOrderState'
+import useUserState from '../../../hooks/useUserState'
+
 
 export default function OrdersTable() {
   const dispatch = useDispatch<AppDispatch>()
-  const { orders, isLoading } = useSelector((state: RootState) => state.orders)
-  const { users } = useSelector((state: RootState) => state.users)
+  //** Custom Hook */
+  const { orders, isLoading } = useOrderState()
+  const { users } = useUserState()
 
   //** Delete Handler */
   const handleDeleteBtnClick = (id: string) => {
@@ -63,17 +67,13 @@ export default function OrdersTable() {
             {orders.map((item, index) => (
               <tr key={item._id}>
                 <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  {item.uniqueId}
-                </td>
+                <td className="py-4 px-6 border-b border-gray-200">{item.uniqueId}</td>
                 <td className="py-4 px-6 border-b border-gray-200">{getUserEmail(item.user)}</td>
                 <td className="py-4 px-6 border-b border-gray-200">
                   {new Date(item.orderDate).toLocaleDateString()}
                 </td>
 
-                <td className="py-4 px-6 border-b border-gray-200">
-                  {item.orderStatus}
-                </td>
+                <td className="py-4 px-6 border-b border-gray-200">{item.orderStatus}</td>
 
                 <td className="py-4 px-6 border-b border-gray-200 whitespace">
                   <button

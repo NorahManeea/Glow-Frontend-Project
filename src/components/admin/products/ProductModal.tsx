@@ -1,18 +1,10 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
-import { toast } from 'react-toastify'
-import swal from 'sweetalert'
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { Product, ProductModalProps } from '../../../types/types'
 //** Redux */
 import { useDispatch } from 'react-redux'
-import { createProductThunk, updateProductThunk } from '../../redux/slices/productSlice'
-import { AppDispatch } from '../../redux/store'
-import AdminSideBar from './AdminSideBar'
-import { Product } from '../../types/types'
-import useProductState from '../../hooks/useProductState'
-//** Compoents */
-import Widget from '../widget/Widget'
-//** Icons */
-import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
-import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
+import { AppDispatch } from '../../../redux/store'
+import { createProductThunk, updateProductThunk } from '../../../redux/slices/productSlice'
+import { toast } from 'react-toastify'
 
 const initialProductState: Product = {
   _id: '',
@@ -25,28 +17,24 @@ const initialProductState: Product = {
   discount: 0
 }
 
-export default function ProductsTable() {
+export default function ProductModal(prop: ProductModalProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const { products } = useProductState()
-
+  
   //** States */
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [product, setProduct] = useState<Product>(initialProductState)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [isEdit, setIsEdit] = useState(false)
   const [image, setImage] = useState<File | undefined>(undefined)
+
+  useEffect(() => {
+    if (prop.selectedProduct) {
+      setProduct(prop.selectedProduct)
+    } else {
+      setProduct(initialProductState)
+    }
+  }, [])
 
   //** Inputs Change Handler */
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    const isList = name === 'categories' || name === 'variants' || name === 'sizes'
-    if (isList) {
-      setProduct({
-        ...product,
-        [name]: value.split(',')
-      })
-      return
-    }
     setProduct({
       ...product,
       [name]: value
@@ -61,13 +49,7 @@ export default function ProductsTable() {
     } else {
     }
   }
-  //** Edit Product Handler */
-  const openEditProductModal = (item: Product) => {
-    setProduct(item)
-    setSelectedProduct({ ...item })
-    setIsEdit(true)
-    setIsModalOpen(true)
-  }
+
   //** Submit Handler */
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -84,9 +66,11 @@ export default function ProductsTable() {
       formData.append('image', image)
     }
 
-    if (selectedProduct && selectedProduct._id) {
-      formData.append('_id', selectedProduct._id)
-      dispatch(updateProductThunk({ productId: selectedProduct._id, updatedProduct: formData }))
+    if (prop.selectedProduct && prop.selectedProduct._id) {
+      formData.append('_id', prop.selectedProduct._id)
+      dispatch(
+        updateProductThunk({ productId: prop.selectedProduct._id, updatedProduct: formData })
+      )
       toast.success('Item edited successfully')
     } else {
       dispatch(createProductThunk(formData))
@@ -94,30 +78,18 @@ export default function ProductsTable() {
     }
 
     setProduct(initialProductState)
-  }
-
-  //** Delete Handler */
-  const handleDeleteBtnClick = (id: string) => {
-    swal({
-      title: 'Delete',
-      text: 'Are you sure you want to delete?',
-      icon: 'warning',
-      dangerMode: true,
-      buttons: ['Cancel', 'Delete']
-    }).then((isOk) => {
-      if (isOk) {
-        // dispatch(del({ productId: id }))
-      }
-    })
+    prop.setIsModalOpen(false)
   }
 
   return (
-    <div className="flex">
-      <AdminSideBar />
-      <div className="w-4/5 bg-white p-4">
-        <Widget />
-        <div className="flex items-center">
-          <h2 className="text-2xl font-bold text-[#32334A] lg:text-3xl mt-4">Products Table</h2>
+    <div className="fixed inset-0 overflow-y-auto">
+      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity">
+          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span className="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
+        &#8203;
+        <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <form className="p-6 " onSubmit={handleSubmit}>
             <div className="mt-4 flex text-sm leading-6 text-gray-600">
               <label
@@ -132,6 +104,39 @@ export default function ProductsTable() {
                 />
               </label>
             </div>
+
+            <div className="col-span-full">
+              <label
+                htmlFor="cover-photo"
+                className="block text-sm font-medium leading-6 text-gray-900">
+                Cover photo
+              </label>
+              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                <div className="text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-300"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true">
+                    <path
+                      fillRule="evenodd"
+                      d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                    <label
+                      htmlFor="image"
+                      className="relative cursor-pointer rounded-md bg-white font-semibold text-[#F2ACAA] focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                      <span>Upload Image</span>
+                      <input id="image" name="file-upload" type="file" className="sr-only" />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs leading-5 text-gray-600">PNG, JPG, JPEG</p>
+                </div>
+              </div>
+            </div>
             <div className="mb-4">
               <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                 Name
@@ -145,7 +150,6 @@ export default function ProductsTable() {
                 className="mt-1 p-2 w-full border rounded-md"
               />
             </div>
-
             <div className="mb-4">
               <label
                 htmlFor="description"
@@ -161,7 +165,6 @@ export default function ProductsTable() {
                 className="mt-1 p-2 w-full border rounded-md"
               />
             </div>
-
             <div className="mb-4">
               <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
                 Price
@@ -205,7 +208,6 @@ export default function ProductsTable() {
                 className="mt-1 p-2 w-full border rounded-md"
               />
             </div>
-
             <div className="mb-4">
               <label
                 htmlFor="categories"
@@ -221,7 +223,6 @@ export default function ProductsTable() {
                 className="mt-1 p-2 w-full border rounded-md"
               />
             </div>
-
             <div className="mt-6 flex items-center justify-end gap-x-6">
               <button
                 type="submit"
@@ -231,44 +232,6 @@ export default function ProductsTable() {
             </div>
           </form>
         </div>
-
-        <div className="flex flex-1 items-center justify-center pb-4"></div>
-
-        <table className="w-full table-fixed border">
-          <thead>
-            <tr className="bg-[#F7F7F7]">
-              <th className="w-1/12 py-4 px-6 text-left text-gray-600 font-bold">ID</th>
-              <th className="w-2/12 py-4 px-6 text-left text-gray-600 font-bold">Image</th>
-              <th className="w-2/12 py-4 px-6 text-left text-gray-600 font-bold">Name</th>
-              <th className="w-5/12 py-4 px-6 text-left text-gray-600 font-bold">Description</th>
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">Action</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {products.map((item, index) => (
-              <tr key={item._id}>
-                <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
-                <td className="py-4 px-6 border-b border-gray-200">
-                  <img src={item.image} width={100} />
-                </td>
-                <td className="py-4 px-6 border-b border-gray-200">{item.name}</td>
-                <td className="py-4 px-6 border-b border-gray-200 truncate">{item.description}</td>
-                <td className="py-4 px-6 border-b border-gray-200 whitespace">
-                  <button
-                    onClick={() => openEditProductModal(item)}
-                    className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full">
-                    <Edit2LineIcon />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteBtnClick(item._id)}
-                    className="text-red-600 bg-red-500/10 p-3 rounded-full">
-                    <DeleteBinLineIcon />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   )

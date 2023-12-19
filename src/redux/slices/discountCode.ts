@@ -23,7 +23,6 @@ export const fetchDiscountCodesThunk = createAsyncThunk(
     }
   }
 )
-
 //**  Add Discount Code */
 export const createDiscountCodeThunk = createAsyncThunk(
   'discountCodes/addDiscountCode',
@@ -38,7 +37,6 @@ export const createDiscountCodeThunk = createAsyncThunk(
     }
   }
 )
-
 //** Delete Discount Code */
 export const deleteDiscountCodeThunk = createAsyncThunk(
   'discountCodes/deleteDiscountCode',
@@ -46,6 +44,20 @@ export const deleteDiscountCodeThunk = createAsyncThunk(
     try {
       await api.delete(`/api/discount-code/${discountCodeId}`)
       return discountCodeId
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+//** Update Discount Code */
+export const updateDiscountCodeThunk = createAsyncThunk(
+  'discountCodes/updateDiscountCode',
+  async (updatedCode: DiscountCode, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/api/discount-code/${updatedCode._id}`, updatedCode)
+      return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data)
@@ -111,6 +123,26 @@ export const discountCodeSlice = createSlice({
           state.error = errorMsg
         }
         state.isLoading = false
+      })
+
+      //** Update Discount Code Reducers */
+      .addCase(updateDiscountCodeThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateDiscountCodeThunk.fulfilled, (state, action) => {
+        state.discountCodes = state.discountCodes.filter(
+          (discountCode) => discountCode._id !== action.payload._id
+        )
+        state.discountCodes = [action.payload, ...state.discountCodes]
+        state.isLoading = false
+      })
+      .addCase(updateDiscountCodeThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
       })
   }
 })

@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { AppDispatch, RootState } from '../../redux/store'
-
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { ThreeDots } from 'react-loader-spinner'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
+import { registerThunk } from '../../redux/slices/userSlice'
+//** Validation */
 import { yupResolver } from '@hookform/resolvers/yup'
 import { RegisterFormInput } from '../../types/types'
 import { registerSchema } from '../../schema/yupScheme'
-import { ThreeDots } from 'react-loader-spinner'
+//** Custom Hooks */
+import useUserState from '../../hooks/useUserState'
 
-import { registerThunk } from '../../redux/slices/userSlice'
 
 export default function Register() {
+  //** Yup Resolver */
   const {
     register,
     handleSubmit,
@@ -22,9 +26,10 @@ export default function Register() {
     defaultValues: {}
   })
 
-  const dispatch = useDispatch<AppDispatch>()
-  const { error, isLoading } = useSelector((state: RootState) => state.users)
   const navigate = useNavigate()
+
+  const dispatch = useDispatch<AppDispatch>()
+  const { isLoading } = useUserState()
 
   //** States */
   const [user, setUser] = useState<RegisterFormInput>({
@@ -49,9 +54,8 @@ export default function Register() {
           const message = res.payload.message
           toast.success(message)
           navigate('/login')
-        }
-        else if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
+        } else if (res.meta.requestStatus === 'rejected') {
+          toast.error(res.payload)
         }
       })
     } catch (error) {

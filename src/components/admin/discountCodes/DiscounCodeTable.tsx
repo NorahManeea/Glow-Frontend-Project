@@ -1,30 +1,49 @@
 import { useEffect, useState } from 'react'
 import swal from 'sweetalert'
 import { toast } from 'react-toastify'
+import useDiscountCodeSate from '../../../hooks/useDiscountCodeState'
 //** Redux */
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import {
-  createDiscountCodeThunk,
   deleteDiscountCodeThunk,
   fetchDiscountCodesThunk
-} from '../../redux/slices/discountCode'
-import { AppDispatch, RootState } from '../../redux/store'
-import { DiscountCode } from '../../types/types'
-//** Comonents */
-import AdminSideBar from './AdminSideBar'
+} from '../../../redux/slices/discountCode'
+import { AppDispatch } from '../../../redux/store'
+import { DiscountCode } from '../../../types/types'
+//** Components */
+import AdminSideBar from '../AdminSideBar'
 //** Icons */
+import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
 import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 import DiscountCodeModal from './DiscountCodeModal'
 
-export default function DiscountCodeTable() {
-  const { discountCodes, isLoading, error } = useSelector((state: RootState) => state.discountCode)
 
+const initialDiscountCodeState: DiscountCode = {
+  _id: '',
+  code: '',
+  discountPercentage: 0,
+  expirationDate: new Date()
+}
+export default function DiscountCodeTable() {
   const dispatch = useDispatch<AppDispatch>()
+  const { discountCodes, isLoading, error } = useDiscountCodeSate()
 
   //** States */
-  const [selectedCode, setSelectedCode] = useState<DiscountCode | null>(null)
-  const [updateCategory, setUpdateCategory] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [discountCode, setDiscountCodes] = useState<DiscountCode | null>(initialDiscountCodeState)
+  const [selectedDiscountCode, setSelectedDiscountCode] = useState<DiscountCode | null>(null)
 
+  //** Edit Discount Code Handler */
+  const openEditDscountCodeModal = (item: DiscountCode) => {
+    setSelectedDiscountCode(item)
+    setIsModalOpen(true)
+  }
+  //** Open Modal */
+  const openAddDscountCodeModal = () => {
+    setDiscountCodes(initialDiscountCodeState)
+    setSelectedDiscountCode(null)
+    setIsModalOpen(true)
+  }
   //** Delete Handler */
   const handleDeleteBtnClick = (id: string) => {
     swal({
@@ -39,29 +58,6 @@ export default function DiscountCodeTable() {
         return toast.success(error)
       }
     })
-  }
-  //** Open Modal */
-  const openCategoryModal = () => {
-    setUpdateCategory(true)
-  }
-  //** Close Modal */
-  const closeCategoryModal = () => {
-    setUpdateCategory(false)
-    setSelectedCode(null)
-  }
-
-  //** Submit Handler */
-  const onSubmitHandler = (discountCode: DiscountCode) => {
-    dispatch(createDiscountCodeThunk(discountCode)).then((res) => {
-      if (res.meta.requestStatus === 'fulfilled') {
-        toast.success(res.payload.message)
-      }
-      if (res.meta.requestStatus === 'rejected') {
-        toast.error(error)
-      }
-    })
-
-    closeCategoryModal()
   }
 
   useEffect(() => {
@@ -79,7 +75,7 @@ export default function DiscountCodeTable() {
               <h2 className="text-2xl font-bold text-[#32334A] lg:text-3xl mt-4">
                 Discount Code Table
               </h2>
-              <button onClick={openCategoryModal} className="ml-4">
+              <button onClick={openAddDscountCodeModal} className="ml-4">
                 Add Discont Code
               </button>
             </div>
@@ -110,6 +106,11 @@ export default function DiscountCodeTable() {
 
                   <td className="py-4 px-6 border-b border-gray-200 whitespace">
                     <button
+                      className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full"
+                      onClick={() => openEditDscountCodeModal(item)}>
+                      <Edit2LineIcon />
+                    </button>
+                    <button
                       className="text-red-600 bg-red-500/10 p-3 rounded-full"
                       onClick={() => handleDeleteBtnClick(_id)}>
                       <DeleteBinLineIcon />
@@ -121,11 +122,11 @@ export default function DiscountCodeTable() {
           </tbody>
         </table>
 
-        {updateCategory && (
+        {isModalOpen && (
           <DiscountCodeModal
-            selectedCode={selectedCode}
-            openModal={closeCategoryModal}
-            onSubmit={onSubmitHandler}
+            isModalOpen={isModalOpen}
+            selectedCode={selectedDiscountCode}
+            setIsModalOpen={setIsModalOpen}
           />
         )}
       </div>

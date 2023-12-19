@@ -3,34 +3,41 @@ import swal from 'sweetalert'
 import { toast } from 'react-toastify'
 //** Redux */
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  createCategoryThunk,
-  deleteCategoryThunk,
-  fetchCategoriesThunk,
-  updateCategoryThunk
-} from '../../redux/slices/categorySlice'
-import { AppDispatch, RootState } from '../../redux/store'
-import { Category } from '../../types/types'
-
+import { deleteCategoryThunk, fetchCategoriesThunk } from '../../../redux/slices/categorySlice'
+import { AppDispatch, RootState } from '../../../redux/store'
+import { Category } from '../../../types/types'
+//** Components */
 import CategoryModal from './CategoryModal'
-import AdminSideBar from './AdminSideBar'
+import AdminSideBar from '../AdminSideBar'
 //** Icons */
 import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
 import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 
+
+const initialCategoryState: Category = {
+  _id: '',
+  name: ''
+}
 export default function CategoryTable() {
+  
+  const dispatch = useDispatch<AppDispatch>()
   const { category, isLoading, error } = useSelector((state: RootState) => state.category)
 
-  const dispatch = useDispatch<AppDispatch>()
-
   //** States */
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [categories, setCatrgories] = useState<Category>(initialCategoryState)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-  const [updateCategory, setUpdateCategory] = useState(false)
 
-  //** Edit Handler */
-  const handleEditBtnClick = (item: Category) => {
+  //** Edit Category Handler */
+  const openEditProductModal = (item: Category) => {
     setSelectedCategory(item)
-    openCategoryModal()
+    setIsModalOpen(true)
+  }
+  //** Open Modal */
+  const openAddCategoryModal = () => {
+    setCatrgories(initialCategoryState)
+    setSelectedCategory(null)
+    setIsModalOpen(true)
   }
   //** Delete Handler */
   const handleDeleteBtnClick = (id: string) => {
@@ -47,43 +54,6 @@ export default function CategoryTable() {
       }
     })
   }
-  //** Open Modal */
-  const openCategoryModal = () => {
-    setUpdateCategory(true)
-  }
-  //** Close Modal */
-  const closeCategoryModal = () => {
-    setUpdateCategory(false)
-    setSelectedCategory(null)
-  }
-
-  //** Submit Handler */
-  const onSubmitHandler = (category: Category) => {
-    if (!category.name) {
-      toast.error('Please provide a category name');
-      return;
-    }
-    if (selectedCategory) {
-      const updatedCategory = { ...selectedCategory, name: category.name }
-      dispatch(updateCategoryThunk(updatedCategory)).then((res) => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          toast.success(res.payload.message)
-        }
-        else if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
-        }
-      })
-    } else {
-      dispatch(createCategoryThunk({name: category.name})).then((res) => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          toast.success(res.payload.message);
-        }  if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
-        }
-      });
-    }
-    closeCategoryModal()
-  }
 
   useEffect(() => {
     dispatch(fetchCategoriesThunk())
@@ -98,7 +68,7 @@ export default function CategoryTable() {
           <div className="w-full max-w-lg">
             <div className="flex items-center">
               <h2 className="text-2xl font-bold text-[#32334A] lg:text-3xl mt-4">Category Table</h2>
-              <button onClick={openCategoryModal} className="ml-4">
+              <button onClick={openAddCategoryModal} className="ml-4">
                 Add Category
               </button>
             </div>
@@ -123,7 +93,7 @@ export default function CategoryTable() {
                   <td className="py-4 px-6 border-b border-gray-200 whitespace">
                     <button
                       className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full"
-                      onClick={() => handleEditBtnClick(item)}>
+                      onClick={() => openEditProductModal(item)}>
                       <Edit2LineIcon />
                     </button>
                     <button
@@ -138,17 +108,14 @@ export default function CategoryTable() {
           </tbody>
         </table>
 
-        {updateCategory && (
+        {isModalOpen && (
           <CategoryModal
+            isModalOpen={isModalOpen}
             selectedCategory={selectedCategory}
-            openModal={closeCategoryModal}
-            onSubmit={onSubmitHandler}
+            setIsModalOpen={setIsModalOpen}
           />
         )}
       </div>
     </div>
   )
 }
-
-
-

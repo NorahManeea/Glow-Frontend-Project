@@ -1,34 +1,45 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { Category, CategoryModalProps } from '../../types/types'
+import { Category, CategoryModalProps } from '../../../types/types'
+//** Redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../../redux/store'
+import { createCategoryThunk, updateCategoryThunk } from '../../../redux/slices/categorySlice'
 
-export default function CategoryModal({
-  selectedCategory,
-  openModal,
-  onSubmit
-}: CategoryModalProps) {
+const initialCategoryState: Category = {
+  _id: '',
+  name: ''
+}
+
+export default function CategoryModal(prop: CategoryModalProps) {
+  const dispatch = useDispatch<AppDispatch>()
   //** States */
-  const [category, setCategory] = useState<Category>(selectedCategory ?? { _id: '', name: '' })
+  const [category, setCategory] = useState<Category>(initialCategoryState)
 
   useEffect(() => {
-    if (selectedCategory) {
-      setCategory(selectedCategory)
+    if (prop.selectedCategory) {
+      setCategory(prop.selectedCategory)
     } else {
-      setCategory({ _id: '', name: '' })
+      setCategory(initialCategoryState)
     }
-  }, [selectedCategory])
+  }, [])
 
   //**Input Change Handler */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setCategory((prevCategory) => ({ ...prevCategory, [name]: value }))
   }
 
-  //** Submit */
+  //** Submit Handler */
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(category);
-  };
-  
+    e.preventDefault()
+    if (prop.selectedCategory && prop.selectedCategory._id) {
+      dispatch(updateCategoryThunk(category))
+    } else {
+      dispatch(createCategoryThunk({ name: category.name }))
+    }
+    setCategory(initialCategoryState)
+    prop.setIsModalOpen(false)
+  }
 
   return (
     <div className="fixed inset-0 overflow-y-auto">
@@ -40,9 +51,6 @@ export default function CategoryModal({
         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <form onSubmit={handleSubmit}>
             <div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {selectedCategory ? 'Edit Category' : 'Add Category'}
-              </h3>
               <div className="mt-2">
                 <input
                   id="category"
@@ -51,7 +59,7 @@ export default function CategoryModal({
                   placeholder="Enter the category name"
                   type="text"
                   value={category.name}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -59,7 +67,7 @@ export default function CategoryModal({
               <button
                 type="submit"
                 className="inline-flex items-center justify-center w-full rounded-md border border-transparent bg-[#32334A] hover:bg-[#3f415a] px-4 py-2 font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:w-auto sm:text-sm">
-                {selectedCategory ? 'Edit Category' : 'Add Category'}
+                {prop.selectedCategory ? 'Edit Category' : 'Add Category'}
               </button>
             </div>
           </form>

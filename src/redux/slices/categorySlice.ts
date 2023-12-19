@@ -26,7 +26,7 @@ export const fetchCategoriesThunk = createAsyncThunk(
 //** Create Category */
 export const createCategoryThunk = createAsyncThunk(
   'categories/createCategory',
-  async (category: { name: string }, { rejectWithValue }) => {
+  async (category:Omit<Category, '_id'>, { rejectWithValue }) => {
     try {
       const res = await api.post(`/api/categories/`, category)
       return res.data.payload
@@ -144,5 +144,4 @@ export const categorySlice = createSlice({
       })
   }
 })
-export const categoryActions = categorySlice.actions
 export default categorySlice.reducer
