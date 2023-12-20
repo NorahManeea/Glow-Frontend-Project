@@ -3,17 +3,18 @@ import { Order, OrderState } from '../../types/types'
 import { AxiosError } from 'axios'
 import api from '../../api'
 
-
 export enum OrderStatus {
   PENDING = 'Pending',
   PROCESSING = 'Processing',
   SHIPPED = 'Shipped',
   DELIVERED = 'Delivered',
   RETURNED = 'Returned',
-  CANCELED = 'Canceled',
+  CANCELED = 'Canceled'
 }
+
 const initialState: OrderState = {
   orders: [],
+  singleOrder: {} as Order,
   error: null,
   isLoading: false,
   orderCount: 0
@@ -48,22 +49,36 @@ export const deleteOrderThunk = createAsyncThunk(
     }
   }
 )
+//** Fetch Sign Order Thunk */
+export const fetchSingleOrderThunk = createAsyncThunk(
+  'orders/fetchSingleOrder',
+  async (orderId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/orders/${orderId}`)
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
 
 //** Create Order Thunk */
 export const createOrderThunk = createAsyncThunk(
   'orders/createOrder',
   async (orderData: Partial<Order>, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/orders/checkout', orderData);
-      return res.data.payload;
+      const res = await api.post('/api/orders/checkout', orderData)
+      return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data);
+        return rejectWithValue(error.response?.data)
       }
-      throw error;
+      throw error
     }
   }
-);
+)
 
 //** Order History Thunk */
 export const fetchOrderHistoryThunk = createAsyncThunk(
@@ -83,18 +98,18 @@ export const fetchOrderHistoryThunk = createAsyncThunk(
 //** Update Order Status Thunk */
 export const updateOrderStatusThunk = createAsyncThunk(
   'order/updateOrderStatus',
-  async ({ orderId, status }: { orderId: string; status: OrderStatus }, { rejectWithValue }) => {
+  async ({ orderId, orderStatus }: { orderId: string; orderStatus: string }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/api/orders/${orderId}/status`, { status });
-      return res.data.payload;
+      const res = await api.put(`/api/orders/${orderId}/status`, { orderStatus })  
+      return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data);
+        return rejectWithValue(error.response?.data)
       }
-      throw error;
+      throw error
     }
   }
-);
+)
 
 //** Orders Count Thunk */
 export const fetchOrdersCountThunk = createAsyncThunk(
@@ -110,11 +125,11 @@ export const fetchOrdersCountThunk = createAsyncThunk(
     }
   }
 )
+
 export const orderSlice = createSlice({
   name: 'order',
   initialState,
-  reducers: {
-  },
+  reducers: {},
   extraReducers(builder) {
     //** Fetch All Orders Reducers */
     builder
@@ -134,13 +149,30 @@ export const orderSlice = createSlice({
         return state
       })
 
+      //** Fetch Single Order Reducers */
+      .addCase(fetchSingleOrderThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchSingleOrderThunk.fulfilled, (state, action) => {
+        state.singleOrder = action.payload
+        state.isLoading = false
+      })
+      .addCase(fetchSingleOrderThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
       //** Delete Order Reducers */
       .addCase(deleteOrderThunk.pending, (state) => {
         state.isLoading = true
       })
       .addCase(deleteOrderThunk.fulfilled, (state, action) => {
         const orderId = action.payload
-        const updatedOrder = state.orders.filter((order) => order._id !== orderId)
+        const updatedOrder = state.orders.filter((order) => order._id !== orderId)        
         state.orders = updatedOrder
         state.isLoading = false
       })
@@ -158,10 +190,10 @@ export const orderSlice = createSlice({
         state.isLoading = true
       })
       .addCase(createOrderThunk.fulfilled, (state, action) => {
-        const newOrder = action.payload;
-        state.orders = [newOrder, ...state.orders];
-        state.isLoading = false;
-        state.error = null;
+        const newOrder = action.payload
+        state.orders = [newOrder, ...state.orders]
+        state.isLoading = false
+        state.error = null
       })
       .addCase(createOrderThunk.rejected, (state, action) => {
         const errorMsg = action.payload
@@ -191,7 +223,11 @@ export const orderSlice = createSlice({
         state.isLoading = true
       })
       .addCase(updateOrderStatusThunk.fulfilled, (state, action) => {
-       
+        const {id, orderStatus} = action.payload        
+        const foundOrder = state.orders.find((order) => order._id === id)
+        if (foundOrder) {
+          foundOrder.orderStatus = orderStatus
+        }
       })
       .addCase(updateOrderStatusThunk.rejected, (state, action) => {
         const errorMsg = action.payload

@@ -7,12 +7,14 @@ function useOrderState() {
     const isLoading = state.orders.isLoading
     const error = state.orders.error
     const orderCount = state.orders.orderCount
+    const order = state.orders.singleOrder
     
   return {
     orders,
     isLoading,
     error,
-    orderCount
+    orderCount,
+    order
   }
 }
 

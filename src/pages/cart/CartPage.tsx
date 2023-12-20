@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import { getCartItemsThunk } from '../../redux/slices/cartSlice'
@@ -16,7 +17,7 @@ export default function CartPage() {
 
   useEffect(() => {
     dispatch(getCartItemsThunk())
-  }, [dispatch])
+  }, [])
 
   //** Quantity Handlers */
   const handleIncreaseQuantity = () => {
@@ -140,7 +141,19 @@ export default function CartPage() {
               </div>
               <Link to="/checkout">
                 <button className="rounded-md bg-[#32334A] hover:bg-[#3f415a] py-3 text-sm text-white w-full mt-2">
-                  Checkout
+                {isLoading ? (
+                <div className="mx-2">
+                  <ThreeDots
+                    height={20}
+                    width={20}
+                    color="#fff"
+                    visible={true}
+                    ariaLabel="threedots-loading"
+                  />
+                </div>
+              ) : (
+                'Checkout'
+              )}
                 </button>
               </Link>
             </div>

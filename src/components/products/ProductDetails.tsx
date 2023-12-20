@@ -15,10 +15,11 @@ import Forbid2LineIcon from 'remixicon-react/Forbid2LineIcon'
 //** Components */
 import ReviewList from '../reviews/ReviewList'
 
-
 export default function ProductDetails() {
   const { id } = useParams()
   const dispatch = useDispatch<AppDispatch>()
+  const { categories } = useCategoryState()
+
 
   const reviewList = [
     {
@@ -43,7 +44,6 @@ export default function ProductDetails() {
 
   //** States */
   const { product, isLoading } = useProductState()
-  const { categories } = useCategoryState()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   //** Handle Open Review Side Bar */
@@ -62,7 +62,7 @@ export default function ProductDetails() {
     }
   }, [])
 
-  //** Get Category Name */
+  //** Get Categories Name */
   const getCategories = (categoryId: string) => {
     const category = categories.find((category) => category._id === categoryId)
     return category ? category.name : 'Category Not Found'

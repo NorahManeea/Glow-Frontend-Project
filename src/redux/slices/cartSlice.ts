@@ -57,7 +57,7 @@ export const cartSlice = createSlice({
       .addCase(addToCartThunk.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(addToCartThunk.fulfilled, (state, action) => {
+      .addCase(addToCartThunk.fulfilled, (state) => {
         state.isLoading = false
       })
       .addCase(addToCartThunk.rejected, (state, action) => {

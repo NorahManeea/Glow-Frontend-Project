@@ -9,7 +9,7 @@ import AdminSideBar from '../AdminSideBar'
 import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 import useOrderState from '../../../hooks/useOrderState'
 import useUserState from '../../../hooks/useUserState'
-
+import { Link } from 'react-router-dom'
 
 export default function OrdersTable() {
   const dispatch = useDispatch<AppDispatch>()
@@ -33,15 +33,15 @@ export default function OrdersTable() {
     })
   }
 
+  useEffect(() => {
+    dispatch(fetchOrdersThunk())
+  }, [])
+
   //** Get User Email */
   const getUserEmail = (userId: string) => {
     const user = users.find((user) => user._id === userId)
     return user ? user.email : 'User Not Found'
   }
-
-  useEffect(() => {
-    dispatch(fetchOrdersThunk())
-  }, [])
 
   return (
     <div className="flex">
@@ -76,6 +76,11 @@ export default function OrdersTable() {
                 <td className="py-4 px-6 border-b border-gray-200">{item.orderStatus}</td>
 
                 <td className="py-4 px-6 border-b border-gray-200 whitespace">
+                  <Link to={`/admin-dashboard/orders/${item._id}`}>
+                    <button className="text-red-600 bg-red-500/10 p-3 rounded-full">
+                      See More
+                    </button>
+                  </Link>
                   <button
                     onClick={() => handleDeleteBtnClick(item._id)}
                     className="text-red-600 bg-red-500/10 p-3 rounded-full">

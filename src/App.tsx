@@ -1,6 +1,6 @@
 import './App.css'
 
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 //** Components */
 import NavBar from './components/global/NavBar'
@@ -18,22 +18,21 @@ import OrdersTable from './components/admin/orders/OrdersTable'
 import UsersTable from './components/admin/users/UsersTable'
 import ProductsTable from './components/admin/products/ProductsTable'
 import OrdersPage from './pages/profile/OrdersPage'
-import useUserState from './hooks/useUserState'
 import ForgotPassword from './pages/forms/ForgotPassword'
 import Wishlist from './pages/wishlist/Wishlist'
 import CategoryTable from './components/admin/categories/CategoryTable'
 import ResetPassword from './pages/forms/ResetPassword'
 import DiscountCodeTable from './components/admin/discountCodes/DiscounCodeTable'
 import CheckoutPage from './pages/cart/CheckoutPage'
+import OrderDetails from './components/admin/orders/OrderDetails'
+import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProfilePage from './pages/profile/ProfilePage'
 
 function App() {
-  const { isAdmin } = useUserState()
 
   return (
     <div className="App">
       <NavBar />
-
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -51,14 +50,15 @@ function App() {
         <Route path="/profile/:id" element={<ProfilePage />} />
 
         {/* Admin Dashboard */}
-        <Route path="admin-dashboard">
-          <Route index element={isAdmin() ? <ProductsTable /> : <Navigate to="/" />} />
-          <Route path="orders" element={isAdmin() ? <OrdersTable /> : <Navigate to="/" />} />
-          <Route path="users" element={isAdmin() ? <UsersTable /> : <Navigate to="/" />} />
-          <Route path="categories" element={isAdmin() ? <CategoryTable /> : <Navigate to="/" />} />
+        <Route path="admin-dashboard" element={<ProtectedRoutes />}>
+          <Route index element={<ProductsTable />} />
+          <Route path="orders" element={<OrdersTable />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
+          <Route path="users" element={<UsersTable />} />
+          <Route path="categories" element={<CategoryTable />} />
           <Route
             path="discount-code"
-            element={isAdmin() ? <DiscountCodeTable /> : <Navigate to="/" />}
+            element={<DiscountCodeTable />}
           />
         </Route>
         {/* Product */}
@@ -66,7 +66,7 @@ function App() {
           <Route index element={<ProductPage />} />
           <Route path=":id" element={<ProductDetails />} />
         </Route>
-        {/* Not Found */}
+        {/* 404 Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

@@ -2,7 +2,6 @@ import React, { ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Header() {
-
   //!! FOR TESTING LOCALIZATION (WILL FIX IT LATER)
     const { t, i18n } = useTranslation();
     const changeLanguage = (lng: any) => {

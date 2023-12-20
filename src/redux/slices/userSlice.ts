@@ -159,8 +159,8 @@ export const userSlice = createSlice({
     logoutSuccess: (state) => {
       state.isLoggedIn = false
       state.user = null
-      localStorage.removeItem('token')
-
+      state.decodedUser = null
+      return state
     }
   },
   extraReducers: (builder) => {
@@ -180,6 +180,7 @@ export const userSlice = createSlice({
       })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.user = action.payload.user
+        state.decodedUser = decodedUser
         state.isLoading = false
         state.isLoggedIn = true
         return state

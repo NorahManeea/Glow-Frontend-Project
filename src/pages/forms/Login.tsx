@@ -42,7 +42,7 @@ export default function Login() {
         const user = res.payload.user
         localStorage.setItem('token', token)
         if (user.role === ROLES.ADMIN) {
-          navigate('/dashboard/products')
+          navigate('/admin-dashboard')
         }
         if (user.role === ROLES.USER) {
           navigate('/')

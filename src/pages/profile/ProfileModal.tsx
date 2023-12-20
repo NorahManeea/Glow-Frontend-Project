@@ -15,6 +15,7 @@ export default function ProfileModal(prop: ProfileModalProps) {
   //** States */
   const [profile, setProfile] = useState<User>(prop.user)
 
+  //** Input Change Hanlder */
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setProfile((prevUser) => ({
@@ -24,7 +25,7 @@ export default function ProfileModal(prop: ProfileModalProps) {
   }
 
   //** Submit Handler */
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault()
     try {
       if (user) {
@@ -44,7 +45,7 @@ export default function ProfileModal(prop: ProfileModalProps) {
         </div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmitHandler}>
             <div>
               <div className="mt-2">
                 <input

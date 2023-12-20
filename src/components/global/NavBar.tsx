@@ -40,6 +40,7 @@ export default function NavBar() {
       if (isOk) {
         setIsOpen(false)
         dispatch(userActions.logoutSuccess())
+        localStorage.removeItem('token')
         navigate('/login')
       }
     })
@@ -52,7 +53,7 @@ export default function NavBar() {
           <div className="relative flex h-16 items-center justify-between">
             <RightNavBar />
             <div className="absolute inset-y-0 right-0 gap-2 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              {/* Cart */}
+              {/* CART */}
               <Link to="/cart">
                 <button
                   className="py-4 px-1 relative border-2 border-transparent p-1 text-gray-400 hover:text-gray-600 rounded-full focus:outline-none transition duration-150 ease-in-out"
@@ -98,7 +99,7 @@ export default function NavBar() {
               </Link>
               {decodedUser ? (
                 <>
-                  {/* Profile */}
+                  {/* PROFIE */}
                   <div className="relative">
                     <button
                       type="button"
@@ -138,7 +139,7 @@ export default function NavBar() {
                   </div>
                 </>
               ) : (
-                //** Login */
+              // LOGIN
                 <Link
                   className="text-gray-800 bg-gray-100 hover:bg-[#3f415a] hover:text-white inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm "
                   to="/login">

@@ -13,9 +13,9 @@ function useUserState() {
   const usersCount = state.users.usersCount
 
   const isAdmin = () => {
-return decodedUser && decodedUser.role === ROLES.ADMIN
-  };
-  
+    return decodedUser && decodedUser.role === ROLES.ADMIN
+  }
+
   return {
     users,
     isLoading,

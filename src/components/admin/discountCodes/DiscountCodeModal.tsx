@@ -36,7 +36,7 @@ export default function DiscountCodeModal(prop: DiscountCodeModalProps) {
   }
 
   //** Submit Handler */
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault()
     if (prop.selectedCode && prop.selectedCode._id) {
       dispatch(updateDiscountCodeThunk(code))
@@ -55,7 +55,7 @@ export default function DiscountCodeModal(prop: DiscountCodeModalProps) {
         </div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmitHandler}>
             <div>
               <h3 className="text-lg leading-6 font-medium text-gray-900">
                 {prop.selectedCode ? 'Edit Discount Code' : 'Add Discount Code'}

@@ -1,4 +1,5 @@
 import { ROLES } from "../constant/constants"
+import { OrderStatus } from "../redux/slices/orderSlice"
 
 //** Users */
 export type User = {
@@ -45,7 +46,7 @@ export type Order = {
     city: string
     address: string
   }
-  orderStatus: string
+  orderStatus: OrderStatus
 }
 //** Reviews */
 export type Review = {
@@ -67,6 +68,11 @@ export type Cart = {
   quantity: number;
   _id: string;
 }
+//** Wishlist */
+export type WishList = {
+  product: Product;
+  _id: string;
+}
 //** Decoded User */
 export type DecodedUser = {
   email: string
@@ -80,6 +86,9 @@ export type DecodedUser = {
 }
 //** Role */
 export type Role = keyof typeof ROLES
+
+//** Toast */
+export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
 //---------STATES----------//
 //** User State */
@@ -115,6 +124,7 @@ export type OrderState = {
   error: null | string
   isLoading: boolean
   orderCount: number
+  singleOrder: Order
 }
 //** Discount State */
 export type DiscountState = {
@@ -130,6 +140,12 @@ export type  CartState = {
   cartLength: number
   totalItems: number,
   totalPrice: number,
+}
+
+export type WishlistState ={
+  wishlistItem: WishList[]
+  error: null | string
+  isLoading: boolean
 }
 
 //--------Forms Inputs----------//

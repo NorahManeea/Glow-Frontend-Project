@@ -43,7 +43,7 @@ export default function ProductModal(prop: ProductModalProps) {
 
   //** Handle Image File Change */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+    const files = e.target.files    
     if (files && files.length > 0) {
       setImage(files[0])
     } else {
@@ -51,19 +51,21 @@ export default function ProductModal(prop: ProductModalProps) {
   }
 
   //** Submit Handler */
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault()
 
     const formData = new FormData()
     formData.append('name', product.name)
     formData.append('description', product.description)
+    formData.append('discount', String(product.discount))
     formData.append('price', String(product.price))
     formData.append('quantityInStock', String(product.quantityInStock))
     formData.append('categories', product.categories)
-    formData.append('discount', String(product.discount))
 
     if (image) {
       formData.append('image', image)
+      product.image = String(image)
+
     }
 
     if (prop.selectedProduct && prop.selectedProduct._id) {
@@ -90,7 +92,7 @@ export default function ProductModal(prop: ProductModalProps) {
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
         &#8203;
         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <form className="p-6 " onSubmit={handleSubmit}>
+          <form className="p-6 " onSubmit={onSubmitHandler}>
             <div className="mt-4 flex text-sm leading-6 text-gray-600">
               <label
                 htmlFor="file-upload"
@@ -98,9 +100,8 @@ export default function ProductModal(prop: ProductModalProps) {
                 <span>Upload a Image</span>
                 <input
                   type="file"
-                  onChange={(e) => {
-                    handleFileChange(e)
-                  }}
+                  onChange={
+                    handleFileChange}
                 />
               </label>
             </div>

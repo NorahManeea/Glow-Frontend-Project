@@ -30,7 +30,7 @@ export default function CategoryModal(prop: CategoryModalProps) {
   }
 
   //** Submit Handler */
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmitHandler = (e: FormEvent) => {
     e.preventDefault()
     if (prop.selectedCategory && prop.selectedCategory._id) {
       dispatch(updateCategoryThunk(category))
@@ -49,7 +49,7 @@ export default function CategoryModal(prop: CategoryModalProps) {
         </div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmitHandler}>
             <div>
               <div className="mt-2">
                 <input

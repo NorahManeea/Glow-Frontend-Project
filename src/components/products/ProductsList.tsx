@@ -47,7 +47,8 @@ export default function ProductsList() {
   //** WishList */
   const handleAddToWishlist = async (productId: string) => {
     try {
-      await dispatch(addToWishlistThunk(productId))
+     dispatch(addToWishlistThunk(productId))
+     
 
       setWishlistStatus((prevStatus) => ({
         ...prevStatus,
