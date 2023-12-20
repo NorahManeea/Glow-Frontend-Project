@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AxiosError } from 'axios'
 import api from '../../api'
 import { WishlistState } from '../../types/types'
+import WishListService from '../../services/wishlist'
 
 
 const initialState: WishlistState = {
@@ -15,7 +16,7 @@ export const fetchWishlistThunk = createAsyncThunk(
   'wishlist/fetchWishlist',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/wishlist')      
+      const res = await WishListService.fetchAllWishlistItemsApi()    
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -30,9 +31,7 @@ export const addToWishlistThunk = createAsyncThunk(
   'wishlist/addToWishlist',
   async (productId: string, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/wishlist', { productId })
-      console.log("🚀 ~ file: wishlistSlice.ts:41 ~ res.data:", res)
-      
+      const res = await WishListService.addToWishlistApi(productId)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {

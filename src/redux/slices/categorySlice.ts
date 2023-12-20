@@ -2,6 +2,8 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Category, CategoryState } from '../../types/types'
 import api from '../../api'
 import { AxiosError } from 'axios'
+import CategoryService from '../../services/categories'
+
 
 const initialState: CategoryState = {
   category: [],
@@ -14,7 +16,7 @@ export const fetchCategoriesThunk = createAsyncThunk(
   'categories/fetchCategories',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/categories')
+      const res = await CategoryService.fetchAllCategoriesApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -28,7 +30,7 @@ export const createCategoryThunk = createAsyncThunk(
   'categories/createCategory',
   async (category:Omit<Category, '_id'>, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/api/categories/`, category)
+      const res = await CategoryService.createCategoryApi(category)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -42,7 +44,7 @@ export const updateCategoryThunk = createAsyncThunk(
   'categories/updateCategory',
   async (updatedCategory: Category, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/api/categories/${updatedCategory._id}`, updatedCategory)
+      const res = await CategoryService.updateCategoryApi(updatedCategory)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -56,7 +58,7 @@ export const deleteCategoryThunk = createAsyncThunk(
   'categories/deleteCategory',
   async (categoryId: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/categories/${categoryId}`)
+      await CategoryService.deleteCategoryApi(categoryId)
       return categoryId
     } catch (error) {
       if (error instanceof AxiosError) {

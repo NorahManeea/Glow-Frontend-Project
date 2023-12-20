@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { UserState } from '../../types/types'
 import { getDecodedTokenFromStorage } from '../../utils/token'
+import UserService from '../../services/users'
 
 const decodedUser = getDecodedTokenFromStorage()
 
@@ -20,7 +21,7 @@ export const loginThunk = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/auth/login', credentials)
+      const res = await UserService.loginApi(credentials)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -38,7 +39,7 @@ export const registerThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.post('/api/auth/register', credentials)
+      const res = await UserService.registerApi(credentials)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -53,7 +54,7 @@ export const fetchUsersThunk = createAsyncThunk(
   'users/fetchUsers',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/users')
+      const res = await UserService.fetchAllUsersApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -68,7 +69,7 @@ export const deleteUserThunk = createAsyncThunk(
   'users/deleteUser',
   async (userId: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/users/${userId}`)
+      await UserService.deleteUserApi(userId)
       return userId
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -83,7 +84,7 @@ export const blockUserThunk = createAsyncThunk(
   'users/blockUser',
   async (userId: string, { rejectWithValue }) => {
     try {
-      await api.put(`/api/users/block/${userId}`)
+      await UserService.blockUserApi(userId)
       return userId
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -97,7 +98,7 @@ export const setProfileThunk = createAsyncThunk(
   'users/setProfile',
   async (userId: string, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/users/profile/${userId}`)
+      const res = await UserService.setUserProfileApi(userId)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -128,7 +129,7 @@ export const fetchUsersCountThunk = createAsyncThunk(
   'users/fetchUsersCount',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/users/count')
+      const res = await UserService.fetchUserCountApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {

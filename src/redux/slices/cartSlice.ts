@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../api'
 import { AxiosError } from 'axios'
 import { CartState } from '../../types/types'
+import CartService from '../../services/cart'
 
 const initialState: CartState = {
   cartItems: [],
@@ -14,15 +15,9 @@ const initialState: CartState = {
 //** Add To Cart Thunks */
 export const addToCartThunk = createAsyncThunk(
   'cart/addToCart',
-  async (
-    { productId, quantity }: { productId: string; quantity: number },
-    { rejectWithValue }
-  ) => {
+  async ({ productId, quantity }: { productId: string; quantity: number }, { rejectWithValue }) => {
     try {
-      const response = await api.post(
-        '/api/cart',
-        { productId, quantity }
-      )
+      const response = await api.post('/api/cart', { productId, quantity })
       return response.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -37,7 +32,7 @@ export const getCartItemsThunk = createAsyncThunk(
   'cart/getCartItems',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/api/cart')
+      const response = await CartService.fetchAllCartItemsApi()
       return response.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -71,21 +66,21 @@ export const cartSlice = createSlice({
 
       //** Get Cart Items Reducers */
       .addCase(getCartItemsThunk.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true
       })
       .addCase(getCartItemsThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.cartItems = action.payload.cartItems;
-        state.totalItems = action.payload.totalItems;
-        state.totalPrice = action.payload.totalPrice;
+        state.isLoading = false
+        state.cartItems = action.payload.cartItems
+        state.totalItems = action.payload.totalItems
+        state.totalPrice = action.payload.totalPrice
       })
       .addCase(getCartItemsThunk.rejected, (state, action) => {
-        const errorMsg = action.payload;
+        const errorMsg = action.payload
         if (typeof errorMsg === 'string') {
-          state.error = errorMsg;
+          state.error = errorMsg
         }
-        state.isLoading = false;
-      });
+        state.isLoading = false
+      })
   }
 })
 

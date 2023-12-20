@@ -37,7 +37,7 @@ export const fetchProductsThunk = createAsyncThunk(
       searchText && params.append('searchText', searchText)
 
       const res = await ProductService.fetchProductsApi(params.toString())
-            return res.data
+      return res.data
 
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -51,7 +51,7 @@ export const fetchAllProductsThunk = createAsyncThunk(
   'products/fetchAllProducts',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/products`)
+      const res = await ProductService.fetchAllProductsApi()
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -65,7 +65,7 @@ export const fetchSingleProductThunk = createAsyncThunk(
   'products/fetchSingleProduct',
   async (productId: string, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/products/${productId}`)
+      const res = await ProductService.fetchSingleProductApi(productId)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -79,7 +79,7 @@ export const fetchProductsCountThunk = createAsyncThunk(
   'products/fetchProductsCount',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/products/count')
+      const res = await ProductService.fetchProductCountApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -93,7 +93,7 @@ export const fetchHighestSoldProductsThunk = createAsyncThunk(
   'products/fetchHighestSoldProducts',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/products/highest-sold')
+      const res = await ProductService.fetchHighestSoldProductsApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -107,7 +107,7 @@ export const createProductThunk = createAsyncThunk(
   'products/createProduct',
   async (productData: FormData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/api/products', productData)
+      const response = await ProductService.createProductApi(productData)
       return response.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -124,7 +124,7 @@ export const updateProductThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await api.put(`/api/products/${productId}`, updatedProduct)
+      const response = await ProductService.updateProductApi(productId,updatedProduct)
       return response.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -138,7 +138,7 @@ export const deleteProductThunk = createAsyncThunk(
   'products/deleteProduct',
   async (productId: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/products/${productId}`)
+      await ProductService.deleteProductApi(productId)
       return productId
     } catch (error) {
       if (error instanceof AxiosError) {

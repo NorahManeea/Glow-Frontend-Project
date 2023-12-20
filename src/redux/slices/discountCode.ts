@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AxiosError } from 'axios'
 import api from '../../api'
 import { DiscountCode, DiscountState } from '../../types/types'
+import DiscountCodeService from '../../services/discountCodes'
 
 const initialState: DiscountState = {
   discountCodes: [],
@@ -14,7 +15,7 @@ export const fetchDiscountCodesThunk = createAsyncThunk(
   'discountCodes/fetchDiscountCodes',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/discount-code')
+      const res = await DiscountCodeService.fetchAllDiscountCodesApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -28,7 +29,7 @@ export const createDiscountCodeThunk = createAsyncThunk(
   'discountCodes/addDiscountCode',
   async (discountCodeData: Omit<DiscountCode, '_id'>, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/discount-code', discountCodeData)
+      const res = await DiscountCodeService.createDiscountCodeApi(discountCodeData)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -42,7 +43,7 @@ export const deleteDiscountCodeThunk = createAsyncThunk(
   'discountCodes/deleteDiscountCode',
   async (discountCodeId: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/discount-code/${discountCodeId}`)
+      await DiscountCodeService.deleteDiscountCodeApi(discountCodeId)
       return discountCodeId
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -56,7 +57,7 @@ export const updateDiscountCodeThunk = createAsyncThunk(
   'discountCodes/updateDiscountCode',
   async (updatedCode: DiscountCode, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/api/discount-code/${updatedCode._id}`, updatedCode)
+      const res = await DiscountCodeService.updateDiscountCodeApi(updatedCode)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {

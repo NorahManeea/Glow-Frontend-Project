@@ -1,13 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../api'
 import { AxiosError } from 'axios'
+import PasswordService from '../../services/password'
+
 
 //** Password Reset */
 export const resetPasswordThunk = createAsyncThunk(
   '/resetPassword',
   async (email: string, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/reset-password', { email })
+      const res = await PasswordService.resetPasswordApi(email)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {

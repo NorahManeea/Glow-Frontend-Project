@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Order, OrderState } from '../../types/types'
 import { AxiosError } from 'axios'
 import api from '../../api'
+import OrderService from '../../services/orders'
+
 
 export enum OrderStatus {
   PENDING = 'Pending',
@@ -25,7 +27,7 @@ export const fetchOrdersThunk = createAsyncThunk(
   'orders/fetchOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/orders')
+      const res = await OrderService.fetchAllOrdersApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -40,7 +42,7 @@ export const deleteOrderThunk = createAsyncThunk(
   'orders/deleteOrder',
   async (orderId: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/orders/${orderId}`)
+      await OrderService.deleteOrderApi(orderId)
       return orderId
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -49,12 +51,13 @@ export const deleteOrderThunk = createAsyncThunk(
     }
   }
 )
+
 //** Fetch Sign Order Thunk */
 export const fetchSingleOrderThunk = createAsyncThunk(
   'orders/fetchSingleOrder',
   async (orderId: string, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/orders/${orderId}`)
+      const res = await OrderService.fetchSingleOrderApi(orderId)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -69,7 +72,7 @@ export const createOrderThunk = createAsyncThunk(
   'orders/createOrder',
   async (orderData: Partial<Order>, { rejectWithValue }) => {
     try {
-      const res = await api.post('/api/orders/checkout', orderData)
+      const res = await OrderService.createOrderApi(orderData)
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -85,7 +88,7 @@ export const fetchOrderHistoryThunk = createAsyncThunk(
   'orderHistory/fetchOrderHistory',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/orders/history')
+      const res = await OrderService.fetchOrdersHistoryApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -116,7 +119,7 @@ export const fetchOrdersCountThunk = createAsyncThunk(
   'users/fetchUsersCount',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/api/orders/count')
+      const res = await OrderService.fetchOrdersCountApi()
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
