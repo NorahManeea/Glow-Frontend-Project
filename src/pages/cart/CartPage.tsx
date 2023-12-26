@@ -28,7 +28,6 @@ export default function CartPage() {
     cartLength,
     totalAfterDiscount,
     shipping,
-    tax,
     savedAmount
   } = useCartState()
   const { categories } = useCategoryState()

@@ -11,7 +11,6 @@ function useCartState() {
     const savedAmount = state.cart.savedAmount
     const totalPrice = state.cart.totalPrice
     const shipping = state.cart.shipping
-    const tax = state.cart.tax
 
 
 
@@ -21,7 +20,6 @@ function useCartState() {
     cartItems,
     cartLength,
     shipping,
-    tax,
     totalAfterDiscount,
     totalPrice,
     savedAmount

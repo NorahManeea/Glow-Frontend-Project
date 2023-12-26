@@ -1,10 +1,10 @@
 import axios from 'axios'
 import { getTokenFromStorage } from '../utils/token'
 
-let baseURL = process.env.BACKEND_ORIGIN
+let BASE_URL = import .meta.env.BACKEND_ORIGIN || 'http://localhost:5050'
 
 const api = axios.create({
-  baseURL
+  baseURL: BASE_URL
 })
 
 const token = getTokenFromStorage()
