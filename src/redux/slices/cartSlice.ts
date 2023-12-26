@@ -83,10 +83,9 @@ export const cartSlice = createSlice({
           (total, item) => total + item.product.price * item.quantity,
           0
         )
-        state.totalAfterDiscount = state.totalPrice + state.shipping
       },
       applyDiscount(state, action: { payload: { discount: DiscountCode } }) {
-        const { discount } = action.payload;        
+        const { discount } = action.payload;                
         if (discount && discount.expirationDate && discount.discountPercentage !== undefined) {
           const currentDate = new Date();
       
@@ -95,7 +94,9 @@ export const cartSlice = createSlice({
           } else {
             const discountAmount = (state.totalPrice * discount.discountPercentage) / 100;
             state.savedAmount = discountAmount;
-            state.totalAfterDiscount = state.totalPrice - discountAmount;
+            console.log("🚀 ~ file: cartSlice.ts:99 ~ applyDiscount ~ state.savedAmount:", state.savedAmount)
+            state.totalAfterDiscount = state.totalPrice - discountAmount
+            
             state.error = null;
           }
         } else {

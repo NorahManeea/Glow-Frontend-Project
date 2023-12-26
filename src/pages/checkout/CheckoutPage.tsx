@@ -45,9 +45,7 @@ export default function CheckoutPage() {
     cvv: ''
   })
   
-  useEffect(() => {
-    console.log("🚀 ~ file: CheckoutPage.tsx:26 ~ CheckoutPage ~ savedAmount:", savedAmount)
-    
+  useEffect(() => {    
     dispatch(cartActions.calculateTotalPrice())
   }, [cartItems])
 
