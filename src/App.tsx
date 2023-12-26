@@ -1,6 +1,8 @@
 import './App.css'
 
+import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { checkExpiry } from './utils/token'
 
 //** Components */
 import NavBar from './components/global/NavBar'
@@ -17,7 +19,6 @@ import CartPage from './pages/cart/CartPage'
 import OrdersTable from './components/admin/orders/OrdersTable'
 import UsersTable from './components/admin/users/UsersTable'
 import ProductsTable from './components/admin/products/ProductsTable'
-import OrdersPage from './pages/profile/OrdersPage'
 import ForgotPassword from './pages/forms/ForgotPassword'
 import Wishlist from './pages/wishlist/Wishlist'
 import CategoryTable from './components/admin/categories/CategoryTable'
@@ -26,13 +27,11 @@ import DiscountCodeTable from './components/admin/discountCodes/DiscounCodeTable
 import OrderDetails from './components/admin/orders/OrderDetails'
 import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProfilePage from './pages/profile/ProfilePage'
-import { checkExpiry } from './utils/token'
-import { useEffect, useState } from 'react'
 import InternetStatus from './components/common/InternetStatus'
 import Dashboard from './pages/admin/Dashboard'
-import CheckoutPage from './pages/cart/CheckoutPage'
-import Checkout from './pages/cart/Payment'
+import CheckoutPage from './pages/checkout/CheckoutPage'
 import ActivationSuccess from './components/activation/ActivationSuccess'
+import OrderSuccessPage from './pages/checkout/OrderSuccessPage'
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
@@ -76,13 +75,13 @@ function App() {
         <Route path="/reset-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:userId/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/activation-success/:activationToken" element={<ActivationSuccess />} />
-
+        <Route path="/activation-success/:actiationToken" element={<ActivationSuccess />} />
 
         <Route path="/cart" element={<CartPage />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/order-success" element={<OrderSuccessPage />} />
+
         <Route path="/profile/:id" element={<ProfilePage />} />
 
         {/* Admin Dashboard */}

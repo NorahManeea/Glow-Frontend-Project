@@ -148,7 +148,6 @@ export type CartState = {
   totalPrice: number
   savedAmount: number
   totalAfterDiscount: number
-  tax: number
   shipping: number
 }
 

@@ -43,7 +43,7 @@ export default {
   },
   //** Service:- Add Review Service */
   addReiewToProductApi: async (productId: string, reviewText: string) => {
-    const res = await api.post('/reviews', { productId, reviewText });
+    const res = await api.post('/reviews', { productId, reviewText })
     return res
   }
 }

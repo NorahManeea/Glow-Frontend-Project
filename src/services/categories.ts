@@ -1,4 +1,3 @@
-import { AxiosRequestConfig } from 'axios';
 import api from '../api/index'
 import { Category } from '../types/types'
 

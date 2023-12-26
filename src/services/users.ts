@@ -19,7 +19,6 @@ export default {
   //** Google Login Service */
   loginWithGoogleApi: async (idToken: string) => {
     const res = await api.post(`/api/auth/login/google`, { idToken })
-
     return res
   },
   //** Service:- Fetch All Users Service */

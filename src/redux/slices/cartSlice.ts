@@ -8,7 +8,6 @@ const initialState: CartState = {
   cartItems: [],
   totalPrice: 0,
   savedAmount: 0,
-  tax: 0,
   shipping:24,
   totalAfterDiscount: 0,
   error: null,
@@ -84,21 +83,25 @@ export const cartSlice = createSlice({
           (total, item) => total + item.product.price * item.quantity,
           0
         )
-        state.tax = Number((state.totalPrice * 0.15).toFixed())
-        state.totalAfterDiscount = state.totalPrice + Number(state.tax) + state.shipping
+        state.totalAfterDiscount = state.totalPrice + state.shipping
       },
       applyDiscount(state, action: { payload: { discount: DiscountCode } }) {
-        const { discount } = action.payload;
+        const { discount } = action.payload;        
+        if (discount && discount.expirationDate && discount.discountPercentage !== undefined) {
+          const currentDate = new Date();
       
-        if (discount.expirationDate < new Date()) {
-          state.error = 'Discount code is expired';
+          if (discount.expirationDate < currentDate) {
+            state.error = 'Discount code is expired';
+          } else {
+            const discountAmount = (state.totalPrice * discount.discountPercentage) / 100;
+            state.savedAmount = discountAmount;
+            state.totalAfterDiscount = state.totalPrice - discountAmount;
+            state.error = null;
+          }
         } else {
-          const discountAmount = (state.totalPrice * discount.discountPercentage) / 100;
-          state.savedAmount = discountAmount;
-          state.totalAfterDiscount = state.totalPrice - discountAmount;
+          state.error = 'Invalid discount code';
         }
       },
-    
     
     updateShipping(state, action: { payload: { shipping: number } }) {
       state.shipping = action.payload.shipping;

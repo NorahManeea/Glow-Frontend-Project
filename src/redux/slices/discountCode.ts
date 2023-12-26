@@ -29,11 +29,11 @@ export const fetchSingleDiscountCodeThunk = createAsyncThunk(
   'discountCode/fetchSingleDiscountCodeThunk',
   async (discountCode: string, { rejectWithValue }) => {
     try {
-      const res = await DiscountCodeService.fetchSingleDiscountCodesApi(discountCode);
-      return res.data.discountCode; 
+      const res = await DiscountCodeService.fetchSingleDiscountCodesApi(discountCode)
+      return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data.msg);
+        return rejectWithValue(error.response?.data.msg)
       }
     }
   }
@@ -85,7 +85,13 @@ export const updateDiscountCodeThunk = createAsyncThunk(
 export const discountCodeSlice = createSlice({
   name: 'discountCode',
   initialState,
-  reducers: {},
+  reducers: {
+    resetDiscountCode: (state) => {
+      state.code = null;
+      state.error = null;
+      state.isLoading = false;
+    },
+  },
   extraReducers(builder) {
     //** Fetch All Discount Codes Reducers */
     builder
@@ -110,9 +116,11 @@ export const discountCodeSlice = createSlice({
         state.isLoading = true
       })
       .addCase(fetchSingleDiscountCodeThunk.fulfilled, (state, action) => {
-        state.code = action.payload;
+        state.code = action.payload.discountCode      
         state.isLoading = false;
       })
+      
+      
       .addCase(fetchSingleDiscountCodeThunk.rejected, (state, action) => {
         const errorMessage = action.payload
         if (typeof errorMessage === 'string') {

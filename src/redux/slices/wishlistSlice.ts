@@ -49,7 +49,7 @@ const wishlistSlice = createSlice({
       .addCase(addToWishlistThunk.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(addToWishlistThunk.fulfilled, (state, action) => {
+      .addCase(addToWishlistThunk.fulfilled, (state) => {
         state.isLoading = false
       })
       .addCase(addToWishlistThunk.rejected, (state, action) => {

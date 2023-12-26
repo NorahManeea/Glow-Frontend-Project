@@ -10,7 +10,7 @@ export default {
   //** Service:- Fetch Single Discount Code Service */
   fetchSingleDiscountCodesApi: async (code: string) => {
     const res = await api.get(`/api/discount-code/${code}`)
-    return res.data
+    return res
   },
 
   //** Service:- Create Discount Code Service */

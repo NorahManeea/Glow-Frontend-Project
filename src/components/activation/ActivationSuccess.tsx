@@ -11,9 +11,9 @@ export default function ActivationSuccess() {
           Thank you for activating your account! Your registration is complete, and your account is
           now active.
           <br />
-          To get started, log in using the button below. Explore our products, discover exciting deals, <br/>
+          To get started, log in using the button below. Explore our products, discover exciting
+          deals, <br />
           and make the most of your shopping experience on GLOW.
-
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <Link

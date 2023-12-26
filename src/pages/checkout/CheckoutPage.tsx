@@ -1,10 +1,10 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
 import { createOrderThunk } from '../../redux/slices/orderSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../redux/store'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
 import { fetchSingleDiscountCodeThunk } from '../../redux/slices/discountCode'
 import { cartActions } from '../../redux/slices/cartSlice'
 //** Custom Hooks */
@@ -22,9 +22,9 @@ export default function CheckoutPage() {
 
   const steps = ['Shipping Address', 'Payment Information', 'Confirmation']
 
-  const { isLoading, cartItems, totalPrice, savedAmount, totalAfterDiscount, shipping, tax } =
-    useCartState()
-
+  const { isLoading, cartItems, totalPrice, savedAmount, totalAfterDiscount, shipping } =
+  useCartState()
+  
   //** States */
   const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState('')
   const [isShippingInfoOpen, setIsShippingInfoOpen] = useState(true)
@@ -44,18 +44,21 @@ export default function CheckoutPage() {
     expiryDate: '',
     cvv: ''
   })
+  
+  useEffect(() => {
+    console.log("🚀 ~ file: CheckoutPage.tsx:26 ~ CheckoutPage ~ savedAmount:", savedAmount)
+    
+    dispatch(cartActions.calculateTotalPrice())
+  }, [cartItems])
+
   //** Discount Code Input Change Handler  */
   const handleDiscountCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDiscountCode(e.target.value)
   }
-
-  //** Apply Discount Code */
-  const handleApplyDiscount = async () => {
-    await dispatch(fetchSingleDiscountCodeThunk(discountCode))
-    const appliedCode = useSelector((state: RootState) => state.discountCode.code)
-    if (appliedCode) {
-      dispatch(cartActions.applyDiscount({ discount: appliedCode }))
-    }
+  //** Apply Discount Code  */
+  const handleApplyDiscount = () => {
+    dispatch(fetchSingleDiscountCodeThunk(discountCode))
+    code && dispatch(cartActions.applyDiscount({ discount: code }))
   }
 
   //** Delivery Method Handler  */
@@ -108,7 +111,7 @@ export default function CheckoutPage() {
       })
     )
 
-    navigate('/')
+    navigate('/order-success')
   }
 
   //** Sumbit Handler */
@@ -137,7 +140,6 @@ export default function CheckoutPage() {
               <div>
                 <h2 className="text-lg leading-6 font-medium text-gray-900">Checkout</h2>
                 <p className="mt-1 text-sm text-gray-600">Create your order</p>
-                {/* Stepper Progress Bar */}
                 <Stepper currentStep={currentStep} steps={steps} />
               </div>
 
@@ -299,15 +301,6 @@ export default function CheckoutPage() {
                           <label htmlFor="paypal" className="ml-2">
                             PayPal
                           </label>
-                          <input
-                            id="etransfer"
-                            className="ml-6 text-blue-600 focus:ring-blue-500 border-gray-300"
-                            type="radio"
-                            name="payment"
-                          />
-                          <label htmlFor="etransfer" className="ml-2">
-                            eTransfer
-                          </label>
                         </div>
                       </div>
 
@@ -400,7 +393,7 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between py-3 text-sm">
               <span>Discout</span>
-              <span>{savedAmount}$</span>
+              <span>{savedAmount} SAR</span>
             </div>
             <div className="flex justify-between py-3 text-sm border-b pb-5">
               <span>Shipping</span>
@@ -412,7 +405,6 @@ export default function CheckoutPage() {
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   type="text"
                   placeholder="Discount code"
-                  value={discountCode}
                   onChange={handleDiscountCodeChange}
                 />
                 <button onClick={handleApplyDiscount}>Apply Discount</button>
