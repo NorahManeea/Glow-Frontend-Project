@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
@@ -9,62 +10,76 @@ import { addToWishlistThunk } from '../../redux/slices/wishlistSlice'
 //** Custom Hooks */
 import useProductState from '../../hooks/useProductState'
 import useCategoryState from '../../hooks/useCategoryState'
+//** Components */
+import CustomLoader from '../global/CustomLoader'
 
 export default function ProductsList() {
   const dispatch = useDispatch<AppDispatch>()
 
-  const [queryParam, setQueryParam] = useSearchParams()
   const { categories } = useCategoryState()
   const { products, totalPages } = useProductState()
+  const currentItems = products
 
   //** States */
+  const [queryParam, setQueryParam] = useSearchParams()
   const [searchText, setSearchText] = useState('')
   const [sortBy, setSortBy] = useState('')
   const [category, setCategory] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const [wishlistStatus, setWishlistStatus] = useState<{ [productId: string]: boolean }>({})
 
-  //** Handle Search Text */
+  //**  Search Handler */
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value)
   }
-  //** Handle Sort */
+
+  //**  Sort Handler */
   const handleSortChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSortBy(event.target.value)
+    setCurrentPage(1)
   }
-  //** Handle Filter By Category */
+  //** Filter By Category Handler */
   const handleFilterChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setCategory(event.target.value)
+    const selectedValue = event.target.value
+    if (selectedValue === 'All') {
+      setCategory('')
+    } else {
+      setCategory(selectedValue)
+    }
+    setCurrentPage(1)
   }
 
-  //** Handle Pagination */
+  //** Pagination Handler */
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     setQueryParam(page.toString())
   }
-  const [currentPage, setCurrentPage] = useState(1)
-  const currentItems = products
 
-  //** WishList */
-  const handleAddToWishlist = async (productId: string) => {
-    try {
-     dispatch(addToWishlistThunk(productId))
-     
-
-      setWishlistStatus((prevStatus) => ({
-        ...prevStatus,
-        [productId]: true
-      }))
-    } catch (error) {
-      console.error(error)
-    }
+  //** WishList Handler */
+  const handleAddToWishlist = (productId: string) => {
+    dispatch(addToWishlistThunk(productId))
+      .then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          const message = res.payload.message
+          toast.success(message)
+          setWishlistStatus((prevStatus) => ({
+            ...prevStatus,
+            [productId]: true
+          }))
+        }
+      })
+      .catch((error) => {})
   }
 
   useEffect(() => {
-    dispatch(fetchProductsThunk({ category, sortBy, currentPage, searchText }))
-    dispatch(fetchCategoriesThunk())
-    dispatch(fetchProductsCountThunk())
+    Promise.all([
+      dispatch(fetchProductsThunk({ category, sortBy, currentPage, searchText })),
+      dispatch(fetchCategoriesThunk()),
+      dispatch(fetchProductsCountThunk())
+    ])
+
     window.scrollTo(0, 0)
-  }, [currentPage, category, sortBy, searchText])
+  }, [currentPage, category, sortBy, searchText, dispatch])
 
   return (
     <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto gap-2">
@@ -110,7 +125,7 @@ export default function ProductsList() {
                   style={{ marginLeft: '0.5rem' }}>
                   <option value="All">All Categories</option>
                   {categories.map((option) => (
-                    <option key={option._id} value={option.name}>
+                    <option key={option._id} value={option._id}>
                       {option.name}
                     </option>
                   ))}
@@ -123,11 +138,18 @@ export default function ProductsList() {
                 <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                     <img
-                      src={`http://localhost:5050/${product.image}`}
+                      src={product.image}
                       alt={product.name}
                       className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                     />
                   </div>
+
+                  {product.quantityInStock === 0 && (
+                    <div className="bg-red-100 p-2 absolute top-0 right-0 rounded-bl-lg">
+                      <h5 className="text-xs md:text-base">Out of Stock</h5>
+                    </div>
+                  )}
+
                   <div className="mt-4 flex justify-between">
                     <div>
                       <Link to={`/products/${product._id}`}>
@@ -140,12 +162,11 @@ export default function ProductsList() {
                     <div className="mt-4 flex justify-between">
                       <div className="flex items-center gap-1">
                         <div
-                          className={`relative border-2 border-transparent p-1 rounded-full bg-white`}
-                          onClick={() => handleAddToWishlist(product._id)}>
+                          className={`relative border-2 border-transparent p-1 rounded-full bg-white`}>
                           <svg
                             className={`h-6 w-6 cursor-pointer ${
                               wishlistStatus[product._id]
-                                ? 'text-gray-600 fill-current'
+                                ? 'text-red-500 fill-current'
                                 : 'text-gray-500'
                             }`}
                             fill={wishlistStatus[product._id] ? 'currentColor' : 'none'}

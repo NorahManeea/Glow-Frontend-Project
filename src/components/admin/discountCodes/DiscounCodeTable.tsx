@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import swal from 'sweetalert'
 import { toast } from 'react-toastify'
-import useDiscountCodeSate from '../../../hooks/useDiscountCodeState'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import {
@@ -9,14 +8,14 @@ import {
   fetchDiscountCodesThunk
 } from '../../../redux/slices/discountCode'
 import { AppDispatch } from '../../../redux/store'
+//** Types */
 import { DiscountCode } from '../../../types/types'
+//** Custom Hook */
+import useDiscountCodeSate from '../../../hooks/useDiscountCodeState'
 //** Components */
 import AdminSideBar from '../AdminSideBar'
-//** Icons */
-import Edit2LineIcon from 'remixicon-react/Edit2LineIcon'
-import DeleteBinLineIcon from 'remixicon-react/DeleteBinLineIcon'
 import DiscountCodeModal from './DiscountCodeModal'
-
+import CustomLoader from '../../global/CustomLoader'
 
 const initialDiscountCodeState: DiscountCode = {
   _id: '',
@@ -26,6 +25,7 @@ const initialDiscountCodeState: DiscountCode = {
 }
 export default function DiscountCodeTable() {
   const dispatch = useDispatch<AppDispatch>()
+
   const { discountCodes, isLoading, error } = useDiscountCodeSate()
 
   //** States */
@@ -33,12 +33,12 @@ export default function DiscountCodeTable() {
   const [discountCode, setDiscountCodes] = useState<DiscountCode | null>(initialDiscountCodeState)
   const [selectedDiscountCode, setSelectedDiscountCode] = useState<DiscountCode | null>(null)
 
-  //** Edit Discount Code Handler */
+  //** Edit Discount Code Modal Handler */
   const openEditDscountCodeModal = (item: DiscountCode) => {
     setSelectedDiscountCode(item)
     setIsModalOpen(true)
   }
-  //** Open Modal */
+  //** Add  Discount Code Modal Handler */
   const openAddDscountCodeModal = () => {
     setDiscountCodes(initialDiscountCodeState)
     setSelectedDiscountCode(null)
@@ -64,64 +64,123 @@ export default function DiscountCodeTable() {
     dispatch(fetchDiscountCodesThunk())
   }, [])
 
+  if (isLoading) {
+    return (
+      <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto my-56">
+        <div className="container px-5 py-20 mx-auto">
+          <div className="text-center">
+            <CustomLoader />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <div className="flex">
       <AdminSideBar />
-      <div className="w-3/4 bg-white p-4">
-        {isLoading && <h3> Loading discount codes...</h3>}
-        <div className="flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-lg">
-            <div className="flex items-center">
-              <h2 className="text-2xl font-bold text-[#32334A] lg:text-3xl mt-4">
-                Discount Code Table
-              </h2>
-              <button onClick={openAddDscountCodeModal} className="ml-4">
-                Add Discont Code
-              </button>
-            </div>
-          </div>
+      <div className="w-4/5 bg-white p-4">
+        <div className="flex items-center mt-4">
+          <h3 className="text-2xl font-semibold leading-none tracking-tight flex-grow text-[#32334A]">
+            Discount Codes Table
+          </h3>
+          <button
+            bg-
+            onClick={openAddDscountCodeModal}
+            className=" bg-[#32334A] text-white inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 ml-4">
+            Add Discount Code
+          </button>
         </div>
 
-        <table className="w-full table-fixed border">
-          <thead>
-            <tr className="bg-[#F7F7F7]">
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">ID</th>
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">Code</th>
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">Percentage</th>
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">Expired at</th>
-              <th className="w-1/4 py-4 px-6 text-left text-gray-600 font-bold">Action</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {discountCodes.map((item, index) => {
-              const { _id, code, expirationDate, discountPercentage } = item
-              return (
-                <tr key={_id}>
-                  <td className="py-4 px-6 border-b border-gray-200">{index + 1}</td>
-                  <td className="py-4 px-6 border-b border-gray-200">{code}</td>
-                  <td className="py-4 px-6 border-b border-gray-200">{discountPercentage}%</td>
-                  <td className="py-4 px-6 border-b border-gray-200">
-                    {new Date(expirationDate).toLocaleDateString()}
-                  </td>
-
-                  <td className="py-4 px-6 border-b border-gray-200 whitespace">
-                    <button
-                      className="mr-1 text-blue-600 bg-blue-500/10 p-3 rounded-full"
-                      onClick={() => openEditDscountCodeModal(item)}>
-                      <Edit2LineIcon />
-                    </button>
-                    <button
-                      className="text-red-600 bg-red-500/10 p-3 rounded-full"
-                      onClick={() => handleDeleteBtnClick(_id)}>
-                      <DeleteBinLineIcon />
-                    </button>
-                  </td>
+        <div className="flex flex-1 items-center justify-center pb-4"></div>
+        <div className="p-6">
+          <div className="relative w-full overflow-auto">
+            <table className="w-full caption-bottom text-sm border">
+              <thead className="[&_tr]:border-b">
+                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[60px]">
+                    #
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[200px]">
+                    Code
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[200px]">
+                    Percentage
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground ">
+                    Created at
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Expiration Date
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[100px]">
+                    Actions
+                  </th>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
-
+              </thead>
+              <tbody className="[&_tr:last-child]:border-0">
+                {discountCodes.map((item, index) => (
+                  <tr
+                    key={item._id}
+                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <td className="p-4 align-middle">{index + 1}</td>
+                    <td className="p-4 align-middle">{item.code}</td>
+                    <td className="p-4 align-middle">{item.discountPercentage}</td>
+                    <td className="p-4 align-middle">
+                      {new Date(item.expirationDate).toLocaleDateString()}
+                    </td>
+                    <td className="p-4 align-middle">
+                      {new Date(item.expirationDate).toLocaleDateString()}
+                    </td>
+                    <td className="p-4 align-middle">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openEditDscountCodeModal(item)}
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={24}
+                            height={24}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            <path d="m15 5 4 4" />
+                          </svg>
+                          <span className="sr-only">Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBtnClick(item._id)}
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 text-red-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={24}
+                            height={24}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4">
+                            <path d="M3 6h18" />
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                          </svg>
+                          <span className="sr-only">Delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
         {isModalOpen && (
           <DiscountCodeModal
             isModalOpen={isModalOpen}

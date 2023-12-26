@@ -10,7 +10,7 @@ const resources = {
   },
   ar: {
     translation: {
-      title: 'تيست'
+      title: 'أطلقي إمكانيات بشرتك مع" GLOW'
     }
   }
 }

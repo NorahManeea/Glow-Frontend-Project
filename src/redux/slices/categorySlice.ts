@@ -4,31 +4,34 @@ import api from '../../api'
 import { AxiosError } from 'axios'
 import CategoryService from '../../services/categories'
 
-
 const initialState: CategoryState = {
   category: [],
   error: null,
   isLoading: false
 }
 
-//** Fetch All Categories */
+// ** Fetch All Categories */
 export const fetchCategoriesThunk = createAsyncThunk(
   'categories/fetchCategories',
-  async (_, { rejectWithValue }) => {
+  async (_, { signal, rejectWithValue }) => {
+    const controller = new AbortController();
     try {
-      const res = await CategoryService.fetchAllCategoriesApi()
-      return res.data.payload
+      const res = await CategoryService.fetchAllCategoriesApi(controller.signal as AbortSignal);
+      return res.data.payload;
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data)
+        return rejectWithValue(error.response?.data);
       }
+      throw error;
+    } finally {
+      controller.abort();
     }
   }
-)
+);
 //** Create Category */
 export const createCategoryThunk = createAsyncThunk(
   'categories/createCategory',
-  async (category:Omit<Category, '_id'>, { rejectWithValue }) => {
+  async (category: Omit<Category, '_id' | 'createdAt'>, { rejectWithValue }) => {
     try {
       const res = await CategoryService.createCategoryApi(category)
       return res.data.payload

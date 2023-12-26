@@ -1,5 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
-import { toast } from 'react-toastify'
+import { ChangeEvent, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
@@ -8,8 +7,22 @@ import { resetPasswordUrlThunk } from '../../redux/slices/passwordSlice'
 import { useDispatch } from 'react-redux'
 //** Custom Hooks */
 import usePasswordResetState from '../../hooks/usePasswordState'
+import { showToast } from '../../helpers/Toastify'
+import { useForm } from 'react-hook-form'
+import { resetPasswordSchema } from '../../schema/zodSchema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ResetPasswordFormInput } from '../../types/types'
 
 export default function ResetPassword() {
+  //** Zod Resolver */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ResetPasswordFormInput>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {}
+  })
   const dispatch = useDispatch<AppDispatch>()
   const { error, isLoading } = usePasswordResetState()
   const navigate = useNavigate()
@@ -18,6 +31,7 @@ export default function ResetPassword() {
 
   //** States */
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   //** Input Change Handler */
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,20 +40,19 @@ export default function ResetPassword() {
   }
 
   //** Submit Handler */
-  const onSubmitHandler = (e: FormEvent) => {
-    e.preventDefault()
+  const onSubmitHandler = (e: ResetPasswordFormInput) => {
     try {
       dispatch(resetPasswordUrlThunk({ userId, token, password })).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           const message = res.payload.message
-          toast.success(message)
+          showToast(message, 'success')
           navigate('/login')
         } else if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
+          showToast(res.payload, 'error')
         }
       })
     } catch (error) {
-      toast.error('Something went wrong')
+      showToast('Something went wrong', 'error')
     }
   }
 
@@ -52,7 +65,7 @@ export default function ResetPassword() {
           </h1>
           <p>Enter your new password for your Glow account.</p>
 
-          <form className="space-y-4 md:space-y-6" onSubmit={onSubmitHandler}>
+          <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmitHandler)}>
             <div>
               <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
                 Password
@@ -60,11 +73,30 @@ export default function ResetPassword() {
               <input
                 type="password"
                 id="password"
-                name="password"
+                {...register('password')}
                 onChange={handleInputChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="••••••••"
               />
+              {errors.password && <p className="text-red-500">{errors.password.message}</p>}
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block mb-2 text-sm font-medium text-gray-900">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                {...register('confirmPassword')}
+                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                placeholder="••••••••"
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500">{errors.confirmPassword.message}</p>
+              )}
             </div>
 
             <button

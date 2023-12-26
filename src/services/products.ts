@@ -1,44 +1,49 @@
 import api from '../api/index'
 
 export default {
-  //** Fetch Products Service */
+  //** Service:- Fetch Products Service */
   fetchProductsApi: async (params: string) => {
     const res = await api.get(`/api/products?${params}`)
     return res
   },
-  //** Fetch All Products Service */
+  //** Service:- Fetch All Products Service */
   fetchAllProductsApi: async () => {
     const res = await api.get(`/api/products`)
     return res
   },
-  //** Fetch single Product Service */
+  //** Service:- Fetch single Product Service */
   fetchSingleProductApi: async (productId: string) => {
     const res = await api.get(`/api/products/${productId}`)
     return res
   },
-  //** Fetch Products count Service */
+  //** Service:- Fetch Products count Service */
   fetchProductCountApi: async () => {
     const res = await api.get('/api/products/count')
     return res
   },
-  //** Fetch Highest Sold Products Service */
+  //** Service:- Fetch Highest Sold Products Service */
   fetchHighestSoldProductsApi: async () => {
     const res = await api.get('/api/products/highest-sold')
     return res
   },
-  //** Create Product Service */
+  //** Service:- Create Product Service */
   createProductApi: async (productData: FormData) => {
     const res = await api.post('/api/products', productData)
     return res
   },
-  //** Update Product Service */
+  //** Service:- Update Product Service */
   updateProductApi: async (productId: string, updatedProduct: FormData) => {
     const res = await api.put(`/api/products/${productId}`, updatedProduct)
     return res
   },
-  //** Delete Product Service */
+  //** Service:- Delete Product Service */
   deleteProductApi: async (productId: string) => {
     const res = await api.delete(`/api/products/${productId}`)
+    return res
+  },
+  //** Service:- Add Review Service */
+  addReiewToProductApi: async (productId: string, reviewText: string) => {
+    const res = await api.post('/reviews', { productId, reviewText });
     return res
   }
 }

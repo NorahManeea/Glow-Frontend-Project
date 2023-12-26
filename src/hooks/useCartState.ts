@@ -7,16 +7,24 @@ function useCartState() {
     const error = state.cart.error
     const cartItems = state.cart.cartItems
     const cartLength = state.cart.cartLength
-    const totalItems = state.cart.totalItems
+    const totalAfterDiscount = state.cart.totalAfterDiscount
+    const savedAmount = state.cart.savedAmount
     const totalPrice = state.cart.totalPrice
+    const shipping = state.cart.shipping
+    const tax = state.cart.tax
+
+
 
   return {
     isLoading,
     error,
     cartItems,
     cartLength,
-    totalItems,
-    totalPrice
+    shipping,
+    tax,
+    totalAfterDiscount,
+    totalPrice,
+    savedAmount
   }
 }
 

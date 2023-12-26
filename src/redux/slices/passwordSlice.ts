@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../api'
 import { AxiosError } from 'axios'
 import PasswordService from '../../services/password'
-
 
 //** Password Reset */
 export const resetPasswordThunk = createAsyncThunk(
@@ -28,7 +26,7 @@ export const resetPasswordUrlThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.post(`/api/reset-password/${userId}/${token}`, { password })
+      const res = await PasswordService.resetPasswordUrlApi({ userId, token, password })
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -58,7 +56,7 @@ const passwordResetSlice = createSlice({
         state.isLoading = false
         state.success = true
       })
-      .addCase(resetPasswordThunk.rejected, (state, action) => {
+      .addCase(resetPasswordThunk.rejected, (state) => {
         state.isLoading = false
       })
 
@@ -70,7 +68,7 @@ const passwordResetSlice = createSlice({
         state.isLoading = false
         state.success = true
       })
-      .addCase(resetPasswordUrlThunk.rejected, (state, action) => {
+      .addCase(resetPasswordUrlThunk.rejected, (state) => {
         state.isLoading = false
       })
   }

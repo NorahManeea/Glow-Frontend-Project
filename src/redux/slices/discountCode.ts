@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AxiosError } from 'axios'
-import api from '../../api'
 import { DiscountCode, DiscountState } from '../../types/types'
 import DiscountCodeService from '../../services/discountCodes'
 
 const initialState: DiscountState = {
   discountCodes: [],
+  code: null,
   error: null,
   isLoading: false
 }
@@ -24,6 +24,21 @@ export const fetchDiscountCodesThunk = createAsyncThunk(
     }
   }
 )
+//** Fetch Single Discount Codes */
+export const fetchSingleDiscountCodeThunk = createAsyncThunk(
+  'discountCode/fetchSingleDiscountCodeThunk',
+  async (discountCode: string, { rejectWithValue }) => {
+    try {
+      const res = await DiscountCodeService.fetchSingleDiscountCodesApi(discountCode);
+      return res.data.discountCode; 
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data.msg);
+      }
+    }
+  }
+)
+
 //**  Add Discount Code */
 export const createDiscountCodeThunk = createAsyncThunk(
   'discountCodes/addDiscountCode',
@@ -85,6 +100,23 @@ export const discountCodeSlice = createSlice({
         const errorMsg = action.payload
         if (typeof errorMsg === 'string') {
           state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Fetch Single Discount Code */
+      .addCase(fetchSingleDiscountCodeThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchSingleDiscountCodeThunk.fulfilled, (state, action) => {
+        state.code = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchSingleDiscountCodeThunk.rejected, (state, action) => {
+        const errorMessage = action.payload
+        if (typeof errorMessage === 'string') {
+          state.error = errorMessage
         }
         state.isLoading = false
         return state

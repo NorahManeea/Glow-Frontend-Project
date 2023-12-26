@@ -1,0 +1,15 @@
+.cellWithRole {
+  padding: 5px 20px;
+  border-radius: 5px;
+}
+
+.cellWithRole.USER {
+    background-color: rgba(173, 216, 230, 0.5); 
+    color: #0077cc; 
+}
+
+.cellWithRole.ADMIN {
+    background-color: rgba(0, 128, 0, 0.05);
+    color: green;
+}
+

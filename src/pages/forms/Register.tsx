@@ -1,33 +1,22 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { registerThunk } from '../../redux/slices/userSlice'
 //** Validation */
-import { yupResolver } from '@hookform/resolvers/yup'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { RegisterFormInput } from '../../types/types'
-import { registerSchema } from '../../schema/yupScheme'
+import { registerSchema } from '../../schema/zodSchema'
 //** Custom Hooks */
 import useUserState from '../../hooks/useUserState'
-
+import { showToast } from '../../helpers/Toastify'
 
 export default function Register() {
-  //** Yup Resolver */
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<RegisterFormInput>({
-    resolver: yupResolver(registerSchema),
-    defaultValues: {}
-  })
-
   const navigate = useNavigate()
-
   const dispatch = useDispatch<AppDispatch>()
   const { isLoading } = useUserState()
 
@@ -38,28 +27,37 @@ export default function Register() {
     email: '',
     password: ''
   })
+  //** Zod Resolver */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<RegisterFormInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {}
+  })
 
-  //** Handle input change */
+  //** Input change Handler */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser((prevState) => {
       return { ...prevState, [e.target.name]: e.target.value }
     })
   }
-  //** Submit Handler  */
+  //** Submit Handler */
   const onSubmitHandler = async (data: RegisterFormInput) => {
     try {
-      dispatch(registerThunk(data)).then((res) => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          localStorage.setItem('token', res.payload.token)
-          const message = res.payload.message
-          toast.success(message)
-          navigate('/login')
-        } else if (res.meta.requestStatus === 'rejected') {
-          toast.error(res.payload)
-        }
-      })
+      const res = await dispatch(registerThunk(data)).unwrap()
+      localStorage.setItem('token', res.payload.token)
+      const message = res.payload.message
+      showToast(message, 'success')
+      navigate('/login')
     } catch (error) {
-      toast.error('Something went wrong')
+      let errorMessage
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data.msg
+        return showToast(errorMessage, 'error')
+      }
+      showToast(String(error), 'error')
     }
   }
 

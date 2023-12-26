@@ -1,74 +1,52 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import useCategoryState from '../../hooks/useCategoryState'
+import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import useProductState from '../../hooks/useProductState'
-import { AppDispatch } from '../../redux/store'
+import { AppDispatch, RootState } from '../../redux/store'
 import { addToCartThunk } from '../../redux/slices/cartSlice'
 import { fetchSingleProductThunk } from '../../redux/slices/productSlice'
+import { fetchCategoriesThunk } from '../../redux/slices/categorySlice'
+//** Custom Hooks */
+import useCategoryState from '../../hooks/useCategoryState'
+import useOrderState from '../../hooks/useOrderState'
+//** Components */
+import CustomLoader from '../global/CustomLoader'
 //** Icons */
 import CheckboxLineIcon from 'remixicon-react/CheckboxLineIcon'
 import CheckDoubleLineIcon from 'remixicon-react/CheckDoubleLineIcon'
 import Forbid2LineIcon from 'remixicon-react/Forbid2LineIcon'
-//** Components */
-import ReviewList from '../reviews/ReviewList'
 
 export default function ProductDetails() {
   const { id } = useParams()
   const dispatch = useDispatch<AppDispatch>()
   const { categories } = useCategoryState()
-
-
-  const reviewList = [
-    {
-      id: 1,
-      reviewText: 'Good',
-      user: 'Norah',
-      date: '12/2/2023'
-    },
-    {
-      id: 1,
-      reviewText: 'Good',
-      user: 'Norah',
-      date: '12/2/2023'
-    },
-    {
-      id: 1,
-      reviewText: 'Good',
-      user: 'Norah',
-      date: '12/2/2023'
-    }
-  ]
+  const { orderHistory } = useOrderState()
 
   //** States */
-  const { product, isLoading } = useProductState()
+  const { product, error, isLoading } = useProductState()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const loading = useSelector((state: RootState) => state.cart.isLoading)
+  const [hasPurchased, setHasPurchased] = useState(false)
 
-  //** Handle Open Review Side Bar */
+  //** Open Review Side Bar Handler */
   const handleOpenSidebar = () => {
     setIsSidebarOpen(true)
   }
-  //** Handle Close Review Side Bar */
+  //** Close Review Side Bar Hanlder */
   const handleCloseSidebar = () => {
     setIsSidebarOpen(false)
   }
-  //** Handle get products */
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchSingleProductThunk(id))
-      window.scrollTo(0, 0)
-    }
-  }, [])
 
   //** Get Categories Name */
   const getCategories = (categoryId: string) => {
-    const category = categories.find((category) => category._id === categoryId)
+    const category = categories.find((category) => category._id.toString() === categoryId)
     return category ? category.name : 'Category Not Found'
   }
 
-  //** Add to Cart */
+  //** Add to Cart Handler */
   const addToCart = () => {
     const { _id: productId } = product
     const quantity = 1
@@ -82,6 +60,59 @@ export default function ProductDetails() {
     } catch (error) {
       toast.error('Something went wrong')
     }
+  }
+
+  //** Check if Item Purchased (For Review) */
+  const checkIfItemPurchased = () => {
+    const purchasedProducts = orderHistory.map((order) =>
+      order.products.map((product) => product.product.toString())
+    )
+    const products = purchasedProducts.reduce(
+      (acc: string[], current: string[]) => [...acc, ...current],
+      []
+    )
+
+    setHasPurchased(products.includes(product._id))
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        dispatch(fetchCategoriesThunk())
+        if (id) {
+          await dispatch(fetchSingleProductThunk(id))
+          checkIfItemPurchased()
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto my-56">
+        <div className="container px-5 py-20 mx-auto">
+          <div className="text-center">
+            <CustomLoader />
+          </div>
+        </div>
+      </section>
+    )
+  }
+  if (error) {
+    return (
+      <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold">Error</h1>
+          <p className="mt-6 text-base leading-7 text-gray-600">
+            There was an error loading the product. Please try again later.
+          </p>
+        </div>
+      </main>
+    )
   }
 
   if (!product || (product && product._id !== id)) {
@@ -110,8 +141,6 @@ export default function ProductDetails() {
   return (
     <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto">
       <div className="container px-5 py-24 mx-auto">
-        {isLoading && <h3> Loading products...</h3>}
-
         <div className="lg:w-4/5 mx-auto flex flex-wrap">
           <img
             alt={product.name}
@@ -131,12 +160,26 @@ export default function ProductDetails() {
                 {product.price} SAR
               </span>
               <button
+                disabled={loading}
                 className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded"
                 onClick={addToCart}>
-                Add To Cart
+                {loading ? (
+                  <div className="mx-2">
+                    <ThreeDots
+                      height={20}
+                      width={20}
+                      color="#fff"
+                      visible={true}
+                      ariaLabel="threedots-loading"
+                    />
+                  </div>
+                ) : (
+                  'Add To Cart'
+                )}
               </button>
             </div>
 
+            {/* Products Features */}
             <div className="mt-6 border-t pt-4">
               <div className="p-4 rounded">
                 <div className="flex items-center mb-3">
@@ -160,15 +203,56 @@ export default function ProductDetails() {
               </div>
             </div>
           </div>
-          <div className="lg:w-4/5 mx-auto mt-10">
+
+          {/** Reviews Section */}
+          <div className=" max-w-xl grid gap-6">
+            <h2 className="text-2xl pt-4 font-semibold">Customer Reviews</h2>
+            {hasPurchased && (
+              <div>
+                <input className="border" placeholder="Write your review..." />
+                <button>Add Review</button>
+              </div>
+            )}
+            <div
+              className="rounded-lg border bg-card text-card-foreground shadow-sm grid gap-4"
+              data-v0-t="card">
+              <div className="flex flex-col px-5 pt-4">
+                <div className="flex items-center gap-4">
+                  <span className="relative flex shrink-0 overflow-hidden rounded-full w-12 h-12 border">
+                    <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">
+                      SM
+                    </span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-lg">Sarah Miller</h3>
+
+                    <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 w-fit text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+                      Verified Purchase
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-0.5 ml-auto">
+                    <time className="text-sm text-gray-500 dark:text-gray-400">2 days ago</time>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-base leading-loose text-gray-500">
+                  Good product overall, but I had some issues with the shipping. Customer service
+                  was helpful and resolved my issues.
+                </p>
+              </div>
+            </div>
+
             <button
-              className="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm"
-              onClick={handleOpenSidebar}>
-              View All Reviews
+              onClick={handleOpenSidebar}
+              className="inline-flex rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2">
+              Load More Reviews
             </button>
           </div>
         </div>
       </div>
+
+      {/* REVIEW SIDE BAR */}
       {isSidebarOpen && (
         <div className="fixed top-0 right-0 h-full w-1/4 bg-white shadow-lg">
           <div className="flex justify-end">
@@ -190,7 +274,6 @@ export default function ProductDetails() {
           </div>
           <div className="p-4">
             <h2 className="text-gray-900 text-lg font-semibold mb-4">All Reviews</h2>
-            <ReviewList reviews={reviewList} />
           </div>
         </div>
       )}

@@ -1,0 +1,29 @@
+.cellWithStatus {
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.cellWithStatus.Delivered {
+  background-color: rgba(0, 128, 0, 0.05);
+  color: green;
+}
+
+.cellWithStatus.Pending {
+  background-color: rgba(255, 217, 0, 0.11);
+  color: goldenrod;
+}
+
+.cellWithStatus.Processing {
+    background-color: rgba(0, 173, 239, 0.1);
+    color: #007BFF
+}
+
+.cellWithStatus.Canceled {
+  background-color: rgba(255, 0, 0, 0.05);
+  color: crimson;
+}
+
+.cellWithStatus.Returned {
+    background-color: rgba(211, 211, 211, 0.1); 
+    color: #6C757D;
+}

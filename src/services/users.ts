@@ -1,12 +1,12 @@
 import api from '../api/index'
 
 export default {
-  //** Login Service */
+  //** Service:- Login Service */
   loginApi: async (credentials: { email: string; password: string }) => {
     const res = await api.post('/api/auth/login', credentials)
     return res
   },
-  //** Register Api */
+  //** Service:- Register Service */
   registerApi: async (credentials: {
     email: string
     password: string
@@ -16,32 +16,38 @@ export default {
     const res = await api.post('/api/auth/register', credentials)
     return res
   },
-  //** Fetch All Users Service */
+  //** Google Login Service */
+  loginWithGoogleApi: async (idToken: string) => {
+    const res = await api.post(`/api/auth/login/google`, { idToken })
+
+    return res
+  },
+  //** Service:- Fetch All Users Service */
   fetchAllUsersApi: async () => {
     const res = await api.get('/api/users')
     return res
   },
-  //** Fetch Users count Service */
+  //** Service:- Fetch Users count Service */
   fetchUserCountApi: async () => {
     const res = await api.get('/api/users/count')
     return res
   },
-  //** Delete User Service */
+  //** Service:- Delete User Service */
   deleteUserApi: async (userId: string) => {
     const res = await api.delete(`/api/users/${userId}`)
     return res
   },
-  //** Delete User Service */
+  //** Service:- Delete User Service */
   blockUserApi: async (userId: string) => {
     const res = await api.put(`/api/users/block/${userId}`)
     return res
   },
-  //** Set User Profile Service */
+  //** Service:- Set User Profile Service */
   setUserProfileApi: async (userId: string) => {
     const res = await api.get(`/api/users/profile/${userId}`)
     return res
   },
-  //** Update User Profile Service */
+  //** Service:- Update User Profile Service */
   updateUserProfileApi: async ({
     userId,
     firstName,
@@ -52,6 +58,11 @@ export default {
     lastName: string
   }) => {
     const res = await api.put(`/api/users/profile/${userId}`, { firstName, lastName })
+    return res
+  },
+  //** Service:- Grant Role Service */
+  grantRoleApi: async (userId: string) => {
+    const res = await api.put(`/api/users/grant-role/${userId}`)
     return res
   }
 }

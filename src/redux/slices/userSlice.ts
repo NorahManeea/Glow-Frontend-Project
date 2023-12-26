@@ -22,7 +22,11 @@ export const loginThunk = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const res = await UserService.loginApi(credentials)
-      return res.data
+      const token = res.data.token
+      localStorage.setItem('token', token)
+      api.defaults.headers['Authorization'] = `Bearer ${token}`
+      const decodedUser = getDecodedTokenFromStorage()
+      return { data: res.data, decodedUser }
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data.msg)
@@ -49,7 +53,7 @@ export const registerThunk = createAsyncThunk(
   }
 )
 
-//** Fetch All Users */
+//** Fetch All Users Thunk */
 export const fetchUsersThunk = createAsyncThunk(
   'users/fetchUsers',
   async (_, { rejectWithValue }) => {
@@ -64,7 +68,7 @@ export const fetchUsersThunk = createAsyncThunk(
   }
 )
 
-//** Delete User */
+//** Delete User Thunk */
 export const deleteUserThunk = createAsyncThunk(
   'users/deleteUser',
   async (userId: string, { rejectWithValue }) => {
@@ -79,7 +83,7 @@ export const deleteUserThunk = createAsyncThunk(
   }
 )
 
-//** Block User */
+//** Block User Thunk */
 export const blockUserThunk = createAsyncThunk(
   'users/blockUser',
   async (userId: string, { rejectWithValue }) => {
@@ -93,7 +97,23 @@ export const blockUserThunk = createAsyncThunk(
     }
   }
 )
-//** Set Profile */
+//** Google Login Thunk */
+export const loginWithGoogleThunk = createAsyncThunk(
+  'auth/loginWithGoogle',
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const res = await UserService.loginWithGoogleApi(idToken)
+
+      return res.data
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+//** Set Profile Thunk */
 export const setProfileThunk = createAsyncThunk(
   'users/setProfile',
   async (userId: string, { rejectWithValue }) => {
@@ -107,7 +127,7 @@ export const setProfileThunk = createAsyncThunk(
     }
   }
 )
-//** Update Profile */
+//** Update Profile Thunk */
 export const updateProfileThunk = createAsyncThunk(
   'users/updateProfile',
   async (
@@ -115,7 +135,7 @@ export const updateProfileThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.put(`/api/users/profile/${userId}`, { firstName, lastName })
+      const res = await UserService.updateUserProfileApi({userId,firstName,lastName})
       return res.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -143,7 +163,7 @@ export const grantUserRoleThunk = createAsyncThunk(
   'users/grantRole',
   async (userId: string, { rejectWithValue }) => {
     try {
-      await api.put(`/api/users/grant-role/${userId}`)
+      await UserService.grantRoleApi(userId)
       return userId
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -180,10 +200,30 @@ export const userSlice = createSlice({
         return state
       })
       .addCase(loginThunk.fulfilled, (state, action) => {
-        state.user = action.payload.user
-        state.decodedUser = decodedUser
+        state.user = action.payload?.data.user
+        state.decodedUser = action.payload?.decodedUser
         state.isLoading = false
         state.isLoggedIn = true
+        return state
+      })
+      //** Google Login Reducer */
+      .addCase(loginWithGoogleThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(loginWithGoogleThunk.fulfilled, (state, action) => {
+        state.user = action.payload.user
+        state.decodedUser = action.payload.decodedUser
+        state.isLoading = false
+        state.isLoggedIn = true
+        state.isLoggedIn = true
+      })
+      .addCase(loginWithGoogleThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
         return state
       })
       //** Register Reducer */

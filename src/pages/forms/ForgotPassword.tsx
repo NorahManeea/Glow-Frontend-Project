@@ -1,6 +1,5 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { ThreeDots } from 'react-loader-spinner'
 //** Redux */
 import { resetPasswordThunk } from '../../redux/slices/passwordSlice'
@@ -8,8 +7,22 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 //** Custom Hook */
 import usePasswordResetState from '../../hooks/usePasswordState'
+import { showToast } from '../../helpers/Toastify'
+import { useForm } from 'react-hook-form'
+import { ForgotPasswordFormInput } from '../../types/types'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { forgotPasswordSchema } from '../../schema/zodSchema'
 
 export default function ForgotPassword() {
+  //** Zod Validation */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<ForgotPasswordFormInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {}
+  })
   const dispatch = useDispatch<AppDispatch>()
   const { error, isLoading } = usePasswordResetState()
 
@@ -23,20 +36,19 @@ export default function ForgotPassword() {
   }
 
   //** Submit Handler */
-  const onSubmitHandler = async (e: FormEvent) => {
-    e.preventDefault()
+  const onSubmitHandler = async (data: ForgotPasswordFormInput) => {
     try {
       dispatch(resetPasswordThunk(email)).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           localStorage.setItem('token', res.payload.token)
           const message = res.payload.message
-          toast.success(message)
+          showToast(message, 'success')
         } else if (res.meta.requestStatus === 'rejected') {
-          toast.error(error)
+          showToast(res.payload.msg, 'error')
         }
       })
     } catch (error) {
-      toast.error('Something went wrong')
+      showToast('Something went wrong', 'error')
     }
   }
   return (
@@ -48,7 +60,7 @@ export default function ForgotPassword() {
           </h1>
           <p>Enter your email we'll send you a link to reset your password</p>
 
-          <form className="space-y-4 md:space-y-6" onSubmit={onSubmitHandler}>
+          <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmitHandler)}>
             <div>
               <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
                 Your email
@@ -56,11 +68,13 @@ export default function ForgotPassword() {
               <input
                 type="email"
                 id="email"
+                {...register('email')}
                 value={email}
                 onChange={handleInputChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                 placeholder="name@gmail.com"
               />
+              {errors.email && <p className="text-red-500">{errors.email.message}</p>}
             </div>
 
             <button

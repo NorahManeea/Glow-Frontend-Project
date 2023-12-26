@@ -1,5 +1,5 @@
-import { ROLES } from "../constant/constants"
-import { OrderStatus } from "../redux/slices/orderSlice"
+import { ROLES } from '../constant/constants'
+import { OrderStatus } from '../redux/slices/orderSlice'
 
 //** Users */
 export type User = {
@@ -14,6 +14,7 @@ export type User = {
   isBlocked: boolean
   avatar: string
   resetPasswordToken?: string
+  points: number
 }
 //** Products */
 export type Product = {
@@ -25,26 +26,30 @@ export type Product = {
   price: number
   quantityInStock: number
   discount: number
+  reviews: Review[]
 }
 //** Categories */
 export type Category = {
   _id: string
   name: string
+  createdAt: Date
 }
 //** Orders */
 export type Order = {
   _id: string
-  uniqueId: string,
+  uniqueId: string
   user: string
   orderDate: Date
   products: {
-    product: string
+    product: Product['_id']
     quantity: number
   }[]
   shippingInfo: {
     country: string
     city: string
     address: string
+    province: string
+    postalCode: number
   }
   orderStatus: OrderStatus
 }
@@ -64,14 +69,14 @@ export type DiscountCode = {
 }
 //** Cart */
 export type Cart = {
-  product: Product;
-  quantity: number;
-  _id: string;
+  product: Product
+  quantity: number
+  _id: string
 }
 //** Wishlist */
 export type WishList = {
-  product: Product;
-  _id: string;
+  product: Product
+  _id: string
 }
 //** Decoded User */
 export type DecodedUser = {
@@ -99,7 +104,7 @@ export type UserState = {
   isLoggedIn: boolean
   user: User | null
   usersCount: number
-  decodedUser: DecodedUser | null
+  decodedUser: DecodedUser | null | undefined
 }
 //** Product State */
 export type ProductState = {
@@ -125,27 +130,46 @@ export type OrderState = {
   isLoading: boolean
   orderCount: number
   singleOrder: Order
+  orderHistory: Order[]
 }
 //** Discount State */
 export type DiscountState = {
   discountCodes: DiscountCode[]
+  code: DiscountCode | null
   error: null | string
   isLoading: boolean
 }
 //** Cart State */
-export type  CartState = {
+export type CartState = {
   cartItems: Cart[]
   error: null | string
   isLoading: boolean
   cartLength: number
-  totalItems: number,
-  totalPrice: number,
+  totalPrice: number
+  savedAmount: number
+  totalAfterDiscount: number
+  tax: number
+  shipping: number
 }
 
-export type WishlistState ={
-  wishlistItem: WishList[]
+export type WishlistState = {
+  wishlistItems: WishList[]
   error: null | string
   isLoading: boolean
+}
+
+//** EmptyState Props */
+export type EmptyStateProps = {
+  title: string
+  subTitle: string
+  link: string
+  linkText: string
+}
+//** Stepper Props */
+export type StepperProps = {
+  currentStep: number
+  steps: string[]
+  isPlaceOrderClicked?: boolean
 }
 
 //--------Forms Inputs----------//
@@ -169,6 +193,13 @@ export type RegisterFormInput = {
   email: string
   password: string
 }
+export type ForgotPasswordFormInput = {
+  email: string
+}
+export type ResetPasswordFormInput = {
+  password: string
+  confirmPassword: string
+}
 
 //--------Modal Props----------//
 
@@ -188,13 +219,10 @@ export type DiscountCodeModalProps = {
   isModalOpen: boolean
 }
 export type ProfileModalProps = {
-  user: User 
+  user: User
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   isModalOpen: boolean
 }
 export type ReviewListProps = {
   reviews: Review[]
 }
-
-
-

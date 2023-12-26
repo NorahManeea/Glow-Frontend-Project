@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Order, OrderState } from '../../types/types'
 import { AxiosError } from 'axios'
-import api from '../../api'
 import OrderService from '../../services/orders'
 
 
@@ -19,7 +18,8 @@ const initialState: OrderState = {
   singleOrder: {} as Order,
   error: null,
   isLoading: false,
-  orderCount: 0
+  orderCount: 0,
+  orderHistory: []
 }
 
 //** Fetch All Orders */
@@ -89,7 +89,7 @@ export const fetchOrderHistoryThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await OrderService.fetchOrdersHistoryApi()
-      return res.data.payload
+      return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data)
@@ -103,7 +103,7 @@ export const updateOrderStatusThunk = createAsyncThunk(
   'order/updateOrderStatus',
   async ({ orderId, orderStatus }: { orderId: string; orderStatus: string }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/api/orders/${orderId}/status`, { orderStatus })  
+      const res = await OrderService.updateOrderApi({orderId,orderStatus})
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -132,7 +132,8 @@ export const fetchOrdersCountThunk = createAsyncThunk(
 export const orderSlice = createSlice({
   name: 'order',
   initialState,
-  reducers: {},
+  reducers: {
+  },
   extraReducers(builder) {
     //** Fetch All Orders Reducers */
     builder
@@ -208,10 +209,12 @@ export const orderSlice = createSlice({
 
       //** Order History Reducers */
       .addCase(fetchOrderHistoryThunk.pending, (state) => {
-        state.isLoading = true
-      })
-      .addCase(fetchOrderHistoryThunk.fulfilled, (state, action) => {
-        state.isLoading = false
+        state.isLoading = true;
+        state.error = null;
+      });
+      builder.addCase(fetchOrderHistoryThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orderHistory = action.payload.payload;
       })
       .addCase(fetchOrderHistoryThunk.rejected, (state, action) => {
         const errorMsg = action.payload

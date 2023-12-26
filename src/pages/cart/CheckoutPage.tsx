@@ -1,38 +1,103 @@
-import { useDispatch } from 'react-redux'
+import React, { ChangeEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppDispatch } from '../../redux/store'
-import { ChangeEvent, FormEvent, useState } from 'react'
-import useCartState from '../../hooks/useCartState'
-import { createOrderThunk } from '../../redux/slices/orderSlice'
 import { ThreeDots } from 'react-loader-spinner'
+//** Redux */
+import { createOrderThunk } from '../../redux/slices/orderSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../redux/store'
+import { fetchSingleDiscountCodeThunk } from '../../redux/slices/discountCode'
+import { cartActions } from '../../redux/slices/cartSlice'
+//** Custom Hooks */
+import useCartState from '../../hooks/useCartState'
+//** Components */
+import CustomLoader from '../../components/global/CustomLoader'
+import Stepper from '../../components/stepper/Stepper'
+import useDiscountCodeSate from '../../hooks/useDiscountCodeState'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
-
   const dispatch = useDispatch<AppDispatch>()
-  const { cartItems, isLoading } = useCartState()
+  const { code } = useDiscountCodeSate()
+  const { error } = useDiscountCodeSate()
+
+  const steps = ['Shipping Address', 'Payment Information', 'Confirmation']
+
+  const { isLoading, cartItems, totalPrice, savedAmount, totalAfterDiscount, shipping, tax } =
+    useCartState()
 
   //** States */
-  const [shippingInfoOpen, setShippingInfoOpen] = useState(true)
-  const [step, setStep] = useState(1)
+  const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState('')
+  const [isShippingInfoOpen, setIsShippingInfoOpen] = useState(true)
+  const [isPaymentInfoOpen, setIsPaymentInfoOpen] = useState(true)
+  const [discountCode, setDiscountCode] = useState('')
+  const [currentStep, setCurrentStep] = useState(0)
   const [deliveryAddress, setDeliveryAddress] = useState({
     country: '',
     city: '',
-    address: ''
+    address: '',
+    province: '',
+    postalCode: 0
   })
-
-  const toggleShippingInfo = () => {
-    setShippingInfoOpen(!shippingInfoOpen)
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: ''
+  })
+  //** Discount Code Input Change Handler  */
+  const handleDiscountCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDiscountCode(e.target.value)
   }
 
-  //** Shipping Info Inputs Handler */
+  //** Apply Discount Code */
+  const handleApplyDiscount = async () => {
+    await dispatch(fetchSingleDiscountCodeThunk(discountCode))
+    const appliedCode = useSelector((state: RootState) => state.discountCode.code)
+    if (appliedCode) {
+      dispatch(cartActions.applyDiscount({ discount: appliedCode }))
+    }
+  }
+
+  //** Delivery Method Handler  */
+  const handleDeliveryMethodClick = (method: string) => {
+    setSelectedDeliveryMethod(method)
+  }
+
+  //** Delivery Address Change Handler  */
   const handleDeliveryAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setDeliveryAddress((prevAddress) => ({ ...prevAddress, [name]: value }))
+    const parsedValue = name === 'postalCode' ? parseInt(value, 10) : value
+    setDeliveryAddress((prevAddress) => ({ ...prevAddress, [name]: parsedValue }))
+
+    if (isValidShippingInfo()) {
+      setCurrentStep(1)
+    } else {
+      setCurrentStep(0)
+    }
   }
-  //** Sumbit Handler */
-  const onSubmitHandler = async (e: FormEvent) => {
-    e.preventDefault()
+
+  const isValidShippingInfo = () => {
+    const { country, city, address, province, postalCode } = deliveryAddress
+    return country && city && address && province && postalCode
+  }
+  const isValidPaymentInfo = () => {
+    const { cardNumber, cardName, expiryDate, cvv } = paymentInfo
+    return cardNumber && cardName && expiryDate && cvv
+  }
+
+  //** Payment Change Handler  */
+  const handlePaymentInfoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setPaymentInfo((prevPaymentInfo) => ({ ...prevPaymentInfo, [name]: value }))
+
+    if (isValidPaymentInfo()) {
+      setCurrentStep(2)
+    } else {
+      setCurrentStep(1)
+    }
+  }
+
+  const placeOrderHandler = async () => {
     await dispatch(
       createOrderThunk({
         shippingInfo: deliveryAddress,
@@ -45,184 +110,321 @@ export default function CheckoutPage() {
 
     navigate('/')
   }
-  return (
-    <div className="w-full md:w-3/4 lg:w-1/2 mx-auto p-4 mb-">
-      <div className="bg-gray-50 py-12 sm:py-16 lg:py-20 xl:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <section className="bg-gray-50 ">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="text-center">
-                <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-                  Checkout
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg font-normal text-gray-700 lg:text-xl lg:leading-8">
-                  Create your own order
-                </p>
-              </div>
-              <ul className="mx-auto mt-12 grid max-w-md grid-cols-1 gap-10 sm:mt-16 lg:mt-20 lg:max-w-5xl lg:grid-cols-3 ml-20">
-                <li className="flex-start group relative flex lg:flex-col">
-                  <span
-                    className="absolute left-[18px] top-14 h-[calc(100%_-_32px)] w-px bg-gray-300 lg:right-0 lg:left-auto lg:top-[18px] lg:h-px lg:w-[calc(100%_-_72px)]"
-                    aria-hidden="true"
-                  />
-                  <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-gray-50 transition-all duration-200 group-hover:border-gray-900 group-hover:bg-gray-900">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600 group-hover:text-white">
-                      <path
-                        d="M21 12C21 13.6569 16.9706 15 12 15C7.02944 15 3 13.6569 3 12M21 5C21 6.65685 16.9706 8 12 8C7.02944 8 3 6.65685 3 5M21 5C21 3.34315 16.9706 2 12 2C7.02944 2 3 3.34315 3 5M21 5V19C21 20.6569 16.9706 22 12 22C7.02944 22 3 20.6569 3 19V5"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-6 lg:ml-0 lg:mt-10">
-                    <h3 className="text-xl font-bold text-gray-900 before:mb-2 before:block before:font-mono before:text-sm before:text-gray-500">
-                      Personal Information
-                    </h3>
-                  </div>
-                </li>
-                <li className="flex-start group relative flex lg:flex-col">
-                  <span
-                    className="absolute left-[18px] top-14 h-[calc(100%_-_32px)] w-px bg-gray-300 lg:right-0 lg:left-auto lg:top-[18px] lg:h-px lg:w-[calc(100%_-_72px)]"
-                    aria-hidden="true"
-                  />
-                  <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-gray-50 transition-all duration-200 group-hover:border-gray-900 group-hover:bg-gray-900">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600 group-hover:text-white">
-                      <path
-                        d="M2 3L2 21M22 3V21M11.8 20H12.2C13.8802 20 14.7202 20 15.362 19.673C15.9265 19.3854 16.3854 18.9265 16.673 18.362C17 17.7202 17 16.8802 17 15.2V8.8C17 7.11984 17 6.27976 16.673 5.63803C16.3854 5.07354 15.9265 4.6146 15.362 4.32698C14.7202 4 13.8802 4 12.2 4H11.8C10.1198 4 9.27976 4 8.63803 4.32698C8.07354 4.6146 7.6146 5.07354 7.32698 5.63803C7 6.27976 7 7.11984 7 8.8V15.2C7 16.8802 7 17.7202 7.32698 18.362C7.6146 18.9265 8.07354 19.3854 8.63803 19.673C9.27976 20 10.1198 20 11.8 20Z"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-6 lg:ml-0 lg:mt-10">
-                    <h3 className="text-xl font-bold text-gray-900 before:mb-2 before:block before:font-mono before:text-sm before:text-gray-500">
-                      Payment Information
-                    </h3>
-                  </div>
-                </li>
-                <li className="flex-start group relative flex lg:flex-col">
-                  <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-gray-50 transition-all duration-200 group-hover:border-gray-900 group-hover:bg-gray-900">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600 group-hover:text-white">
-                      <path
-                        d="M5.50049 10.5L2.00049 7.9999L3.07849 6.92193C3.964 6.03644 4.40676 5.5937 4.9307 5.31387C5.39454 5.06614 5.90267 4.91229 6.42603 4.86114C7.01719 4.80336 7.63117 4.92617 8.85913 5.17177L10.5 5.49997M18.4999 13.5L18.8284 15.1408C19.0742 16.3689 19.1971 16.983 19.1394 17.5743C19.0883 18.0977 18.9344 18.6059 18.6867 19.0699C18.4068 19.5939 17.964 20.0367 17.0783 20.9224L16.0007 22L13.5007 18.5M7 16.9998L8.99985 15M17.0024 8.99951C17.0024 10.1041 16.107 10.9995 15.0024 10.9995C13.8979 10.9995 13.0024 10.1041 13.0024 8.99951C13.0024 7.89494 13.8979 6.99951 15.0024 6.99951C16.107 6.99951 17.0024 7.89494 17.0024 8.99951ZM17.1991 2H16.6503C15.6718 2 15.1826 2 14.7223 2.11053C14.3141 2.20853 13.9239 2.37016 13.566 2.5895C13.1623 2.83689 12.8164 3.18282 12.1246 3.87469L6.99969 9C5.90927 10.0905 5.36406 10.6358 5.07261 11.2239C4.5181 12.343 4.51812 13.6569 5.07268 14.776C5.36415 15.3642 5.90938 15.9094 6.99984 16.9998V16.9998C8.09038 18.0904 8.63565 18.6357 9.22386 18.9271C10.343 19.4817 11.6569 19.4817 12.7761 18.9271C13.3643 18.6356 13.9095 18.0903 15 16.9997L20.1248 11.8745C20.8165 11.1827 21.1624 10.8368 21.4098 10.4331C21.6291 10.0753 21.7907 9.6851 21.8886 9.27697C21.9991 8.81664 21.9991 8.32749 21.9991 7.34918V6.8C21.9991 5.11984 21.9991 4.27976 21.6722 3.63803C21.3845 3.07354 20.9256 2.6146 20.3611 2.32698C19.7194 2 18.8793 2 17.1991 2Z"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-6 lg:ml-0 lg:mt-10">
-                    <h3 className="text-xl font-bold text-gray-900 before:mb-2 before:block before:font-mono before:text-sm before:text-gray-500">
-                      Order Confirmation
-                    </h3>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </section>
-        </div>
-      </div>
 
-      {/* CHECKOUT FORM */}
-      <div>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm mt-5">
-          <div className="flex flex-col space-y-1.5 p-6">
-            <div className="flex justify-end cursor-pointer" onClick={toggleShippingInfo}>
-              <span>{shippingInfoOpen ? '^' : '▼'}</span>
-            </div>
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">
-              Shipping Information
-            </h3>
+  //** Sumbit Handler */
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    await placeOrderHandler()
+  }
+
+  if (isLoading) {
+    return (
+      <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto my-56">
+        <div className="container px-5 py-20 mx-auto">
+          <div className="text-center">
+            <CustomLoader />
           </div>
-          {shippingInfoOpen && (
-            <div className="p-6">
-              <form className="space-y-4" onSubmit={onSubmitHandler}>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="country"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your country"
-                    value={deliveryAddress.country}
-                    onChange={handleDeliveryAddressChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="address"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your address"
-                    value={deliveryAddress.address}
-                    onChange={handleDeliveryAddressChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="city"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your city"
-                    value={deliveryAddress.city}
-                    onChange={handleDeliveryAddressChange}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full text-white bg-[#32334A] hover:bg-[#3f415a] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center"
-                  disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="mx-2">
-                      <ThreeDots
-                        height={20}
-                        width={20}
-                        color="#fff"
-                        visible={true}
-                        ariaLabel="threedots-loading"
-                      />
+        </div>
+      </section>
+    )
+  }
+  return (
+    <div className=" mx-auto bg-gray-100 w-full">
+      <div className="flex mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+        <div className="flex-1 flex flex-col mr-4">
+          <div className="bg-white px-6 py-6 mb-8">
+            <div className="md:col-span-2">
+              <div>
+                <h2 className="text-lg leading-6 font-medium text-gray-900">Checkout</h2>
+                <p className="mt-1 text-sm text-gray-600">Create your order</p>
+                {/* Stepper Progress Bar */}
+                <Stepper currentStep={currentStep} steps={steps} />
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="mt-6">
+                  <div
+                    className="flex justify-between cursor-pointer"
+                    onClick={() => setIsShippingInfoOpen(!isShippingInfoOpen)}>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-3">
+                      Shipping Info
+                    </h3>
+                    <div className="text-blue-500">{isShippingInfoOpen ? '˅' : '˄'}</div>
+                  </div>
+                  {isShippingInfoOpen && (
+                    <div>
+                      <div className="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
+                        <input
+                          type="text"
+                          id="country"
+                          name="country"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Country"
+                          onChange={handleDeliveryAddressChange}
+                        />
+                        <input
+                          type="text"
+                          id="address"
+                          name="address"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Address"
+                          onChange={handleDeliveryAddressChange}
+                        />
+
+                        <input
+                          type="text"
+                          id="city"
+                          name="city"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="City"
+                          onChange={handleDeliveryAddressChange}
+                        />
+                        <input
+                          type="text"
+                          id="province"
+                          name="province"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Province"
+                          onChange={handleDeliveryAddressChange}
+                        />
+
+                        <input
+                          type="number"
+                          id="postalCode"
+                          name="postalCode"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Postal code"
+                          onChange={handleDeliveryAddressChange}
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-3">
+                          Delivery Method
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div
+                            className={`border rounded-lg p-4 flex justify-between items-center ${
+                              selectedDeliveryMethod === 'Standard'
+                                ? 'bg-blue-100 border-blue-500'
+                                : ''
+                            }`}
+                            onClick={() => handleDeliveryMethodClick('Standard')}>
+                            <div>
+                              <h3 className="text-md font-semibold">Standard</h3>
+                              <p className="text-sm text-gray-600">4–10 business days</p>
+                            </div>
+                            <div>
+                              <p className="text-md font-semibold">18.00 SAR</p>
+                            </div>
+                            {selectedDeliveryMethod === 'Standard' && (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-blue-500">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </div>
+                          <div
+                            className={`border rounded-lg p-4 flex justify-between items-center ${
+                              selectedDeliveryMethod === 'Express'
+                                ? 'bg-blue-100 border-blue-500'
+                                : ''
+                            }`}
+                            onClick={() => handleDeliveryMethodClick('Express')}>
+                            <div>
+                              <h3 className="text-md font-semibold">Express</h3>
+                              <p className="text-sm text-gray-600">2–5 business days</p>
+                            </div>
+                            <div>
+                              <p className="text-md font-semibold">30.00 SAR</p>
+                            </div>
+                            {selectedDeliveryMethod === 'Express' && (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-blue-500 ">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    'Buy Now'
                   )}
-                </button>
+                </div>
+
+                <div className="mt-4">
+                  <div
+                    className="flex justify-between cursor-pointer"
+                    onClick={() => setIsPaymentInfoOpen(!isPaymentInfoOpen)}>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-3">
+                      Payment information
+                    </h3>
+                    <div className="text-blue-500">{isPaymentInfoOpen ? '˅' : '˄'}</div>
+                  </div>
+                  {isPaymentInfoOpen && (
+                    <div className="grid grid-cols-1 gap-y-4 gap-x-4">
+                      <div>
+                        <div className="flex items-center mb-4 mt-4">
+                          <input
+                            id="credit-card"
+                            className="text-blue-600 focus:ring-blue-500 border-gray-300"
+                            type="radio"
+                            name="payment"
+                          />
+                          <label htmlFor="credit-card" className="ml-2">
+                            Credit card
+                          </label>
+                          <input
+                            id="paypal"
+                            className="ml-6 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            type="radio"
+                            name="payment"
+                          />
+                          <label htmlFor="paypal" className="ml-2">
+                            PayPal
+                          </label>
+                          <input
+                            id="etransfer"
+                            className="ml-6 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            type="radio"
+                            name="payment"
+                          />
+                          <label htmlFor="etransfer" className="ml-2">
+                            eTransfer
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
+                        <input
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Card Name"
+                          type="text"
+                          id="card-name"
+                          name="cardName"
+                          onChange={handlePaymentInfoChange}
+                        />
+                        <input
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Card Number"
+                          type="number"
+                          id="card-number"
+                          name="cardNumber"
+                          onChange={handlePaymentInfoChange}
+                        />
+                        <input
+                          type="date"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Expiry at"
+                          id="expiryDate"
+                          name="expiryDate"
+                          onChange={handlePaymentInfoChange}
+                        />
+                        <input
+                          type="text"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="CVV"
+                          id="cvv"
+                          name="cvv"
+                          onChange={handlePaymentInfoChange}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="mt-6 flex items-center justify-end gap-x-6">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="inline-flex items-center justify-center w-full rounded-md border border-transparent bg-[#32334A] hover:bg-[#3f415a] px-4 py-2 font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:w-auto sm:text-sm">
+                      {isLoading ? (
+                        <div className="mx-2">
+                          <ThreeDots
+                            height={20}
+                            width={20}
+                            color="#fff"
+                            visible={true}
+                            ariaLabel="threedots-loading"
+                          />
+                        </div>
+                      ) : (
+                        'Place your Order'
+                      )}
+                    </button>
+                  </div>
+                </div>
               </form>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Right side - Order Summary */}
+        <div id="order-summary" className="w-1/4 px-8 py-10 bg-white max-h-[550px] ">
+          <h1 className="font-semibold text-2xl mb-4">Order Summary</h1>
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden">
+            {cartItems.map((product) => (
+              <div key={product.product._id} className="hover:bg-gray-100 px-6 py-5 border-b pb-8">
+                <div className="flex items-center">
+                  <img className="h-20 object-cover" src={product.product.image} alt="" />
+
+                  <div className="ml-3">
+                    <p className="font-semibold text-sm">{totalPrice} SAR</p>
+                    <p className="font text-sm overflow-hidden max-h-20 overflow-wrap break-words">
+                      {product.product.name}
+                    </p>
+                    <p className="font text-sm">{product.quantity}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <div className="flex justify-between py-3 text-sm">
+              <span>Subtotal</span>
+              <span>{totalPrice} SAR</span>
+            </div>
+            <div className="flex justify-between py-3 text-sm">
+              <span>Discout</span>
+              <span>{savedAmount}$</span>
+            </div>
+            <div className="flex justify-between py-3 text-sm border-b pb-5">
+              <span>Shipping</span>
+              <span>{shipping} SAR</span>
+            </div>
+            <div className="mt-6">
+              <div className="flex space-x-2">
+                <input
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  type="text"
+                  placeholder="Discount code"
+                  value={discountCode}
+                  onChange={handleDiscountCodeChange}
+                />
+                <button onClick={handleApplyDiscount}>Apply Discount</button>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+              </div>
+            </div>
+
+            <div className="flex font-semibold justify-between py-3 text-sm ">
+              <span>Total price</span>
+              <span>{totalAfterDiscount}$</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Product, ProductState } from '../../types/types'
-import api from '../../api'
 import { AxiosError } from 'axios'
 import ProductService from '../../services/products'
 
@@ -12,7 +11,7 @@ const initialState: ProductState = {
   singleProduct: {} as Product,
   cartItems: [],
   productCount: 0,
-  totalPages : 0
+  totalPages: 0
 }
 
 //** Fetch All Products Thunk */
@@ -20,32 +19,36 @@ export const fetchProductsThunk = createAsyncThunk(
   'products/fetchProducts',
   async (
     {
-      category,
-      sortBy,
-      currentPage,
-      searchText
-    }: { category: string; sortBy: string; currentPage: number; searchText: string },
+      searchText = '',
+      category = '',
+      sortBy = '',
+      currentPage
+    }: {
+      searchText?: string
+      category?: string
+      sortBy?: string
+      currentPage: number
+    },
     { rejectWithValue }
   ) => {
     try {
-      //** Search Params */
-      const params = new URLSearchParams()
+      const queryParams = new URLSearchParams()
+      queryParams.append('pageNumber', String(currentPage))
+      searchText && queryParams.append('searchText', searchText)
+      category && queryParams.append('categories', category)
+      sortBy && queryParams.append('sortBy', sortBy)
 
-      category && params.append('category', category)
-      sortBy && params.append('sortBy', sortBy)
-      currentPage && params.append('pageNumber', currentPage.toString())
-      searchText && params.append('searchText', searchText)
+      const response = await ProductService.fetchProductsApi(queryParams.toString())
 
-      const res = await ProductService.fetchProductsApi(params.toString())
-      return res.data
-
+      return response.data
     } catch (error) {
       if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data)
+        return rejectWithValue(error.response?.data.msg)
       }
     }
   }
 )
+
 //** Fetch All Products Without Pagination Thunk */
 export const fetchAllProductsThunk = createAsyncThunk(
   'products/fetchAllProducts',
@@ -53,6 +56,22 @@ export const fetchAllProductsThunk = createAsyncThunk(
     try {
       const res = await ProductService.fetchAllProductsApi()
       return res.data
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+export const addReviewThunk = createAsyncThunk(
+  'reviews/addReview',
+  async (
+    { productId, reviewText }: { productId: string; reviewText: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await ProductService.addReiewToProductApi(productId, reviewText)
+      return response.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data)
@@ -124,7 +143,7 @@ export const updateProductThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await ProductService.updateProductApi(productId,updatedProduct)
+      const response = await ProductService.updateProductApi(productId, updatedProduct)
       return response.data.payload
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -133,7 +152,7 @@ export const updateProductThunk = createAsyncThunk(
     }
   }
 )
-//** Delete Category */
+//** Delete Product Thunk */
 export const deleteProductThunk = createAsyncThunk(
   'products/deleteProduct',
   async (productId: string, { rejectWithValue }) => {
@@ -284,6 +303,21 @@ export const productSlice = createSlice({
         state.isLoading = false
       })
       .addCase(deleteProductThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+      //** Add Review To Product */
+      .addCase(addReviewThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(addReviewThunk.fulfilled, (state, action) => {
+        state.singleProduct.reviews.push(action.payload)
+      })
+      .addCase(addReviewThunk.rejected, (state, action) => {
         const errorMsg = action.payload
         if (typeof errorMsg === 'string') {
           state.error = errorMsg

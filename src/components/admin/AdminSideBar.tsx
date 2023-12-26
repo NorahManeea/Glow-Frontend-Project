@@ -1,32 +1,19 @@
 import { Link } from 'react-router-dom'
+//** Custom Hooks */
 import useUserState from '../../hooks/useUserState'
 
 export default function AdminSideBar() {
   const { decodedUser } = useUserState()
   return (
     <div className="w-1/6 h-screen bg-[#F7F7F7] sticky top-0 p-4">
-      <aside className="h-full w-[250px] border-r">
+      <aside className="h-full w-[250px]">
         <div className="flex flex-col gap-6 py-6 px-4">
-          <p className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all dark:text-gray-400 dark:hover:text-gray-50">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
+          <p className="flex items-center gap-3 rounded-lg px-3 py-2 text-[#32334A] transition-all">
             Welcome {decodedUser?.firstName}
           </p>
           <Link
-            to="/admin-dashboard/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">
+            to="/admin-dashboard/products"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-[#32334A] ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}
@@ -47,7 +34,7 @@ export default function AdminSideBar() {
           </Link>
           <Link
             to="/admin-dashboard/users"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-[#32334A]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}
@@ -68,7 +55,7 @@ export default function AdminSideBar() {
           </Link>
           <Link
             to="/admin-dashboard/categories"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-[#32334A]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}
@@ -87,7 +74,7 @@ export default function AdminSideBar() {
           </Link>
           <Link
             to="/admin-dashboard/discount-code"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-[#32334A]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}
@@ -106,7 +93,7 @@ export default function AdminSideBar() {
           </Link>
           <Link
             to="/admin-dashboard/orders"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-[#32334A]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}

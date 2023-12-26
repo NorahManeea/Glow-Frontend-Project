@@ -1,6 +1,6 @@
 import './App.css'
 
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 //** Components */
 import NavBar from './components/global/NavBar'
@@ -23,12 +23,46 @@ import Wishlist from './pages/wishlist/Wishlist'
 import CategoryTable from './components/admin/categories/CategoryTable'
 import ResetPassword from './pages/forms/ResetPassword'
 import DiscountCodeTable from './components/admin/discountCodes/DiscounCodeTable'
-import CheckoutPage from './pages/cart/CheckoutPage'
 import OrderDetails from './components/admin/orders/OrderDetails'
 import ProtectedRoutes from './routes/ProtectedRoutes'
 import ProfilePage from './pages/profile/ProfilePage'
+import { checkExpiry } from './utils/token'
+import { useEffect, useState } from 'react'
+import InternetStatus from './components/common/InternetStatus'
+import Dashboard from './pages/admin/Dashboard'
+import CheckoutPage from './pages/cart/CheckoutPage'
+import Checkout from './pages/cart/Payment'
+import ActivationSuccess from './components/activation/ActivationSuccess'
 
 function App() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+  useEffect(() => {
+    function onlineHandler() {
+      setIsOnline(true)
+    }
+
+    function offlineHandler() {
+      setIsOnline(false)
+    }
+
+    window.addEventListener('online', onlineHandler)
+    window.addEventListener('offline', offlineHandler)
+
+    return () => {
+      window.removeEventListener('online', onlineHandler)
+      window.removeEventListener('offline', offlineHandler)
+    }
+  }, [])
+
+  const isTokenExpired = checkExpiry()
+
+  if (isTokenExpired) {
+    ;<Navigate to="/login" />
+  }
+  if (!isOnline) {
+    return <InternetStatus />
+  }
 
   return (
     <div className="App">
@@ -42,6 +76,8 @@ function App() {
         <Route path="/reset-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:userId/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/activation-success/:activationToken" element={<ActivationSuccess />} />
+
 
         <Route path="/cart" element={<CartPage />} />
         <Route path="/wishlist" element={<Wishlist />} />
@@ -51,15 +87,14 @@ function App() {
 
         {/* Admin Dashboard */}
         <Route path="admin-dashboard" element={<ProtectedRoutes />}>
-          <Route index element={<ProductsTable />} />
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<ProductsTable />} />
+
           <Route path="orders" element={<OrdersTable />} />
           <Route path="orders/:id" element={<OrderDetails />} />
           <Route path="users" element={<UsersTable />} />
           <Route path="categories" element={<CategoryTable />} />
-          <Route
-            path="discount-code"
-            element={<DiscountCodeTable />}
-          />
+          <Route path="discount-code" element={<DiscountCodeTable />} />
         </Route>
         {/* Product */}
         <Route path="products">

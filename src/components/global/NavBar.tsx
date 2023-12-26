@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import swal from 'sweetalert'
+import { useTranslation } from 'react-i18next'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { userActions } from '../../redux/slices/userSlice'
+//** Custom Hooks */
 import useUserState from '../../hooks/useUserState'
 import useCartState from '../../hooks/useCartState'
 //** Components */
@@ -15,18 +17,34 @@ export default function NavBar() {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
 
-  const { totalItems } = useCartState()
+  //** Custom Hooks */
+  const { cartLength } = useCartState()
   const { isAdmin, decodedUser, user } = useUserState()
 
   //** State */
   const [isOpen, setIsOpen] = useState(false)
+  const [isLangOpen, setIsLangOpen] = useState(false)
 
-  //** Menu Handler */
+  //** Localization */
+  const { t, i18n } = useTranslation()
+  const changeLanguage = (language: string) => {
+    i18n.changeLanguage(language)
+    setIsLangOpen(false)
+  }
+
+  //** Menu Items Handler */
   const handleMenuItemClick = () => {
     setIsOpen(false)
   }
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
+  }
+  //** Language Handler */
+  const toggleLangDropdown = () => {
+    setIsLangOpen(!isOpen)
+  }
+  const handleLangaugeClick = () => {
+    setIsLangOpen(false)
   }
   //** Logout Handler */
   const logoutHandler = () => {
@@ -68,10 +86,10 @@ export default function NavBar() {
                     stroke="currentColor">
                     <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                   </svg>
-                  {totalItems > 0 && (
+                  {cartLength > 0 && (
                     <span className="absolute inset-0 object-right-top -mr-6">
                       <div className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold leading-4 bg-red-600 text-white">
-                        {totalItems}
+                        {cartLength}
                       </div>
                     </span>
                   )}
@@ -97,6 +115,32 @@ export default function NavBar() {
                   </svg>
                 </button>
               </Link>
+              {/* LANGUAGES  */}
+              <div className="relative">
+                <button
+                  className="text-gray-800 bg-gray-100 hover:bg-[#3f415a] hover:text-white inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm"
+                  onClick={toggleLangDropdown}>
+                  {i18n.language === 'en' ? 'English' : 'العربية'}
+                </button>
+
+                {isLangOpen && (
+                  <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg">
+                    <button
+                      type="button"
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left"
+                      onClick={() => changeLanguage('en')}>
+                      English
+                    </button>
+                    <button
+                      type="button"
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200 w-full text-left"
+                      onClick={() => changeLanguage('ar')}>
+                      العربية
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {decodedUser ? (
                 <>
                   {/* PROFIE */}
@@ -139,7 +183,7 @@ export default function NavBar() {
                   </div>
                 </>
               ) : (
-              // LOGIN
+                // LOGIN
                 <Link
                   className="text-gray-800 bg-gray-100 hover:bg-[#3f415a] hover:text-white inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm "
                   to="/login">
@@ -151,7 +195,7 @@ export default function NavBar() {
         </div>
       </nav>
 
-      {/* Second NavBar */}
+      {/* SECOND NAVBAR */}
       <SecondNavBar />
     </header>
   )

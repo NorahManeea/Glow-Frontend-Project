@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { fetchHighestSoldProductsThunk } from '../../redux/slices/productSlice'
+//** Custom Hooks */
 import useProductState from '../../hooks/useProductState'
 
 export default function HighestSoldProducts() {

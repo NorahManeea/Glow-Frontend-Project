@@ -1,31 +1,32 @@
 import { useEffect } from 'react'
-//** Custom Hooks */
-import useUserState from '../../hooks/useUserState'
-import useOrderState from '../../hooks/useOrderState'
-import useProductState from '../../hooks/useProductState'
 //** Redux */
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { fetchProductsCountThunk } from '../../redux/slices/productSlice'
 import { fetchUsersCountThunk } from '../../redux/slices/userSlice'
 import { fetchOrdersCountThunk } from '../../redux/slices/orderSlice'
+//** Custom Hooks */
+import useUserState from '../../hooks/useUserState'
+import useOrderState from '../../hooks/useOrderState'
+import useProductState from '../../hooks/useProductState'
 //** Icons */
 import UserLineIcon from 'remixicon-react/UserLineIcon'
 import ShoppingBagLineIcon from 'remixicon-react/ShoppingBagLineIcon'
 import MoneyDollarCircleLineIcon from 'remixicon-react/MoneyDollarCircleLineIcon'
 
 export default function Widget() {
+  const dispatch = useDispatch<AppDispatch>()
   //** Custom Hooks */
   const { usersCount } = useUserState()
   const { orderCount } = useOrderState()
   const { productCount } = useProductState()
 
-  const dispatch = useDispatch<AppDispatch>()
-
   useEffect(() => {
-    dispatch(fetchProductsCountThunk())
-    dispatch(fetchUsersCountThunk())
-    dispatch(fetchOrdersCountThunk())
+    Promise.all([
+      dispatch(fetchProductsCountThunk()),
+      dispatch(fetchUsersCountThunk()),
+      dispatch(fetchOrdersCountThunk())
+    ])
   }, [])
 
   return (

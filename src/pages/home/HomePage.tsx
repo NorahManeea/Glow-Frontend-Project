@@ -8,19 +8,19 @@ import HandHeartLineIcon from 'remixicon-react/HandHeartLineIcon'
 import VipDiamondLineIcon from 'remixicon-react/CopperDiamondLineIcon'
 import image from '../../assets/hero1.svg'
 //** Localization */
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 export default function HomePage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-white">
+      <div className="bg-white">
         <div className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl text-[#32334A]">
-              Unlock Your Skin's Potential with
+              {t('title')}
               <span className="text-[#956556] typewriter-animation"> GLOW</span>
             </h1>
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
@@ -48,16 +48,16 @@ export default function HomePage() {
             <img src={image} alt="home" />
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="bg-[#F7F7F7] py-12">
+      <div className="bg-[#F7F7F7] py-12">
         <div className="grid md:grid-cols-3 max-w-screen-lg mx-auto gap-10 px-5">
           <div className="flex gap-4 items-start flex-col ">
             <span className="text-[#F2ACAA] bg-[#F2ACAA]/20 p-3 rounded-full">
               <CheckboxCircleLineIcon className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="font-semibold text-xl">Glowing Skin</h3>
+              <h3 className="font-semibold text-xl text-[#32334A]">Glowing Skin</h3>
               <p className="mt-1 text-gray-500">
                 Achieve radiant and glowing skin with our GLOW skincare product. Our formula is
                 designed to give you a healthy, luminous complexion.
@@ -69,7 +69,7 @@ export default function HomePage() {
               <HandHeartLineIcon className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="font-semibold text-xl">Nourishing and Effective</h3>
+              <h3 className="font-semibold text-xl text-[#32334A]">Nourishing and Effective</h3>
               <p className="mt-1 text-gray-500">
                 Our GLOW skincare product is highly nourishing and effective. It's packed with
                 skin-loving ingredients.
@@ -81,7 +81,7 @@ export default function HomePage() {
               <VipDiamondLineIcon className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="font-semibold text-xl">Simple and Natural</h3>
+              <h3 className="font-semibold text-xl text-[#32334A]">Simple and Natural</h3>
               <p className="mt-1 text-gray-500">
                 Our GLOW skincare product is made with simple and natural ingredients. We believe in
                 providing you with a clean and gentle skincare solution.
@@ -89,16 +89,15 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Best Seller */}
-      <HighestSoldProducts/>
+      {/* Best Seller Products*/}
+      <HighestSoldProducts />
 
-      
-      <section className="bg-white">
+      <div className="bg-white">
         <div className="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
           <div className="font-light text-gray-500 sm:text-lg dark:text-gray-400">
-            <h2 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
+            <h2 className="mb-4 text-3xl tracking-tight font-extrabold text-[#32334A]">
               Unleash Your Radiant Glow <br /> with Pure Elegance
             </h2>
             <p className="mb-4">
@@ -122,7 +121,7 @@ export default function HomePage() {
             />
           </div>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

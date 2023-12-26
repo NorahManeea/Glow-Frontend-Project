@@ -1,37 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AxiosError } from 'axios'
-import api from '../../api'
 import { WishlistState } from '../../types/types'
-import WishListService from '../../services/wishlist'
-
+import WishlistService from '../../services/wishlist'
 
 const initialState: WishlistState = {
-  wishlistItem: [],
-  error: null,
-  isLoading: false
+  wishlistItems: [],
+  isLoading: false,
+  error: null
 }
 
-//** Fetch Wishlist */
-export const fetchWishlistThunk = createAsyncThunk(
-  'wishlist/fetchWishlist',
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await WishListService.fetchAllWishlistItemsApi()    
-      return res.data
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        return rejectWithValue(error.response?.data)
-      }
-    }
-  }
-)
-
-//** Add to Wishlist */
+//** Add To Wishlist Thunk */
 export const addToWishlistThunk = createAsyncThunk(
   'wishlist/addToWishlist',
   async (productId: string, { rejectWithValue }) => {
     try {
-      const res = await WishListService.addToWishlistApi(productId)
+      const res = await WishlistService.addToWishlistApi(productId)
       return res.data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -41,30 +24,58 @@ export const addToWishlistThunk = createAsyncThunk(
   }
 )
 
-export const wishlistSlice = createSlice({
+//** Fetch Wishlist Items Thunk */
+export const fetchWishlistItemsThunk = createAsyncThunk(
+  'wishlist/fetchWishlist',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await WishlistService.fetchAllWishlistItemsApi()
+      return res.data
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+const wishlistSlice = createSlice({
   name: 'wishlist',
   initialState,
   reducers: {},
-  extraReducers(builder) {
-    //** Fetch Wishlist Reducers */
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchWishlistThunk.pending, (state) => {
-        state.isLoading = true
-      })
-      .addCase(fetchWishlistThunk.fulfilled, (state, action) => {
-        state.wishlistItem = action.payload.products
-        state.isLoading = false
-      })
-      .addCase(fetchWishlistThunk.rejected, (state, action) => {})
-
-      //** Add to Wishlist Reducers */
+      //** Add to Wishlist Redcers */
       .addCase(addToWishlistThunk.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(addToWishlistThunk.fulfilled, (state) => {
+      .addCase(addToWishlistThunk.fulfilled, (state, action) => {
         state.isLoading = false
       })
-      .addCase(addToWishlistThunk.rejected, (state) => {})
+      .addCase(addToWishlistThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      })
+
+      //** Fetch Wishlist Items Reducers */
+      .addCase(fetchWishlistItemsThunk.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchWishlistItemsThunk.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.wishlistItems = action.payload.wishlistItems.products
+      })
+      .addCase(fetchWishlistItemsThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+      })
   }
 })
 

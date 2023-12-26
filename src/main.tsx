@@ -5,14 +5,17 @@ import { store } from './redux/store'
 import { ToastContainer } from 'react-toastify'
 import App from './App'
 import './index.css'
-import 'react-toastify/dist/ReactToastify.css';
-import "./utils/i18n";
+import 'react-toastify/dist/ReactToastify.css'
+import './utils/i18n'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <Provider store={store}>
-    <ToastContainer position="top-right" />
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId=''>
+      <ToastContainer position="top-right" />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   </Provider>
 )
