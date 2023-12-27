@@ -9,6 +9,7 @@ function useOrderState() {
     const orderCount = state.orders.orderCount
     const order = state.orders.singleOrder
     const orderHistory = state.orders.orderHistory
+    const earnedPoints = state.orders.earnedPoints
     
   return {
     orders,
@@ -16,7 +17,8 @@ function useOrderState() {
     error,
     orderCount,
     order,
-    orderHistory
+    orderHistory,
+    earnedPoints
   }
 }
 

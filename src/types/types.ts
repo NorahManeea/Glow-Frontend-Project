@@ -26,7 +26,8 @@ export type Product = {
   price: number
   quantityInStock: number
   discount: number
-  reviews: Review[]
+  reviews: Review[],
+  itemsSold: 0
 }
 //** Categories */
 export type Category = {
@@ -41,7 +42,7 @@ export type Order = {
   user: string
   orderDate: Date
   products: {
-    product: Product['_id']
+    product: Product
     quantity: number
   }[]
   shippingInfo: {
@@ -131,6 +132,7 @@ export type OrderState = {
   orderCount: number
   singleOrder: Order
   orderHistory: Order[]
+  earnedPoints: number
 }
 //** Discount State */
 export type DiscountState = {
@@ -150,9 +152,15 @@ export type CartState = {
   totalAfterDiscount: number
   shipping: number
 }
-
+//** Wishlist State */
 export type WishlistState = {
   wishlistItems: WishList[]
+  error: null | string
+  isLoading: boolean
+}
+//** Review States */
+export type ReviewState = {
+  reviews: Review[]
   error: null | string
   isLoading: boolean
 }

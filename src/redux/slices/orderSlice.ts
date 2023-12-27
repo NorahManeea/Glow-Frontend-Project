@@ -19,7 +19,8 @@ const initialState: OrderState = {
   error: null,
   isLoading: false,
   orderCount: 0,
-  orderHistory: []
+  orderHistory: [],
+  earnedPoints: 0
 }
 
 //** Fetch All Orders */
@@ -116,7 +117,7 @@ export const updateOrderStatusThunk = createAsyncThunk(
 
 //** Orders Count Thunk */
 export const fetchOrdersCountThunk = createAsyncThunk(
-  'users/fetchUsersCount',
+  'orders/fetchOrdersCount',
   async (_, { rejectWithValue }) => {
     try {
       const res = await OrderService.fetchOrdersCountApi()
@@ -125,6 +126,66 @@ export const fetchOrdersCountThunk = createAsyncThunk(
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data)
       }
+    }
+  }
+)
+//** Orders Revenue Thunk */
+export const fetchOrdersRevenueThunk = createAsyncThunk(
+  'orders/fetchOrdersRevenue',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await OrderService.fetchOrderRevenueApi()
+      return res.data.payload
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+)
+
+function canOrderBeReturned(orderDate: Date) {
+  const returnDeadline = new Date(orderDate);
+  returnDeadline.setDate(returnDeadline.getDate() + 7);
+  const currentDate = new Date();
+  return currentDate <= returnDeadline;
+}
+
+
+//** Return Order Thunk */
+export const returnOrderThunk = createAsyncThunk(
+  'orders/returnOrder',
+  async (orderId: string, { rejectWithValue }) => {
+    try {
+      const res = await OrderService.returnOrderApi(orderId);
+      const order = res.data.payload;
+      if (!canOrderBeReturned(new Date(order.orderDate))) {
+        throw new Error('Order cannot be returned after 7 days.');
+      }
+
+      return order;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data);
+      }
+      throw error;
+    }
+  }
+);
+
+
+//**  Cancel Order */
+export const cancelOrderThunk = createAsyncThunk(
+  'orders/cancelOrder',
+  async (orderId: string, { rejectWithValue }) => {
+    try {
+      const res = await OrderService.cancelOrderApi(orderId);
+      return res.data.payload;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data);
+      }
+      throw error;
     }
   }
 )
@@ -196,6 +257,7 @@ export const orderSlice = createSlice({
       .addCase(createOrderThunk.fulfilled, (state, action) => {
         const newOrder = action.payload
         state.orders = [newOrder, ...state.orders]
+        state.earnedPoints = action.payload.totalPoints
         state.isLoading = false
         state.error = null
       })
@@ -258,6 +320,23 @@ export const orderSlice = createSlice({
         }
         state.isLoading = false
       })
+
+      //** Cancel Order */
+      builder.addCase(cancelOrderThunk.pending, (state) => {
+        state.isLoading = true
+      });
+      builder.addCase(cancelOrderThunk.fulfilled, (state, action) => {
+        const canceledOrderId = action.payload._id;
+        state.orders = state.orders.filter((order) => order._id !== canceledOrderId);
+        state.isLoading = false;
+      });
+      builder.addCase(cancelOrderThunk.rejected, (state, action) => {
+        const errorMsg = action.payload;
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+      });
   }
 })
 export default orderSlice.reducer

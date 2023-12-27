@@ -10,13 +10,12 @@ import { addToWishlistThunk } from '../../redux/slices/wishlistSlice'
 //** Custom Hooks */
 import useProductState from '../../hooks/useProductState'
 import useCategoryState from '../../hooks/useCategoryState'
-//** Components */
-import CustomLoader from '../global/CustomLoader'
 
 export default function ProductsList() {
   const dispatch = useDispatch<AppDispatch>()
 
   const { categories } = useCategoryState()
+
   const { products, totalPages } = useProductState()
   const currentItems = products
 
@@ -57,18 +56,16 @@ export default function ProductsList() {
 
   //** WishList Handler */
   const handleAddToWishlist = (productId: string) => {
-    dispatch(addToWishlistThunk(productId))
-      .then((res) => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          const message = res.payload.message
-          toast.success(message)
-          setWishlistStatus((prevStatus) => ({
-            ...prevStatus,
-            [productId]: true
-          }))
-        }
-      })
-      .catch((error) => {})
+    dispatch(addToWishlistThunk(productId)).then((res) => {
+      if (res.meta.requestStatus === 'fulfilled') {
+        const message = res.payload.message
+        toast.success(message)
+        setWishlistStatus((prevStatus) => ({
+          ...prevStatus,
+          [productId]: true
+        }))
+      }
+    })
   }
 
   useEffect(() => {
@@ -93,7 +90,7 @@ export default function ProductsList() {
                 <input
                   type="search"
                   placeholder="Search for products"
-                  className="rounded-md p-3 w-full block text-sm text-gray-900 bg-gray-50 border border-gray-300 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-600"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full shrink-0"
                   value={searchText}
                   onChange={handleSearch}
                 />
@@ -104,12 +101,22 @@ export default function ProductsList() {
                   id="sort"
                   name="sort"
                   onChange={handleSortChange}
-                  className="w-full border-2 border-gray-300 focus:outline-none focus:border-primary-500 text-gray-900 rounded-md px-2 md:px-3 py-0 md:py-1 tracking-wider"
-                  style={{ marginLeft: '0.5rem' }}>
-                  <option value="All" defaultValue="All">
-                    All
-                  </option>
-                  <option value="newest">Newet</option>
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 shrink-0"
+                  style={{ marginLeft: '0.5rem' }}
+                  value={sortBy}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={20}
+                    height={20}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 mr-2"></svg>
+                  <option value="All">All</option>
+                  <option value="newest">Newest</option>
                   <option value="highestPrice">Highest Price</option>
                   <option value="lowestPrice">Lowest Price</option>
                 </select>
@@ -121,7 +128,7 @@ export default function ProductsList() {
                   id="sort"
                   name="sort"
                   onChange={handleFilterChange}
-                  className="w-full border-2 border-gray-300 focus:outline-none focus:border-primary-500 text-gray-900 rounded-md px-2 md:px-3 py-0 md:py-1 tracking-wider"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 shrink-0"
                   style={{ marginLeft: '0.5rem' }}>
                   <option value="All">All Categories</option>
                   {categories.map((option) => (
@@ -134,57 +141,76 @@ export default function ProductsList() {
             </div>
             {/*  PRODUCTS LIST */}
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-              {currentItems.map((product) => (
-                <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
-                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                    />
+              {currentItems.length === 0 ? (
+                <div className="bg-white px-6 py-24 sm:py-32 lg:px-8">
+                  <div className="text-center">
+                    <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#32334A] sm:text-5xl">
+                      Nothing Matches Your Search
+                    </h1>
+                    <p className="mt-6 text-base leading-7 text-gray-600">
+              
+                      No products found with the given search criteria.
+                    </p>
+                    <div className="mt-10 flex items-center justify-center gap-x-6">
+         
+                      No products found with the given search criteria.
+                    </div>
                   </div>
-
-                  {product.quantityInStock === 0 && (
-                    <div className="bg-red-100 p-2 absolute top-0 right-0 rounded-bl-lg">
-                      <h5 className="text-xs md:text-base">Out of Stock</h5>
+                </div>
+              ) : (
+                currentItems.map((product) => (
+                  <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
+                    <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                      />
                     </div>
-                  )}
 
-                  <div className="mt-4 flex justify-between">
-                    <div>
-                      <Link to={`/products/${product._id}`}>
-                        <span aria-hidden="true" className="absolute inset-0" />
-                        {product?.name}
-                      </Link>
-                      <p className="mt-1 text-sm text-gray-500">{product.price}</p>
-                    </div>
-                    {/* WISHLIST */}
+                    {product.quantityInStock === 0 && (
+                      <span className="absolute top-2 right-2 bg-red-100 text-red-600 text-xs px-2 py-1">
+                        Out Of Stock
+                      </span>
+                    )}
+
                     <div className="mt-4 flex justify-between">
-                      <div className="flex items-center gap-1">
-                        <div
-                          className={`relative border-2 border-transparent p-1 rounded-full bg-white`}>
-                          <svg
-                            className={`h-6 w-6 cursor-pointer ${
-                              wishlistStatus[product._id]
-                                ? 'text-red-500 fill-current'
-                                : 'text-gray-500'
-                            }`}
-                            fill={wishlistStatus[product._id] ? 'currentColor' : 'none'}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            stroke={'currentColor'}
-                            onClick={() => handleAddToWishlist(product._id)}>
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                          </svg>
+                      <div>
+                        <Link to={`/products/${product._id}`}>
+                          <span aria-hidden="true" className="absolute inset-0" />
+                          {product?.name}
+                        </Link>
+                        <p className="mt-1 text-sm text-gray-500">{product.price} SAR</p>
+                      </div>
+                      {/* WISHLIST */}
+                      <div className="mt-4 flex justify-between">
+                        <div className="flex items-center gap-1">
+                          <div
+                            className={`relative border-2 border-transparent p-1 rounded-full bg-white`}>
+                            <svg
+                              className={`h-6 w-6 cursor-pointer ${
+                                wishlistStatus[product._id]
+                                  ? 'text-gray-500 fill-current'
+                                  : 'text-gray-500'
+                              }`}
+                              fill={wishlistStatus[product._id] ? 'currentColor' : 'none'}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              stroke={'currentColor'}
+                              onClick={() => handleAddToWishlist(product._id)}>
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
+
             {/* PAGINATION */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-6">

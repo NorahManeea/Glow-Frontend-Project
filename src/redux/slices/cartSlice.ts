@@ -170,10 +170,9 @@ export const cartSlice = createSlice({
       })
       .addCase(removeFromCartThunk.fulfilled, (state, action) => {
         const productId = action.payload
-        const updateItems = state.cartItems.filter((item) => item._id !== productId)
-        state.cartItems = updateItems
-        state.isLoading = false
-        return state
+        const updatedItems = state.cartItems.filter((item) => item._id !== productId)
+        state.cartItems = updatedItems
+        state.cartLength = state.cartItems.length
 
       })
       .addCase(removeFromCartThunk.rejected, (state, action) => {

@@ -63,6 +63,7 @@ export const fetchAllProductsThunk = createAsyncThunk(
     }
   }
 )
+//** Add Review */
 export const addReviewThunk = createAsyncThunk(
   'reviews/addReview',
   async (
@@ -166,6 +167,21 @@ export const deleteProductThunk = createAsyncThunk(
     }
   }
 )
+
+//** Back-In-Stock Notification Thunk */ 
+export const notifyBackInStockThunk = createAsyncThunk(
+  'products/notifyBackInStock',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const res = await ProductService.notifyBackInStockApi(productId);
+      return res.data.payload;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data)
+      }
+    }
+  }
+);
 
 export const productSlice = createSlice({
   name: 'product',
@@ -325,6 +341,23 @@ export const productSlice = createSlice({
         state.isLoading = false
         return state
       })
+      //** Back-In-Stock Notification Reducer */
+      builder.addCase(notifyBackInStockThunk.pending, (state) => {
+        state.isLoading = true;
+      });
+    
+      builder.addCase(notifyBackInStockThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+      });
+    
+      builder.addCase(notifyBackInStockThunk.rejected, (state, action) => {
+        const errorMsg = action.payload
+        if (typeof errorMsg === 'string') {
+          state.error = errorMsg
+        }
+        state.isLoading = false
+        return state
+      });
   }
 })
 export default productSlice.reducer

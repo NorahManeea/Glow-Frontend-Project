@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import useProductState from '../../hooks/useProductState'
 import { AppDispatch, RootState } from '../../redux/store'
 import { addToCartThunk } from '../../redux/slices/cartSlice'
-import { fetchSingleProductThunk } from '../../redux/slices/productSlice'
+import { fetchSingleProductThunk, notifyBackInStockThunk } from '../../redux/slices/productSlice'
 import { fetchCategoriesThunk } from '../../redux/slices/categorySlice'
 //** Custom Hooks */
 import useCategoryState from '../../hooks/useCategoryState'
@@ -18,10 +18,12 @@ import CustomLoader from '../global/CustomLoader'
 import CheckboxLineIcon from 'remixicon-react/CheckboxLineIcon'
 import CheckDoubleLineIcon from 'remixicon-react/CheckDoubleLineIcon'
 import Forbid2LineIcon from 'remixicon-react/Forbid2LineIcon'
+import useReviewState from '../../hooks/useReviewState'
 
 export default function ProductDetails() {
   const { id } = useParams()
   const dispatch = useDispatch<AppDispatch>()
+  const { reviews } = useReviewState()
   const { categories } = useCategoryState()
   const { orderHistory } = useOrderState()
 
@@ -90,6 +92,17 @@ export default function ProductDetails() {
 
     fetchData()
   }, [])
+
+  const handleNotifyBackInStock = () => {
+    if (product) {
+      dispatch(notifyBackInStockThunk(product._id)).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          const message = res.payload.message
+          toast.success(message)
+        }
+      })
+    }
+  }
 
   if (isLoading) {
     return (
@@ -160,23 +173,21 @@ export default function ProductDetails() {
                 {product.price} SAR
               </span>
               <button
-                disabled={loading}
-                className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded"
-                onClick={addToCart}>
-                {loading ? (
-                  <div className="mx-2">
-                    <ThreeDots
-                      height={20}
-                      width={20}
-                      color="#fff"
-                      visible={true}
-                      ariaLabel="threedots-loading"
-                    />
-                  </div>
-                ) : (
-                  'Add To Cart'
-                )}
-              </button>
+        disabled={loading}
+        className="flex ml-auto text-white bg-[#32334A] hover:bg-[#3f415a] border-0 py-2 px-6 focus:outline-none rounded"
+        onClick={addToCart}>
+        {loading ? (
+          <div className="mx-2">
+            <ThreeDots height={20} width={20} color="#fff" visible={true} ariaLabel="threedots-loading" />
+          </div>
+        ) : product.quantityInStock > 0 ? (
+          'Add To Cart'
+        ) : (
+          <button onClick={handleNotifyBackInStock}>
+            Notify Me
+          </button>
+        )}
+      </button>
             </div>
 
             {/* Products Features */}
@@ -205,50 +216,55 @@ export default function ProductDetails() {
           </div>
 
           {/** Reviews Section */}
-          <div className=" max-w-xl grid gap-6">
-            <h2 className="text-2xl pt-4 font-semibold">Customer Reviews</h2>
-            {hasPurchased && (
-              <div>
-                <input className="border" placeholder="Write your review..." />
-                <button>Add Review</button>
-              </div>
-            )}
-            <div
-              className="rounded-lg border bg-card text-card-foreground shadow-sm grid gap-4"
-              data-v0-t="card">
-              <div className="flex flex-col px-5 pt-4">
-                <div className="flex items-center gap-4">
-                  <span className="relative flex shrink-0 overflow-hidden rounded-full w-12 h-12 border">
-                    <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">
-                      SM
-                    </span>
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-lg">Sarah Miller</h3>
+          {reviews.length > 0 && (
+            <div className=" max-w-xl grid gap-6">
+              <h2 className="text-2xl pt-4 font-semibold">Customer Reviews</h2>
+              {hasPurchased && (
+                <div>
+                  <input className="border" placeholder="Write your review..." />
+                  <button>Add Review</button>
+                </div>
+              )}
 
-                    <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 w-fit text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
-                      Verified Purchase
+              {reviews.length > 0 &&
+                reviews.map((review) => (
+                  <div
+                    className="rounded-lg border bg-card text-card-foreground shadow-sm grid gap-4"
+                    data-v0-t="card">
+                    <div className="flex flex-col px-5 pt-4">
+                      <div className="flex items-center gap-4">
+                        <span className="relative flex shrink-0 overflow-hidden rounded-full w-12 h-12 border">
+                          <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">
+                            SM
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-lg">{review.user}</h3>
+
+                          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 w-fit text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+                            Verified Purchase
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-0.5 ml-auto">
+                          <time className="text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(review.date).toLocaleDateString()}
+                          </time>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-base leading-loose text-gray-500">{review.reviewText}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-0.5 ml-auto">
-                    <time className="text-sm text-gray-500 dark:text-gray-400">2 days ago</time>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <p className="text-base leading-loose text-gray-500">
-                  Good product overall, but I had some issues with the shipping. Customer service
-                  was helpful and resolved my issues.
-                </p>
-              </div>
-            </div>
+                ))}
 
-            <button
-              onClick={handleOpenSidebar}
-              className="inline-flex rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2">
-              Load More Reviews
-            </button>
-          </div>
+              <button
+                onClick={handleOpenSidebar}
+                className="inline-flex rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2">
+                Load More Reviews
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

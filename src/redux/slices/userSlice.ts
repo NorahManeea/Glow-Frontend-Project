@@ -202,8 +202,8 @@ export const userSlice = createSlice({
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.user = action.payload?.data.user
         state.decodedUser = action.payload?.decodedUser
-        state.isLoading = false
         state.isLoggedIn = true
+        state.isLoading = false
         return state
       })
       //** Google Login Reducer */

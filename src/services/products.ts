@@ -45,5 +45,10 @@ export default {
   addReiewToProductApi: async (productId: string, reviewText: string) => {
     const res = await api.post('/reviews', { productId, reviewText })
     return res
-  }
+  },
+  //** Service:- Back In Stock Notification */
+  notifyBackInStockApi: async (productId: string) => {
+    const res = await api.post(`/api/products/${productId}/notify`)
+    return res
+  },
 }

@@ -51,7 +51,7 @@ export default function CartPage() {
 
   useEffect(() => {
     Promise.all([dispatch(fetchCategoriesThunk()), dispatch(fetchCartItemsThunk())])
-  }, [])
+  }, [dispatch])
 
   //** Quantity Handlers */
   const handleIncreaseQuantity = (productId: string, currentQuantity: number) => () => {
@@ -68,17 +68,6 @@ export default function CartPage() {
     dispatch(removeFromCartThunk(productId))
   }
 
-  if (isLoading) {
-    return (
-      <section className="text-gray-700 body-font overflow-hidden bg-white mx-auto my-56">
-        <div className="container px-5 py-20 mx-auto">
-          <div className="text-center">
-            <CustomLoader />
-          </div>
-        </div>
-      </section>
-    )
-  }
 
   return (
     <div className=" mx-auto bg-gray-100 text-center w-full">
@@ -176,7 +165,7 @@ export default function CartPage() {
 
               <div className="flex font-semibold justify-between py-3 text-sm ">
                 <span>Total price</span>
-                <p>{totalAfterDiscount} SAR</p>
+                <p>{totalPrice} SAR</p>
               </div>
               <Link to="/checkout">
                 <button className="rounded-md bg-[#32334A] hover:bg-[#3f415a] py-3 text-sm text-white w-full mt-2">

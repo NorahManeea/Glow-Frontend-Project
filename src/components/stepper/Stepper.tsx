@@ -33,7 +33,7 @@ export default function Stepper(prop: StepperProps) {
             ) : (
               <circle cx={12} cy={12} r={10} />
             )}
-            <div className="w-8 h-1 bg-green-500" />
+            <div className="w-8 h-1 bg-[#956556]" />
           </div>
           <div className="text-sm font-medium text-gray-700 px-3">
             <div>{`STEP ${index + 1}`}</div>

@@ -5,12 +5,18 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 const resources = {
   en: {
     translation: {
-      title: "Unlock Your Skin's Potential with GLOW"
+      title: "Unlock Your Skin's Potential with",
+      subTitle: "Discover the secret to radiant and youthful skin with GLOW. Experience the power of nature's ingredients combined with cutting-edge science.",
+      exploreProducts: "Explore Products"
+
     }
   },
   ar: {
     translation: {
-      title: 'أطلقي إمكانيات بشرتك مع" GLOW'
+      title: 'اكتشف إمكانيات بشرتك مع',
+      subTitle: "اكتشف سر البشرة المتألقة والشبابية مع GLOW. استمتع بتجربة قوة مكونات الطبيعة جنبًا إلى جنب مع أحدث التقنيات",
+      exploreProducts: "استكشف المنتجات"
+
     }
   }
 }

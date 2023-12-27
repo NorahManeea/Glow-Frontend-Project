@@ -12,6 +12,8 @@ import ProductModal from './ProductModal'
 import CustomLoader from '../../global/CustomLoader'
 //** Types */
 import { Product } from '../../../types/types'
+import { checkExpiry } from '../../../utils/token'
+import { Navigate } from 'react-router-dom'
 
 const initialProductState: Product = {
   _id: '',
@@ -22,10 +24,17 @@ const initialProductState: Product = {
   price: 0,
   quantityInStock: 0,
   discount: 0,
-  reviews: []
+  reviews: [],
+  itemsSold: 0
 }
 
 export default function ProductsTable() {
+    //** Check if Token Expired or not */
+    const isTokenExpired = checkExpiry()
+
+    if (isTokenExpired) {
+      <Navigate to="/login" />
+    }
   const dispatch = useDispatch<AppDispatch>()
   const { products, isLoading } = useProductState()
 
@@ -82,6 +91,7 @@ export default function ProductsTable() {
     <div className="flex">
       <AdminSideBar />
       <div className="w-4/5 bg-white p-4">
+        
         <div className="flex items-center mt-5">
           <h3 className="text-2xl font-semibold leading-none tracking-tight flex-grow text-[#32334A]">
             Products Table
@@ -109,7 +119,10 @@ export default function ProductsTable() {
                     Name
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Quantity
+                  Stock Quantity 
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                  No. of Sold 
                   </th>
                   <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[100px]">
                     Actions
@@ -133,6 +146,8 @@ export default function ProductsTable() {
                     </td>
                     <td className="p-4 align-middle">{item.name}</td>
                     <td className="p-4 align-middle">{item.quantityInStock}</td>
+                    <td className="p-4 align-middle">{item.itemsSold}</td>
+
                     <td className="p-4 align-middle">
                       <div className="flex gap-2">
                         <button

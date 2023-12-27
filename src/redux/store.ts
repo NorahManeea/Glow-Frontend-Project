@@ -7,6 +7,8 @@ import passwordReducer from './slices/passwordSlice'
 import cartReducer from './slices/cartSlice'
 import discountCodeReducer from './slices/discountCode'
 import wishlistReducer from './slices/wishlistSlice'
+import reviewReducer from './slices/reviewSlice'
+
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +19,9 @@ export const store = configureStore({
     passwordReset: passwordReducer,
     cart: cartReducer,
     discountCode: discountCodeReducer,
-    wishlist: wishlistReducer
+    wishlist: wishlistReducer,
+    review: reviewReducer
+
   }
 })
 

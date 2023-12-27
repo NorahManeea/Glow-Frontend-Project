@@ -36,5 +36,20 @@ export default {
   fetchOrdersCountApi: async () => {
     const res = await api.get('/api/orders/count')
     return res
-  }
+  },
+  //** Service:- Return Order */
+  returnOrderApi: async (orderId: string)=>{
+    const res = await api.put(`/api/orders/${orderId}/return`)
+    return res
+  },
+  //** Service:- Cancel Order */
+  cancelOrderApi: async(orderId: string)=>{
+    const res = await api.put(`/api/orders/${orderId}/cancel`)
+    return res
+  },
+    //** Service:- Cancel Order */
+    fetchOrderRevenueApi: async()=>{
+      const res = await api.get(`/api/orders/revenue`)
+      return res
+    }
 }

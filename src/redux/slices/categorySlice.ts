@@ -1,6 +1,5 @@
-import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import {createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Category, CategoryState } from '../../types/types'
-import api from '../../api'
 import { AxiosError } from 'axios'
 import CategoryService from '../../services/categories'
 

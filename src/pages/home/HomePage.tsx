@@ -24,13 +24,12 @@ export default function HomePage() {
               <span className="text-[#956556] typewriter-animation"> GLOW</span>
             </h1>
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-              Discover the secret to radiant and youthful skin with GLOW. Experience the power of
-              nature's ingredients combined with cutting-edge science.
+              {t('subTitle')}
             </p>
             <Link
               to="/products"
               className="inline-flex items-center justify-center px-5 py-3 mr-3 text-white font-medium text-center rounded-lg bg-[#956556] hover:bg-[#826156]  focus:ring-4 focus:ring-primary-300">
-              Explore Products
+              {t('exploreProducts')}
               <svg
                 className="w-5 h-5 ml-2 -mr-1"
                 fill="currentColor"
@@ -95,7 +94,7 @@ export default function HomePage() {
       <HighestSoldProducts />
 
       <div className="bg-white">
-        <div className="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
+        <div className="gap-16 items-center py-2 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
           <div className="font-light text-gray-500 sm:text-lg dark:text-gray-400">
             <h2 className="mb-4 text-3xl tracking-tight font-extrabold text-[#32334A]">
               Unleash Your Radiant Glow <br /> with Pure Elegance
@@ -121,6 +120,86 @@ export default function HomePage() {
             />
           </div>
         </div>
+      </div>
+
+      <div className="bg-white">
+      <div className="mt-8 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-[#F7F7F7] py-10 px-6 sm:py-16 sm:px-12 lg:flex lg:items-center lg:p-20">
+          <div className="lg:w-0 lg:flex-1">
+            <h2 className="text-3xl font-bold tracking-tight text-[#32334A]">Stay Informed with Our Newsletter</h2>
+            <p className="mt-4 max-w-3xl text-lg text-gray-500 ">
+            Explore exclusive updates, beauty insights, and expert tips. Join our radiant skincare community. Subscribe now for a glowing experience!            </p>
+          </div>
+          <div className="mt-12 sm:w-full sm:max-w-md lg:mt-0 lg:ml-8 lg:flex-1">
+            <form method="post" className="sm:flex space-y-2">
+              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <input id="email-address" type="email" autoComplete="email" className="w-full rounded-md border-white px-5 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-700" placeholder="Your email" />
+              <input type="checkbox" defaultValue={1} className="hidden" tabIndex={-1} autoComplete="off" />
+              <button type="submit" className="mt-3 flex w-full items-center justify-center rounded-md border border-transparent bg-[#956556] hover:bg-[#826156] px-5 py-3 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-700 sm:mt-0 sm:ml-3 sm:w-auto sm:flex-shrink-0">Subscribe</button>
+            </form>
+          </div>
+        </div>
+      </div>
+  
+      </div>
+
+
+     
+
+      <div className="flex">
+        <div className="relative">
+          <img
+            src="https://i.pinimg.com/564x/1d/4e/55/1d4e55a767a0010fed9c55433a53be89.jpg"
+            className="block w-[253px] h-[208px] object-cover"
+            style={{ aspectRatio: '253 / 208' }}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        </div>
+      
+
+        <img
+          src="https://i.pinimg.com/564x/73/98/d6/7398d65826d2bba56ddd34de910e1f39.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
+        <img
+          src="https://i.pinimg.com/564x/cf/33/c7/cf33c77fa091dcc50c104034929653b3.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
+        <img
+          src="https://i.pinimg.com/736x/93/8c/92/938c92d4d32054256d364f43d9c0c4a3.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
+        <img
+          src="https://i.pinimg.com/564x/a1/1d/3a/a11d3a621cb05346b6031fb8853807f3.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
+
+        <img
+          src="https://i.pinimg.com/564x/b2/5c/92/b25c925cf02b45bc4cd764047e2fa5eb.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
+        <img
+          src="https://i.pinimg.com/564x/ee/77/29/ee77296cafaf6d52842fe80a91832a19.jpg"
+          className="block w-[253px] h-[208px]"
+          width={253}
+          height={208}
+          style={{ aspectRatio: '253 / 208', objectFit: 'cover' }}
+        />
       </div>
     </div>
   )
