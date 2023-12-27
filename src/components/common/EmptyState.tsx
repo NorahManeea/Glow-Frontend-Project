@@ -3,7 +3,7 @@ import { EmptyStateProps } from '../../types/types'
 
 export default function EmptyState(prop: EmptyStateProps) {
   return (
-    <div className="bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="bg-white px-6 my-56">
       <div className="text-center">
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#32334A] sm:text-5xl">
           {prop.title}

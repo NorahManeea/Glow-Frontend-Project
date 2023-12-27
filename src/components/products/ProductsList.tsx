@@ -141,23 +141,7 @@ export default function ProductsList() {
             </div>
             {/*  PRODUCTS LIST */}
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-              {currentItems.length === 0 ? (
-                <div className="bg-white px-6 py-24 sm:py-32 lg:px-8">
-                  <div className="text-center">
-                    <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#32334A] sm:text-5xl">
-                      Nothing Matches Your Search
-                    </h1>
-                    <p className="mt-6 text-base leading-7 text-gray-600">
-              
-                      No products found with the given search criteria.
-                    </p>
-                    <div className="mt-10 flex items-center justify-center gap-x-6">
-         
-                      No products found with the given search criteria.
-                    </div>
-                  </div>
-                </div>
-              ) : (
+             {
                 currentItems.map((product) => (
                   <div key={product._id} className="group relative bg-gray-100 rounded-xl p-3">
                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
@@ -208,7 +192,7 @@ export default function ProductsList() {
                     </div>
                   </div>
                 ))
-              )}
+              }
             </div>
 
             {/* PAGINATION */}

@@ -114,8 +114,8 @@ export default function ProfilePage() {
               </div>
               <div className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="relative flex items-center justify-center overflow-hidden rounded-full h-12 w-12 bg-primary text-[#32334A]">
                     <p className="text-lg font-semibold text-[#956556]">{user?.points}</p>
+                  <div className="relative flex items-center justify-center overflow-hidden rounded-full h-12 w-12 bg-primary text-[#32334A]">
                   </div>
                   <div className="text-gray-500 text-xs">
                     Earn points for every order you make! Accumulate points to unlock special
