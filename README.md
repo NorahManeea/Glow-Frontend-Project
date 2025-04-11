@@ -1,6 +1,6 @@
 # Project: Frontend for E-commerce Website or Library Management System
 
-The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
+- The frontend interacts with mock data stored locally in the project. In the full-stack project, this data will be connected to the backend.
 
 Please, do not spend time on creating your own server. use the files that are in the `./public/mock/*` We have the data ready for you. all you need is send an HTTP request to the resource. we also have an example on how to fetch all products and how to add one product. use them as a reference.
 
@@ -75,7 +75,7 @@ Happy coding!
 
 ---
 
-## Option 2: E-commerce Website : Glow :- https://glow-e-commerce.netlify.app/ 
+## Option 2: E-commerce Website : Glow :- https://glow-e-commerce.netlify.app/
 
 ### Level 1: Basic Requirements
 
